@@ -1,0 +1,375 @@
+#!/usr/bin/env python3
+"""
+ov-memory — OpenViking Memory Skill Suite CLI
+
+Usage:
+    ov-memory doctor [--mode quick|standard|full] [--config PATH]
+    ov-memory recall <query> [--type TYPE] [--limit N] [--config PATH]
+    ov-memory capture --content TEXT [--type TYPE] [--title TITLE] [--auto-classify] [--config PATH]
+    ov-memory merge --memory-id ID --new TEXT [--config PATH]
+    ov-memory forget (--memory-id ID | --query TEXT | --scope SCOPE) [--mode soft|obsolete|hard] [--config PATH]
+    ov-memory commit --session-file FILE [--apply] [--config PATH]
+    ov-memory project (list|create|recall|update) [ARGS...] [--config PATH]
+    ov-memory env (list|capture|update) [ARGS...] [--config PATH]
+    ov-memory case (list|create|recall) [ARGS...] [--config PATH]
+    ov-memory pref (list|set|get|delete) [ARGS...] [--config PATH]
+    ov-memory reflection (list|add|recall) [ARGS...] [--config PATH]
+    ov-memory admin (stats|backup|restore|dedupe|prune|audit) [ARGS...] [--config PATH]
+    ov-memory browse [--scope SCOPE] [--limit N] [--config PATH]
+    ov-memory read <memory-id> [--config PATH]
+"""
+import argparse
+import importlib
+import importlib.util
+import json
+import os
+import sys
+
+# Add parent dir to path for lib imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+SKILLS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills")
+
+
+def import_skill(skill_dir: str, module_name: str):
+    """Import a module from a skill directory (handles hyphenated names)."""
+    module_path = os.path.join(SKILLS_DIR, skill_dir, "scripts", f"{module_name}.py")
+    key = f"skills.{skill_dir}.{module_name}"
+    if key in sys.modules:
+        return sys.modules[key]
+    spec = importlib.util.spec_from_file_location(key, module_path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[key] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+from lib.config import load_config
+from lib.adapter_factory import get_adapter
+from lib.policy import should_recall, should_store, get_recall_types_order, get_default_recall_limit
+from lib.classifier import classify, classify_with_confidence
+from lib.sensitive_detector import has_sensitive, redact, classify_sensitivity, scan
+from lib.conflict_detector import detect_conflicts, format_conflicts
+from lib.formatter import (
+    format_recall_block, format_doctor_report, format_commit_candidates,
+    format_memory_list, format_memory_detail, format_stats,
+)
+
+
+
+def cmd_doctor(args, config):
+    """Run diagnostic checks on OpenViking Memory system."""
+    _m = import_skill("doctor", "doctor")
+    run_doctor = _m.run_doctor
+    result = run_doctor(config, mode=args.mode)
+    print(format_doctor_report(result))
+    return 0 if result.get("result") != "FAIL" else 1
+
+
+def cmd_recall(args, config):
+    """Recall relevant memories for a query."""
+    _m = import_skill("recall", "recall")
+    run_recall = _m.run_recall
+    memories = run_recall(config, query=args.query, memory_type=args.type, limit=args.limit)
+    if not memories:
+        print("(no relevant memories found)")
+        return 0
+    block = format_recall_block(memories)
+    print(block)
+    return 0
+
+
+def cmd_capture(args, config):
+    """Capture a new memory."""
+    _m = import_skill("capture", "capture")
+    run_capture = _m.run_capture
+    content = args.content
+    if not content:
+        print("Error: --content is required", file=sys.stderr)
+        return 1
+
+    mem_type = args.type
+    if args.auto_classify or not mem_type:
+        mem_type, confidence = classify_with_confidence(content)
+        print(f"Auto-classified as: {mem_type} (confidence: {confidence})")
+
+    title = args.title or content[:80]
+    result = run_capture(config, content=content, memory_type=mem_type, title=title)
+    if result.get("error"):
+        print(f"Error: {result.get('reason', 'unknown')}", file=sys.stderr)
+        return 1
+    mid = result.get("id", "?")
+    print(f"Memory stored: [{mid}] ({mem_type}) {title}")
+    return 0
+
+
+def cmd_merge(args, config):
+    """Merge new information into an existing memory."""
+    _m = import_skill("merge", "merge")
+    run_merge = _m.run_merge
+    result = run_merge(config, memory_id=args.memory_id, new_content=args.new)
+    if result.get("error"):
+        print(f"Error: {result.get('reason', 'unknown')}", file=sys.stderr)
+        return 1
+    print(f"Memory updated: {args.memory_id}")
+    return 0
+
+
+def cmd_forget(args, config):
+    """Delete, obsolete, or hide memories."""
+    _m = import_skill("forget", "forget")
+    run_forget = _m.run_forget
+    result = run_forget(config, memory_id=args.memory_id, query=args.query,
+                        scope=args.scope, mode=args.mode)
+    if result.get("error"):
+        print(f"Error: {result.get('reason', 'unknown')}", file=sys.stderr)
+        return 1
+    count = result.get("count", 1)
+    print(f"Processed {count} memory/memories (mode: {args.mode})")
+    return 0
+
+
+def cmd_commit(args, config):
+    """Extract durable memories from a session file."""
+    _m = import_skill("commit", "commit")
+    run_commit = _m.run_commit
+    if not os.path.isfile(args.session_file):
+        print(f"Error: file not found: {args.session_file}", file=sys.stderr)
+        return 1
+    with open(args.session_file) as f:
+        session_data = json.load(f)
+    result = run_commit(config, session_data=session_data, apply=args.apply)
+    candidates = result.get("candidates", [])
+    discarded = result.get("discarded", [])
+    if args.apply:
+        stored = result.get("stored", [])
+        print(f"Committed {len(stored)} memories.")
+        for s in stored:
+            print(f"  [{s.get('id', '?')}] {s.get('type', '?')} — {s.get('title', '')}")
+    else:
+        print(format_commit_candidates(candidates, discarded))
+        print("Run with --apply to store these candidates.")
+    return 0
+
+
+def cmd_browse(args, config):
+    """Browse memories in a scope."""
+    adapter = get_adapter(config)
+    scope = args.scope or config.user_scope
+    result = adapter.browse(scope=scope, limit=args.limit)
+    memories = result.get("memories", result.get("data", []))
+    print(format_memory_list(memories))
+    adapter.close()
+    return 0
+
+
+def cmd_read(args, config):
+    """Read a single memory by ID."""
+    adapter = get_adapter(config)
+    result = adapter.read(args.memory_id)
+    if result.get("error"):
+        print(f"Error: {result.get('reason', 'unknown')}", file=sys.stderr)
+        adapter.close()
+        return 1
+    print(format_memory_detail(result))
+    adapter.close()
+    return 0
+
+
+def cmd_project(args, config):
+    """Manage project memories."""
+    _m = import_skill("project-memory", "project_memory")
+    run_project = _m.run_project
+    return run_project(config, action=args.action, name=args.name or "",
+                       query=args.query or "", content=args.content or "")
+
+
+def cmd_env(args, config):
+    """Manage environment memories."""
+    _m = import_skill("environment-memory", "environment_memory")
+    run_env = _m.run_env
+    return run_env(config, action=args.action, name=args.name or "",
+                   os_name=args.os or "", nginx_path=args.nginx_path or "",
+                   content=args.content or "")
+
+
+def cmd_case(args, config):
+    """Manage case memories."""
+    _m = import_skill("case-memory", "case_memory")
+    run_case = _m.run_case
+    return run_case(config, action=args.action, title=args.title or "",
+                    problem=args.problem or "", solution=args.solution or "",
+                    query=args.query or "")
+
+
+def cmd_pref(args, config):
+    """Manage preference memories."""
+    _m = import_skill("preference-memory", "preference_memory")
+    run_pref = _m.run_pref
+    return run_pref(config, action=args.action, key=args.key or "",
+                    value=args.value or "", content=args.content or "")
+
+
+def cmd_reflection(args, config):
+    """Manage agent reflection memories."""
+    _m = import_skill("agent-reflection", "reflection")
+    run_reflection = _m.run_reflection
+    return run_reflection(config, action=args.action, title=args.title or "",
+                          content=args.content or "", query=args.query or "")
+
+
+def cmd_admin(args, config):
+    """Run memory administration commands."""
+    _m = import_skill("memory-admin", "admin")
+    run_admin = _m.run_admin
+    kwargs = {
+        "scope": getattr(args, "scope", ""),
+        "output": getattr(args, "output", ""),
+        "file": getattr(args, "file", ""),
+        "older_than": getattr(args, "older_than", ""),
+        "memory_type": getattr(args, "type", ""),
+        "status": getattr(args, "status", ""),
+    }
+    return run_admin(config, action=args.admin_action, **kwargs)
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="ov-memory",
+        description="OpenViking Memory Skill Suite — Agent memory workflow CLI",
+    )
+    parser.add_argument("--config", help="Path to config.json")
+    sub = parser.add_subparsers(dest="command")
+
+    # doctor
+    p = sub.add_parser("doctor", help="Run diagnostic checks")
+    p.add_argument("--mode", choices=["quick", "standard", "full"], default="standard")
+
+    # recall
+    p = sub.add_parser("recall", help="Recall relevant memories")
+    p.add_argument("query", help="Search query")
+    p.add_argument("--type", help="Filter by memory type (comma-separated)")
+    p.add_argument("--limit", type=int, default=6, help="Max results")
+
+    # capture
+    p = sub.add_parser("capture", help="Store a new memory")
+    p.add_argument("--content", required=True, help="Memory content")
+    p.add_argument("--type", help="Memory type (project, environment, case, etc.)")
+    p.add_argument("--title", help="Memory title")
+    p.add_argument("--auto-classify", action="store_true", help="Auto-detect type")
+    p.add_argument("--scope", help="Target namespace/scope")
+
+    # merge
+    p = sub.add_parser("merge", help="Merge new info into existing memory")
+    p.add_argument("--memory-id", required=True, help="Target memory ID")
+    p.add_argument("--new", required=True, help="New content to merge")
+
+    # forget
+    p = sub.add_parser("forget", help="Delete or obsolete memories")
+    g = p.add_mutually_exclusive_group(required=True)
+    g.add_argument("--memory-id", help="Specific memory ID")
+    g.add_argument("--query", help="Search query to find memories")
+    g.add_argument("--scope", help="Delete all in scope")
+    p.add_argument("--mode", choices=["soft", "obsolete", "hard"], default="soft")
+
+    # commit
+    p = sub.add_parser("commit", help="Extract memories from session")
+    p.add_argument("--session-file", required=True, help="Session JSON file")
+    p.add_argument("--apply", action="store_true", help="Auto-store candidates")
+
+    # browse
+    p = sub.add_parser("browse", help="Browse memories in scope")
+    p.add_argument("--scope", help="Memory scope/namespace")
+    p.add_argument("--limit", type=int, default=20)
+
+    # read
+    p = sub.add_parser("read", help="Read a memory by ID")
+    p.add_argument("memory_id")
+
+    # project
+    p = sub.add_parser("project", help="Manage project memories")
+    p.add_argument("action", choices=["list", "create", "recall", "update"])
+    p.add_argument("name", nargs="?")
+    p.add_argument("--query", help="")
+    p.add_argument("--content", help="")
+
+    # env
+    p = sub.add_parser("env", help="Manage environment memories")
+    p.add_argument("action", choices=["list", "capture", "update"])
+    p.add_argument("--name", help="")
+    p.add_argument("--os", help="Operating system")
+    p.add_argument("--nginx-path", help="Nginx config path")
+    p.add_argument("--content", help="")
+
+    # case
+    p = sub.add_parser("case", help="Manage case memories")
+    p.add_argument("action", choices=["list", "create", "recall"])
+    p.add_argument("--title", help="")
+    p.add_argument("--problem", help="")
+    p.add_argument("--solution", help="")
+    p.add_argument("--query", help="")
+
+    # pref
+    p = sub.add_parser("pref", help="Manage preference memories")
+    p.add_argument("action", choices=["list", "set", "get", "delete"])
+    p.add_argument("--key", help="")
+    p.add_argument("--value", help="")
+    p.add_argument("--content", help="")
+
+    # reflection
+    p = sub.add_parser("reflection", help="Manage agent reflections")
+    p.add_argument("action", choices=["list", "add", "recall"])
+    p.add_argument("--title", help="")
+    p.add_argument("--content", help="")
+    p.add_argument("--query", help="")
+
+    # admin
+    p = sub.add_parser("admin", help="Memory administration")
+    p.add_argument("admin_action", choices=["stats", "backup", "restore", "dedupe", "prune", "audit"])
+    p.add_argument("--scope", help="")
+    p.add_argument("--output", help="Output file path")
+    p.add_argument("--file", help="Input file path (for restore)")
+    p.add_argument("--older-than", help="Age threshold (e.g. 180d)")
+    p.add_argument("--type", help="Memory type filter")
+    p.add_argument("--status", help="Status filter")
+
+    return parser
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        return 0
+
+    config = load_config(args.config)
+
+    commands = {
+        "doctor": cmd_doctor,
+        "recall": cmd_recall,
+        "capture": cmd_capture,
+        "merge": cmd_merge,
+        "forget": cmd_forget,
+        "commit": cmd_commit,
+        "browse": cmd_browse,
+        "read": cmd_read,
+        "project": cmd_project,
+        "env": cmd_env,
+        "case": cmd_case,
+        "pref": cmd_pref,
+        "reflection": cmd_reflection,
+        "admin": cmd_admin,
+    }
+
+    handler = commands.get(args.command)
+    if handler:
+        return handler(args, config)
+
+    parser.print_help()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main() or 0)

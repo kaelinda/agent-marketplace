@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenViking Memory Skill Config",
+  "type": "object",
+  "properties": {
+    "openviking": {
+      "type": "object",
+      "properties": {
+        "base_url": {
+          "type": "string"
+        },
+        "api_key_env": {
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "server_name": {
+          "type": "string"
+        },
+        "tool_names": {
+          "type": "object"
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "agent_id": {
+          "type": "string"
+        }
+      }
+    },
+    "recall": {
+      "type": "object",
+      "properties": {
+        "default_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "store": {
+      "type": "object",
+      "properties": {
+        "auto_store": {
+          "type": "boolean"
+        },
+        "require_confirmation_for_sensitive": {
+          "type": "boolean"
+        },
+        "dedupe_before_store": {
+          "type": "boolean"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "properties": {
+        "deny_sensitive": {
+          "type": "boolean"
+        },
+        "allow_cross_user_read": {
+          "type": "boolean"
+        },
+        "allow_cross_user_write": {
+          "type": "boolean"
+        },
+        "redact_secrets": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
