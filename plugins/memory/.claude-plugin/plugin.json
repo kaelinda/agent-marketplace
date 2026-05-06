@@ -1,0 +1,11 @@
+{
+  "name": "memory",
+  "version": "0.0.1",
+  "description": "跨会话记忆工具集（WIP）：长期记忆持久化、项目上下文回溯、对话历史检索等",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": ["memory", "context", "persistence", "long-term-memory", "session"]
+}
