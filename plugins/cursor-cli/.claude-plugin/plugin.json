@@ -1,0 +1,11 @@
+{
+  "name": "cursor-cli",
+  "version": "0.1.0",
+  "description": "调度 Cursor Agent CLI 执行代码审查、子任务派发或代码问答的薄转发包装器",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": ["cursor", "code-review", "delegation", "second-opinion", "multi-agent", "agent-dispatch"]
+}

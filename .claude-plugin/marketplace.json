@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "manji",
+  "owner": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "metadata": {
+    "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "cursor-cli",
+      "source": "./plugins/cursor-cli",
+      "description": "调度 Cursor Agent CLI 执行代码审查、子任务派发或代码问答，提供 review / task / ask 三种模式。",
+      "version": "0.1.0",
+      "category": "agents",
+      "tags": ["cursor", "code-review", "delegation", "second-opinion", "multi-agent"]
+    }
+  ]
+}
