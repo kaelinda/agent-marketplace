@@ -36,7 +36,7 @@ plugins/<plugin-name>/
     └── <server-name>.json
 ```
 
-> 复杂示例可直接参考 [`plugins/cursor-cli/`](./plugins/cursor-cli)。
+> 实际示例可直接参考 [`plugins/agents/`](./plugins/agents)（含一个 `cursor-cli` skill）。
 
 ---
 
@@ -48,7 +48,7 @@ plugins/<plugin-name>/
 
 ```json
 {
-  "name": "cursor-cli",
+  "name": "my-plugin",
   "version": "0.1.0",
   "description": "一句话说清这个插件干什么",
   "author": {
@@ -56,7 +56,7 @@ plugins/<plugin-name>/
     "email": "可选"
   },
   "license": "MIT",
-  "keywords": ["cursor", "code-review"]
+  "keywords": ["keyword1", "keyword2"]
 }
 ```
 
@@ -75,12 +75,12 @@ plugins/<plugin-name>/
 
 ```json
 {
-  "name": "cursor-cli",
-  "source": "./plugins/cursor-cli",
-  "description": "调度 Cursor Agent CLI ……",
+  "name": "my-plugin",
+  "source": "./plugins/my-plugin",
+  "description": "插件做什么 ……",
   "version": "0.1.0",
   "category": "agents",
-  "tags": ["cursor", "code-review"]
+  "tags": ["tag1", "tag2"]
 }
 ```
 
@@ -114,7 +114,7 @@ description: 把当前 diff 用 cursor 跑一遍 review
 argument-hint: [base-branch]
 ---
 
-请使用 cursor-cli 插件的 review 模式，对当前分支相对 $1 的 diff 做安全和性能审查……
+请使用 agents 插件下的 cursor-cli skill 的 review 模式，对当前分支相对 $1 的 diff 做安全和性能审查……
 ```
 
 ### 3. Skill（skills/）
@@ -187,7 +187,7 @@ description: >
 - 默认上传任何用户数据到第三方
 - 在未提示的情况下做写操作（写文件、改 git、调外部接口都要先告知用户）
 
-如果插件需要外部依赖（如 `cursor-cli` 依赖 `cursor` CLI 和 `jq`），必须：
+如果插件需要外部依赖（如 `cursor-cli` skill 依赖 `cursor` CLI 和 `jq`），必须：
 
 1. 在插件 README 中明确列出依赖
 2. 在主入口（SKILL.md / agent prompt）里包含**前置检查**逻辑
@@ -247,8 +247,8 @@ bash -n plugins/<your>/skills/*/scripts/*.sh
 1. **Fork** 本仓库
 2. 新建分支：`feat/<plugin-name>` 或 `fix/<plugin-name>-<bug>`
 3. 提交信息推荐使用 [Conventional Commits](https://www.conventionalcommits.org/)：
-   - `feat(cursor-cli): 新增 worktree-base 参数`
-   - `fix(cursor-cli): 修复 jq 不存在时的回退逻辑`
+   - `feat(agents): 新增 codex-cli skill`
+   - `fix(agents/cursor-cli): 修复 jq 不存在时的回退逻辑`
    - `docs: 完善 CONTRIBUTING`
 4. 提 PR 到 `main`，描述：
    - **动机**：为什么需要这个插件 / 这个改动
@@ -260,7 +260,7 @@ bash -n plugins/<your>/skills/*/scripts/*.sh
 
 ## 🆘 需要帮助？
 
-- 不确定某个字段怎么写 → 直接看 [`plugins/cursor-cli/`](./plugins/cursor-cli) 的实现
+- 不确定某个字段怎么写 → 直接看 [`plugins/agents/`](./plugins/agents) 的实现
 - 有疑问 → [开 Issue](https://github.com/kaelinda/agent-marketplace/issues)
 - 想加个全新类型的能力但不确定能不能进 → 先开 RFC issue 讨论
 

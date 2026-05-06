@@ -40,12 +40,12 @@
 
 ```
 /plugin                                # 打开交互式插件管理器
-/plugin install cursor-cli@manji       # 直接安装某个插件
+/plugin install agents@manji           # 直接安装某个插件
 ```
 
 ### 3. 试用
 
-以 `cursor-cli` 为例，安装后直接在对话里说："用 cursor 帮我 review 一下当前分支"——Claude 就会自动调度 Cursor Agent CLI 执行只读审查并返回结果。
+以 `agents` 插件下的 `cursor-cli` skill 为例，安装后直接在对话里说："用 cursor 帮我 review 一下当前分支"——Claude 会自动激活 skill，调度 Cursor Agent CLI 执行只读审查并返回结果。
 
 ---
 
@@ -53,8 +53,10 @@
 
 | 插件 | 类别 | 简介 | 状态 |
 | --- | --- | --- | --- |
-| [`cursor-cli`](./plugins/cursor-cli) | agents / skills | 调度 Cursor Agent CLI 执行代码审查、子任务派发或代码问答（review / task / ask 三模式），自带输出截断保护 | ✅ stable |
+| [`agents`](./plugins/agents) | 外部 AI Agent 调度 | 把任务派发给 Cursor / Codex 等外部 AI CLI，目前含 `cursor-cli` skill（review / task / ask 三模式） | ✅ stable |
 
+> 计划中：`memory`（跨会话记忆相关）、`docs`（文档生成相关）等主题型插件，每个插件聚合多个相关 skill。
+>
 > 想看到自己的插件出现在这里？ → 跳转 [贡献指南](./CONTRIBUTING.md)
 
 ---
@@ -81,23 +83,22 @@ agent-marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json              # 市场清单（owner / metadata / plugins[]）
 ├── plugins/
-│   └── cursor-cli/                   # 单个插件
-│       ├── .claude-plugin/
-│       │   └── plugin.json           # 插件清单
-│       ├── skills/                   # 可选：skill 列表
-│       │   └── cursor-cli/
-│       │       ├── SKILL.md
-│       │       └── scripts/cursor-dispatch.sh
-│       ├── agents/                   # 可选：agent 定义
-│       ├── commands/                 # 可选：slash commands
-│       ├── hooks/                    # 可选：hooks 配置
-│       └── README.md                 # 插件级说明
+│   ├── agents/                       # 外部 AI Agent 调度类
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   ├── README.md
+│   │   └── skills/
+│   │       └── cursor-cli/
+│   │           ├── SKILL.md
+│   │           └── scripts/cursor-dispatch.sh
+│   └── memory/                       # 规划中：跨会话记忆类
+│       └── ...
 ├── CONTRIBUTING.md                   # 贡献指南
 ├── LICENSE                           # MIT
 └── README.md                         # 你正在读的文件
 ```
 
-> 一个插件可以只包含 skills、只包含 commands、或多类型混合——按需取舍即可。
+> 每个 plugin 是一个**主题包**，聚合若干相关的 skills / commands / agents。一个 plugin 可以只装 skills、只装 commands，或多类型混合——按需取舍。
 
 ---
 

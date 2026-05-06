@@ -1,0 +1,11 @@
+{
+  "name": "agents",
+  "version": "0.1.0",
+  "description": "外部 AI Agent 调度工具集：把任务派发给 Cursor / Codex / 其它 AI CLI 执行，提供 review、task、ask 等模式与输出截断保护",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": ["agents", "cursor", "code-review", "delegation", "second-opinion", "multi-agent", "agent-dispatch"]
+}

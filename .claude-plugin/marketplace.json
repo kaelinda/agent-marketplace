@@ -11,12 +11,12 @@
   },
   "plugins": [
     {
-      "name": "cursor-cli",
-      "source": "./plugins/cursor-cli",
-      "description": "调度 Cursor Agent CLI 执行代码审查、子任务派发或代码问答，提供 review / task / ask 三种模式。",
+      "name": "agents",
+      "source": "./plugins/agents",
+      "description": "外部 AI Agent 调度工具集（Cursor / Codex 等），目前包含 cursor-cli 子 skill。",
       "version": "0.1.0",
       "category": "agents",
-      "tags": ["cursor", "code-review", "delegation", "second-opinion", "multi-agent"]
+      "tags": ["agents", "cursor", "code-review", "delegation", "multi-agent", "agent-dispatch"]
     }
   ]
 }
