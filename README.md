@@ -6,7 +6,7 @@
 [![Plugins](https://img.shields.io/badge/plugins-1-blue.svg)](#-插件目录)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 
-> **蛮吉** 取自《镇魂街》——一只看似憨厚、实则身经百战的契约兽。希望每个插件都像蛮吉一样：朴实、能打、能扛事。
+> **蛮吉** 是国产动画《魁拔》的主角——一个憨直、热血、不知疲倦的小纹耀，从一根小铁棍打到能扛魁拔。希望每个插件都像蛮吉一样：朴实、能打、越战越强。
 
 ---
 
