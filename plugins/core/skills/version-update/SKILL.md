@@ -16,7 +16,7 @@ description: >
 **每次 skill 激活时**，执行以下检查（静默执行，无输出则跳过）：
 
 ```bash
-bash "<skill_dir>/../../../scripts/version-check.sh" 2>/dev/null
+bash "<skill_dir>/../../../../scripts/version-check.sh" 2>/dev/null
 ```
 
 脚本输出解读：
@@ -30,7 +30,7 @@ bash "<skill_dir>/../../../scripts/version-check.sh" 2>/dev/null
 ### 选项 1: "立即更新"
 执行更新：
 ```bash
-bash "<skill_dir>/../../../scripts/manji-upgrade.sh"
+bash "<skill_dir>/../../../../scripts/manji-upgrade.sh"
 ```
 更新成功后继续执行原 skill。
 
@@ -53,7 +53,7 @@ json.dump(cfg, open(cfg_path, 'w'), indent=2)
 ### 选项 3: "稍后提醒"
 写入 snooze 状态（递增推迟：24h → 48h → 7d）：
 ```bash
-bash "<skill_dir>/../../../scripts/version-check.sh"  # 脚本内部处理 snooze
+bash "<skill_dir>/../../../../scripts/version-check.sh"  # 脚本内部处理 snooze
 ```
 告知用户下次提醒时间，继续执行原 skill。
 
