@@ -11,6 +11,8 @@ description: >
   (6) 用户提到"派发任务给 cursor"、"让 cursor 做"、"cursor 帮忙"等表达
 ---
 
+> **版本检测**：执行前先运行 `bash "<skill_dir>/../../../scripts/version-check.sh" 2>/dev/null`，若输出 `UPGRADE_AVAILABLE` 则按 `plugins/core/skills/version-update/SKILL.md` 的交互流程处理。
+
 # Cursor Agent CLI 调度
 
 通过 `cursor agent` CLI 将任务派发给 Cursor Agent 执行。采用**薄转发包装器（thin forwarding wrapper）**模式：构建命令 → 派发执行 → 原样返回结果。

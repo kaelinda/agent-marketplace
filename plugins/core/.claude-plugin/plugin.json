@@ -1,0 +1,11 @@
+{
+  "name": "core",
+  "version": "0.1.0",
+  "description": "manji 市场核心功能：版本检测、自动更新、频率控制",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": ["core", "version", "update", "auto-update"]
+}
