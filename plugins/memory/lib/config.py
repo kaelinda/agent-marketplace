@@ -19,6 +19,7 @@ namespace — neither isolation nor intentional sharing, just data
 pollution. Failing fast at config-load time catches this before any
 memory is written. See EVAL.md §2.4 for context.
 """
+import copy
 import json
 import os
 from pathlib import Path
@@ -141,8 +142,15 @@ _SEARCH_PATHS = [
 
 
 def _deep_merge(base: dict, override: dict) -> dict:
-    """Recursively merge override into base."""
-    result = base.copy()
+    """Recursively merge ``override`` into ``base``, returning a new dict.
+
+    This must be a deep copy of base — a shallow copy lets nested dicts
+    be shared with the module-level ``_DEFAULT_CONFIG``, and a later
+    ``merged.setdefault("identity", {})["user_id"] = env_user`` mutates
+    that shared reference, leaking identity values across calls in the
+    same Python process. A real bug, caught by Phase 2's contract tests.
+    """
+    result = copy.deepcopy(base)
     for k, v in override.items():
         if k in result and isinstance(result[k], dict) and isinstance(v, dict):
             result[k] = _deep_merge(result[k], v)
@@ -309,7 +317,8 @@ def load_config(config_path: str | None = None) -> Config:
     Load and merge configuration from defaults + file + env overrides.
     Priority: explicit path > env OV_MEMORY_CONFIG > search paths > defaults.
     """
-    merged = dict(_DEFAULT_CONFIG)
+    # Deep copy so env-var overrides below never mutate _DEFAULT_CONFIG.
+    merged = copy.deepcopy(_DEFAULT_CONFIG)
 
     # Determine which file to load
     candidates = []
