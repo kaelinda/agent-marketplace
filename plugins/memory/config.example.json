@@ -19,13 +19,12 @@
   },
   "identity": {
     "tenant_id": "default",
-    "user_id": "default_user",
-    "agent_id": "default_agent"
+    "user_id": "REPLACE_ME_user_id",
+    "agent_id": "REPLACE_ME_agent_id",
+    "_comment": "user_id / agent_id MUST be set to real values. Leaving the default_user / default_agent sentinels triggers ConfigError at load time. Either change them here, or export OV_USER_ID / OV_AGENT_ID env vars."
   },
   "scopes": {
-    "user_memories": "viking://tenants/default/users/default_user/memories/",
-    "agent_memories": "viking://tenants/default/agents/default_agent/memories/",
-    "resources": "viking://tenants/default/resources/",
+    "_comment": "Scopes are derived from scope_template + identity at runtime. Override individual scopes here only when a specific entity needs a non-templated namespace.",
     "doctor": "viking://tenants/default/system/doctor/"
   },
   "recall": {
@@ -51,6 +50,7 @@
     "deny_sensitive": true,
     "allow_cross_user_read": false,
     "allow_cross_user_write": false,
-    "redact_secrets": true
+    "redact_secrets": true,
+    "allow_default_identity": false
   }
 }

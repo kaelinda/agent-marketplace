@@ -1,5 +1,5 @@
 """memory plugin — core library."""
-from .config import Config, load_config
+from .config import Config, ConfigError, load_config
 from .client import OVClient
 from .http_adapter import HTTPAdapter
 from .mcp_adapter import MCPAdapter
@@ -24,7 +24,7 @@ from .formatter import (
 
 __all__ = [
     "HookRegistry", "HookEvent",
-    "Config", "load_config",
+    "Config", "ConfigError", "load_config",
     "OVClient", "HTTPAdapter", "MCPAdapter", "Mem0Adapter",
     "AdapterResponse", "MemoryAdapter",
     "get_adapter", "list_backends", "register_backend",

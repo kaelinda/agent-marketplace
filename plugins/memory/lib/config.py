@@ -1,11 +1,37 @@
 """
-OpenViking Memory Skill Suite — Configuration loader.
-Loads config from: project config.json, ~/.openviking-memory/config.json, env vars.
+memory plugin — Configuration loader.
+
+Loads config from: project config.json, ~/.openviking-memory/config.json,
+env vars (in that priority order).
+
+Identity safety
+---------------
+
+The defaults below use the sentinel values ``default_user`` /
+``default_agent`` *only* as documentation placeholders. ``load_config()``
+raises ``ConfigError`` when these sentinels survive into the resolved
+config unless the caller explicitly opts in via
+``safety.allow_default_identity = true``.
+
+Why: in multi-agent deployments, two agents that both forget to set
+``OV_AGENT_ID`` would otherwise silently share a single ``default_agent``
+namespace — neither isolation nor intentional sharing, just data
+pollution. Failing fast at config-load time catches this before any
+memory is written. See EVAL.md §2.4 for context.
 """
 import json
 import os
 from pathlib import Path
 from typing import Any
+
+
+_DEFAULT_USER_SENTINEL = "default_user"
+_DEFAULT_AGENT_SENTINEL = "default_agent"
+
+
+class ConfigError(ValueError):
+    """Raised when configuration is invalid or unsafe to use."""
+
 
 _DEFAULT_CONFIG = {
     "openviking": {
@@ -66,6 +92,11 @@ _DEFAULT_CONFIG = {
         "allow_cross_user_read": False,
         "allow_cross_user_write": False,
         "redact_secrets": True,
+        # When False (default), load_config() raises ConfigError if
+        # identity.user_id or identity.agent_id resolve to the
+        # default_* sentinels. Tests / one-shot scripts that genuinely
+        # want the placeholder identity should explicitly opt in.
+        "allow_default_identity": False,
     },
     "classifier": {
         "builtin_rules": True,
@@ -319,4 +350,33 @@ def load_config(config_path: str | None = None) -> Config:
     # Note: scopes are now built dynamically by Config.build_scope()
     # from scope_template + identity. No static rebuild needed.
 
-    return Config(merged)
+    cfg = Config(merged)
+    _enforce_identity_safety(cfg)
+    return cfg
+
+
+def _enforce_identity_safety(cfg: "Config") -> None:
+    """
+    Refuse to hand back a config whose identity resolves to the
+    ``default_user`` / ``default_agent`` sentinels.
+
+    Skipped when ``safety.allow_default_identity`` is explicitly truthy
+    (intended for one-shot scripts and the in-memory test fakes).
+    """
+    if cfg.get("safety.allow_default_identity"):
+        return
+    bad = []
+    if cfg.user_id == _DEFAULT_USER_SENTINEL:
+        bad.append(("identity.user_id", "OV_USER_ID"))
+    if cfg.agent_id == _DEFAULT_AGENT_SENTINEL:
+        bad.append(("identity.agent_id", "OV_AGENT_ID"))
+    if not bad:
+        return
+    fields = ", ".join(name for name, _env in bad)
+    envs = ", ".join(env for _name, env in bad)
+    raise ConfigError(
+        "Identity is using the default sentinel value(s) for "
+        f"{fields}. Set the corresponding env var(s) ({envs}) or write "
+        "an explicit value in config.json. To opt in to the placeholder "
+        "identity (e.g. for tests), set safety.allow_default_identity=true."
+    )

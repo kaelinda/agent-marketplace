@@ -93,11 +93,30 @@ def run_doctor(config: Config, mode: str = "standard") -> dict:
                         "detail": f"No API key found. Set {env_name} env var."})
         warnings.append(f"No API key configured for {backend} backend. Some operations may fail.")
 
-    # 3. Identity warnings
+    # 3. Identity safety (Critical — see EVAL.md §2.4 / config.py)
+    allow_default = config.get("safety.allow_default_identity", False)
     if user == "default_user":
-        warnings.append('user_id is "default_user". Production should use a real user id.')
+        if allow_default:
+            checks.append({"name": "Identity user_id (opt-in default)", "status": "warn",
+                            "detail": "Using default_user with allow_default_identity=true."})
+            warnings.append('user_id is "default_user" (allow_default_identity=true). Multi-agent collisions possible.')
+        else:
+            checks.append({"name": "Identity user_id", "status": "fail",
+                            "detail": "user_id resolves to default_user sentinel; set OV_USER_ID."})
+            errors.append('user_id is "default_user". Set OV_USER_ID or identity.user_id in config.json.')
+    else:
+        checks.append({"name": f"Identity user_id = {user}", "status": "pass"})
     if agent == "default_agent":
-        warnings.append('agent_id is "default_agent". Production should use a real agent id.')
+        if allow_default:
+            checks.append({"name": "Identity agent_id (opt-in default)", "status": "warn",
+                            "detail": "Using default_agent with allow_default_identity=true."})
+            warnings.append('agent_id is "default_agent" (allow_default_identity=true). Multi-agent collisions possible.')
+        else:
+            checks.append({"name": "Identity agent_id", "status": "fail",
+                            "detail": "agent_id resolves to default_agent sentinel; set OV_AGENT_ID."})
+            errors.append('agent_id is "default_agent". Set OV_AGENT_ID or identity.agent_id in config.json.')
+    else:
+        checks.append({"name": f"Identity agent_id = {agent}", "status": "pass"})
     if not config.auto_store:
         warnings.append("auto_store is disabled. This is safe, but memory will only be stored explicitly.")
 
@@ -224,8 +243,9 @@ def run_doctor(config: Config, mode: str = "standard") -> dict:
             else:
                 checks.append({"name": "Doctor delete test passed", "status": "pass"})
 
-    # 8. Namespace isolation check
-    if user == "default_user":
+    # 8. Namespace isolation check (already enforced via identity check
+    # in step 3; this just records context-aware notes for full mode)
+    if user == "default_user" and config.get("safety.allow_default_identity", False):
         warnings.append("Namespace may have cross-user collision risk with default_user.")
 
     result = "FAIL" if errors else ("PASS_WITH_WARNINGS" if warnings else "PASS")
