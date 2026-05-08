@@ -1,11 +1,19 @@
 {
   "name": "memory",
-  "version": "0.0.1",
-  "description": "跨会话记忆工具集（WIP）：长期记忆持久化、项目上下文回溯、对话历史检索等",
+  "version": "0.2.0",
+  "description": "跨会话记忆工具集 — 长期记忆持久化、项目上下文回溯、对话历史检索；支持 OpenViking / MCP / mem0 三种后端。",
   "author": {
     "name": "kael",
     "email": "1290281526@qq.com"
   },
   "license": "MIT",
-  "keywords": ["memory", "context", "persistence", "long-term-memory", "session"]
+  "keywords": [
+    "memory",
+    "context",
+    "persistence",
+    "long-term-memory",
+    "session",
+    "agent",
+    "recall"
+  ]
 }

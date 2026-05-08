@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {
@@ -25,6 +25,14 @@
       "version": "0.1.0",
       "category": "agents",
       "tags": ["agents", "cursor", "code-review", "delegation", "multi-agent", "agent-dispatch"]
+    },
+    {
+      "name": "memory",
+      "source": "./plugins/memory",
+      "description": "跨会话长期记忆工具集 — 5 个核心 skill (recall/capture/commit/doctor/admin)，支持 OpenViking / MCP / mem0 三后端，identity 默认 fail-closed。",
+      "version": "0.2.0",
+      "category": "memory",
+      "tags": ["memory", "context", "long-term-memory", "agent", "recall", "session", "persistence"]
     }
   ]
 }

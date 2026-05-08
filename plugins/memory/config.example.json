@@ -1,0 +1,56 @@
+{
+  "openviking": {
+    "base_url": "http://127.0.0.1:8000",
+    "api_key_env": "OPENVIKING_API_KEY",
+    "timeout_seconds": 10
+  },
+  "mcp": {
+    "enabled": true,
+    "server_name": "openviking",
+    "tool_names": {
+      "search": "memsearch",
+      "read": "memread",
+      "write": "memwrite",
+      "update": "memupdate",
+      "delete": "memforget",
+      "commit": "memcommit",
+      "browse": "membrowse"
+    }
+  },
+  "identity": {
+    "tenant_id": "default",
+    "user_id": "REPLACE_ME_user_id",
+    "agent_id": "REPLACE_ME_agent_id",
+    "_comment": "user_id / agent_id MUST be set to real values. Leaving the default_user / default_agent sentinels triggers ConfigError at load time. Either change them here, or export OV_USER_ID / OV_AGENT_ID env vars."
+  },
+  "scopes": {
+    "_comment": "Scopes are derived from scope_template + identity at runtime. Override individual scopes here only when a specific entity needs a non-templated namespace.",
+    "doctor": "viking://tenants/default/system/doctor/"
+  },
+  "recall": {
+    "default_limit": 6,
+    "max_limit": 12,
+    "default_level": "L0",
+    "allow_l2": false,
+    "min_score": 0.62
+  },
+  "store": {
+    "auto_store": false,
+    "require_confirmation_for_sensitive": true,
+    "dedupe_before_store": true
+  },
+  "commit": {
+    "enabled": true,
+    "max_memories_per_session": 5,
+    "store_cases": true,
+    "store_preferences": true,
+    "store_projects": true
+  },
+  "safety": {
+    "deny_sensitive": true,
+    "allow_cross_user_read": false,
+    "allow_cross_user_write": false,
+    "redact_secrets": true,
+    "allow_default_identity": false
+  }
+}
