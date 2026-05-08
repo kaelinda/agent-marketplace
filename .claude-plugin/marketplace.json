@@ -11,6 +11,14 @@
   },
   "plugins": [
     {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "manji 市场核心功能：版本检测、自动更新、频率控制",
+      "version": "0.1.0",
+      "category": "core",
+      "tags": ["core", "version", "update", "auto-update"]
+    },
+    {
       "name": "agents",
       "source": "./plugins/agents",
       "description": "外部 AI Agent 调度工具集（Cursor / Codex 等），目前包含 cursor-cli 子 skill。",

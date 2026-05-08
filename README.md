@@ -54,11 +54,29 @@
 | 插件 | 类别 | 简介 | 状态 |
 | --- | --- | --- | --- |
 | [`agents`](./plugins/agents) | 外部 AI Agent 调度 | 把任务派发给 Cursor / Codex 等外部 AI CLI，目前含 `cursor-cli` skill（review / task / ask 三模式） | ✅ stable |
+| [`core`](./plugins/core) | 市场核心功能 | 版本检测、自动更新、频率控制，每次使用 skill 时自动检查更新 | ✅ stable |
 | [`memory`](./plugins/memory) | 跨会话记忆 | 长期记忆持久化 + 召回 + 治理；5 个 skill（recall/capture/commit/doctor/admin），支持 OpenViking / MCP / mem0 三后端 | 🟡 v0.2.0 (Phase 2 完成) |
 
 > 计划中：`docs`（文档生成相关）等主题型插件，每个插件聚合多个相关 skill。
 >
 > 想看到自己的插件出现在这里？ → 跳转 [贡献指南](./CONTRIBUTING.md)
+
+---
+
+## 🔄 版本检测
+
+manji 内置了版本检测功能，参考 [gstack](https://github.com/garrytan/gstack) 的更新方案：
+
+- **自动检查**：每次使用市场中的 skill 时自动检查是否有新版本
+- **频率控制**：已是最新时缓存 60 分钟，有新版本时缓存 12 小时
+- **推迟递增**：用户选择"稍后提醒"后，推迟时间递增（24h → 48h → 7d）
+- **交互式选择**：检测到新版本时提供 4 个选项：
+  - 立即更新
+  - 自动保持最新（写入配置，今后自动更新）
+  - 稍后提醒
+  - 不再检查
+
+配置存储在 `~/.manji/config.json`，缓存在 `~/.manji/last-update-check`。
 
 ---
 
