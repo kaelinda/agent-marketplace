@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# ov-memory — deprecated alias for memory-cli (will be removed in next minor version).
+# Use memory-cli directly. See CHANGELOG.md.
+exec "$(dirname "$0")/memory-cli" "$@"
