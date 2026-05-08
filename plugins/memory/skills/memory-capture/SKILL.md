@@ -1,10 +1,16 @@
 ---
-name: capture
-description: 存储新的长期记忆。自动分类、敏感数据检测、命名空间路由。
+name: memory-capture
+description: >
+  当用户希望把一条信息长期保存进记忆库时使用。具体场景：
+  (1) 用户说"记住" / "以后" / "remember this" / "save this for later"；
+  (2) 用户给出一条偏好 / 项目背景 / 环境配置 / 故障排查结论希望持久化；
+  (3) Agent 在 commit / reflection 流程里识别到值得长期保存的事实。
+  执行前自动跑敏感数据检测、按记忆类型路由到对应 scope，写入失败会原样
+  抛回错误（不会静默丢失）。
 category: memory-foundation
 ---
 
-# capture — 记忆存储
+# memory-capture — 记忆存储
 
 ## 触发条件
 - 用户明确要求记住某事
@@ -35,7 +41,8 @@ ov-memory capture --content "内容" [--type TYPE] [--title TITLE] [--scope SCOP
 
 ## 内部接口
 ```python
-from skills.capture.scripts.capture import run_capture
+from lib.skill_loader import load_skill_module
+run_capture = load_skill_module("memory-capture", "capture").run_capture
 result = run_capture(config, content="nginx配置在/etc/nginx/", memory_type="environment", title="Nginx路径")
 result = run_capture(config, content="...", scope="custom/scope/path")  # 自定义 scope
 ```

@@ -1,10 +1,17 @@
 ---
-name: doctor
-description: OpenViking 记忆系统诊断检查。检测后端连接、命名空间、策略配置、MCP 适配器状态。
+name: memory-doctor
+description: >
+  当 memory 操作出错或要验证 memory plugin 配置时使用。具体场景：
+  (1) 用户报告"记忆操作失败" / "recall 没结果" / "capture 报错"；
+  (2) 首次部署或切换后端 (HTTP / MCP / mem0) 后验证连通性；
+  (3) 怀疑 identity / API key / scope 配置有问题；
+  (4) 用户主动说 "doctor" / "检查记忆系统" / "memory health check"。
+  会跑配置检查 + 后端 ping + 默认 identity 安全断言；--mode full 还会做
+  写→搜→读→删的端到端闭环测试。
 category: memory-foundation
 ---
 
-# doctor — 记忆系统诊断
+# memory-doctor — 记忆系统诊断
 
 ## 触发条件
 - 用户要求检查记忆系统状态
@@ -33,7 +40,8 @@ ov-memory doctor [--mode quick|standard|full]
 
 ## 内部接口
 ```python
-from skills.doctor.scripts.doctor import run_doctor
+from lib.skill_loader import load_skill_module
+run_doctor = load_skill_module("memory-doctor", "doctor").run_doctor
 result = run_doctor(config, mode="standard")
 ```
 

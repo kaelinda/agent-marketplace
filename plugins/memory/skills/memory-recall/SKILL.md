@@ -1,10 +1,15 @@
 ---
-name: recall
-description: 从记忆库检索与当前任务相关的记忆，按相关度排序后注入 Agent 上下文。
+name: memory-recall
+description: >
+  当用户请求查找/回顾长期记忆时使用。具体场景：
+  (1) 用户问"之前关于 X 的记录" / "上次怎么处理的"；
+  (2) Agent 启动新任务前需要从长期记忆里拉项目上下文 / 用户偏好 / 历史故障案例；
+  (3) 任何包含 recall / remember / 之前 / 上次 / previously / what did 等触发词的请求。
+  返回的记忆按相关度排序，以结构化块形式直接注入上下文。
 category: memory-foundation
 ---
 
-# recall — 记忆召回
+# memory-recall — 记忆召回
 
 ## 触发条件
 - Agent 启动新任务时，自动召回相关记忆
@@ -31,7 +36,8 @@ ov-memory recall <query> [--type TYPE] [--limit N]
 
 ## 内部接口
 ```python
-from skills.recall.scripts.recall import run_recall
+from lib.skill_loader import load_skill_module
+run_recall = load_skill_module("memory-recall", "recall").run_recall
 memories = run_recall(config, query="nginx配置", memory_type="environment", limit=6)
 ```
 

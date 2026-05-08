@@ -1,6 +1,13 @@
 ---
 name: memory-admin
-description: 记忆管理后台 — 统计、备份、去重、清理、审计等管理操作。
+description: >
+  当用户需要对记忆库做"运维级"操作时使用。具体场景：
+  (1) 备份 / 恢复 (backup, restore)；
+  (2) 看记忆总量 / 类型分布 (stats)；
+  (3) 去重 (dedupe) — 同 type+title 保留最新版本，旧的硬删；
+  (4) 清理过时记忆 (prune --status / --older-than)；
+  (5) 安全审计 (audit) — 扫描已存记忆里是否含密码/API key 等敏感数据。
+  注意：dedupe 与 prune 都是不可逆操作（默认会真删），跑前要让用户确认 scope。
 category: memory-governance
 ---
 
@@ -41,13 +48,16 @@ ov-memory admin audit [--scope SCOPE]
 
 ## 内部接口
 ```python
-from skills.memory_admin.scripts.admin import run_admin
-result = run_admin(config, action="stats", scope="user")
-result = run_admin(config, action="prune", older_than="180d")
-result = run_admin(config, action="backup", output="/tmp/backup.json")
+from lib.skill_loader import load_skill_module
+run_admin = load_skill_module("memory-admin", "admin").run_admin
+run_admin(config, action="stats", scope="user")
+run_admin(config, action="prune", older_than="180d")
+run_admin(config, action="backup", output="/tmp/backup.json")
 ```
 
 ## 注意事项
-- `prune` 使用 soft delete，可通过 restore 恢复
-- `dedupe` 保留最新的记忆版本
-- `backup`/`restore` 操作记录审计日志
+- `prune` / `dedupe` 默认走硬删（adapter.delete），不再像 v0.1 那样
+  打 `status="deleted"` 墓碑——后者会污染 browse / search 结果且无人清理
+- `backup` 是当前 scope 的全量导出，按时间戳生成默认文件名
+- `restore` 不修改入参 dict（旧版本用 `pop("id")` 会破坏备份原文件）
+- `dedupe` 保留同 type+title 中 updated_at / created_at 最新的那条

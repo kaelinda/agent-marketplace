@@ -1,10 +1,16 @@
 ---
-name: commit
-description: 从会话记录中提取值得持久化的记忆候选，支持预览和批量提交。
+name: memory-commit
+description: >
+  当一段会话结束、需要把"这次对话学到的东西"沉淀进长期记忆时使用。
+  具体场景：
+  (1) 用户说"保存这次对话的要点" / "把刚才的经验记下来" / "commit memory"；
+  (2) 长会话结束前定期 / 自动 checkpoint，从 session 中抽长期价值的事实；
+  (3) Agent 自身在重要决策 / 排障收尾后主动沉淀经验。
+  默认输出"候选预览"供用户确认；加 --apply 才真正写入（避免污染记忆库）。
 category: memory-foundation
 ---
 
-# commit — 会话记忆提取
+# memory-commit — 会话记忆提取
 
 ## 触发条件
 - 会话结束时提取有价值的记忆
@@ -41,7 +47,8 @@ ov-memory commit --session-file FILE [--apply]
 
 ## 内部接口
 ```python
-from skills.commit.scripts.commit import run_commit
+from lib.skill_loader import load_skill_module
+run_commit = load_skill_module("memory-commit", "commit").run_commit
 result = run_commit(config, session_data=session_dict, apply=True)
 ```
 
