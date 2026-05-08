@@ -120,9 +120,21 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
                     dupes.append(m)
             else:
                 seen[key] = m
+        # Hard-delete duplicates instead of leaving "status=deleted"
+        # tombstones (which still appeared in browse / search and grew
+        # storage indefinitely — see EVAL.md §2.4).
+        deleted = 0
         for d in dupes:
-            adapter.update(d.get("id", ""), {"status": "deleted"})
-        print(f"Found and removed {len(dupes)} duplicate memories")
+            mid = d.get("id", "")
+            if not mid:
+                continue
+            res = adapter.delete(mid)
+            if res.get("ok"):
+                deleted += 1
+            else:
+                err = res.get("error", "unknown error")
+                print(f"  WARN: dedupe could not delete [{mid}]: {err}", file=sys.stderr)
+        print(f"Found {len(dupes)} duplicate memories, hard-deleted {deleted}")
 
     elif action == "prune":
         result = adapter.browse(scope=target_scope, limit=500)

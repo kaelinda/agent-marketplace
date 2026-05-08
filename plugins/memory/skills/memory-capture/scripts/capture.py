@@ -12,6 +12,33 @@ from lib.classifier import classify
 from lib.hooks import HookRegistry, HookEvent
 
 
+def _generate_memory_id() -> str:
+    """Generate a globally-unique memory ID.
+
+    Format: ``mem_<YYYYMMDDTHHMMSSmmm>_<full uuid4 hex>``.
+    The previous 6-hex suffix had only ~16M combinations and could
+    collide in busy capture flows; the full UUID4 makes collisions
+    practically impossible while the millisecond-precision timestamp
+    keeps IDs sortable.
+    """
+    now = datetime.datetime.now(datetime.timezone.utc)
+    ts = now.strftime("%Y%m%dT%H%M%S") + f"{now.microsecond // 1000:03d}"
+    return f"mem_{ts}_{uuid.uuid4().hex}"
+
+
+def _join_scope(base: str, suffix: str) -> str:
+    """Join a scope URI with a sub-path, normalising slashes.
+
+    ``base`` may end with one or more slashes; ``suffix`` may start with
+    them. The result has exactly one slash between them and a single
+    trailing slash, regardless of input quirks. Stops the well-known
+    ``…//preferences/`` double-slash artifact.
+    """
+    if not suffix:
+        return base if base.endswith("/") else base + "/"
+    return base.rstrip("/") + "/" + suffix.strip("/") + "/"
+
+
 def run_capture(config: Config, content: str, memory_type: str = "",
                 title: str = "", scope: str = "") -> dict:
     """Capture a new memory after safety checks."""
@@ -32,7 +59,7 @@ def run_capture(config: Config, content: str, memory_type: str = "",
     # 3. Build memory object
     now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
     memory = {
-        "id": f"mem_{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d')}_{uuid.uuid4().hex[:6]}",
+        "id": _generate_memory_id(),
         "type": memory_type,
         "title": title or content[:80],
         "content": content,
@@ -47,16 +74,16 @@ def run_capture(config: Config, content: str, memory_type: str = "",
         "updated_at": now,
     }
 
-    # 4. Determine scope
+    # 4. Determine scope (use _join_scope so we never produce …//preferences/)
     if not scope:
         scope_map = {
-            "preference": config.user_scope.rstrip("/") + "/preferences/",
-            "project": config.user_scope.rstrip("/") + "/projects/",
-            "environment": config.user_scope.rstrip("/") + "/environments/",
-            "case": config.user_scope.rstrip("/") + "/cases/",
-            "decision": config.user_scope.rstrip("/") + "/decisions/",
-            "profile": config.user_scope.rstrip("/") + "/profile/",
-            "agent_reflection": config.agent_scope.rstrip("/") + "/reflections/",
+            "preference":       _join_scope(config.user_scope, "preferences"),
+            "project":          _join_scope(config.user_scope, "projects"),
+            "environment":      _join_scope(config.user_scope, "environments"),
+            "case":             _join_scope(config.user_scope, "cases"),
+            "decision":         _join_scope(config.user_scope, "decisions"),
+            "profile":          _join_scope(config.user_scope, "profile"),
+            "agent_reflection": _join_scope(config.agent_scope, "reflections"),
         }
         scope = scope_map.get(memory_type, config.user_scope)
 
