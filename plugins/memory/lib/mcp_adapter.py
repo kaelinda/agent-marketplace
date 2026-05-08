@@ -1,11 +1,43 @@
 """
-OpenViking Memory Skill Suite — MCP adapter.
-Bridges Skill commands to MCP tool calls via hermes native MCP or subprocess.
+memory plugin — MCP adapter.
+
+Bridges adapter operations to MCP tool calls via the ``mcporter`` CLI
+(when running standalone). All results are normalised to
+``AdapterResponse`` shape so callers can treat HTTP / MCP / mem0
+backends uniformly.
+
+Subprocess env handling
+-----------------------
+The mcporter child process inherits a deliberately *narrow* env that
+only contains entries with the ``MCP_`` prefix plus the few platform
+variables required to find the binary (``PATH``, ``HOME``, ``USER``,
+``LANG``). This prevents the OpenViking / mem0 API keys from leaking
+into mcporter's stderr (the failure path returns child stderr to the
+caller), which would otherwise show up in agent logs.
 """
 import json
 import os
 import subprocess
 from typing import Any, Optional
+
+from .adapter_protocol import AdapterResponse
+
+
+_ENV_ALLOWLIST_PREFIXES = ("MCP_",)
+_ENV_ALLOWLIST_NAMES = frozenset({
+    "PATH", "HOME", "USER", "LOGNAME", "LANG", "LC_ALL", "LC_CTYPE",
+    "TMPDIR", "TZ", "PYTHONPATH",
+})
+
+
+def _safe_env() -> dict:
+    """Return an env dict scrubbed of secrets (keep only MCP_*+platform vars)."""
+    parent = os.environ
+    safe = {k: v for k, v in parent.items() if k in _ENV_ALLOWLIST_NAMES}
+    for k, v in parent.items():
+        if any(k.startswith(p) for p in _ENV_ALLOWLIST_PREFIXES):
+            safe[k] = v
+    return safe
 
 
 class MCPAdapter:
@@ -51,43 +83,55 @@ class MCPAdapter:
             args["type"] = memory_type
         if min_score > 0:
             args["min_score"] = min_score
-        return self._call_tool(self._tool("search"), args)
+        return self._wrap(self._call_tool(self._tool("search"), args))
 
     def read(self, memory_id: str) -> dict:
-        return self._call_tool(self._tool("read"), {"id": memory_id})
+        return self._wrap(self._call_tool(self._tool("read"), {"id": memory_id}))
 
     def write(self, memory: dict, scope: str = "") -> dict:
         mem_copy = dict(memory)
         if scope:
             mem_copy["scope"] = scope
-        return self._call_tool(self._tool("write"), mem_copy)
+        return self._wrap(self._call_tool(self._tool("write"), mem_copy))
 
     def update(self, memory_id: str, patch: dict) -> dict:
         args = {"id": memory_id, **patch}
-        return self._call_tool(self._tool("update"), args)
+        return self._wrap(self._call_tool(self._tool("update"), args))
 
     def delete(self, memory_id: str) -> dict:
-        return self._call_tool(self._tool("delete"), {"id": memory_id})
+        return self._wrap(self._call_tool(self._tool("delete"), {"id": memory_id}))
 
     def browse(self, scope: str = "", limit: int = 20, offset: int = 0) -> dict:
         args = {"limit": limit, "offset": offset}
         if scope:
             args["scope"] = scope
-        return self._call_tool(self._tool("browse"), args)
+        return self._wrap(self._call_tool(self._tool("browse"), args))
 
     def commit(self, memories: list[dict], scope: str = "") -> dict:
         args = {"memories": memories}
         if scope:
             args["scope"] = scope
-        return self._call_tool(self._tool("commit"), args)
+        return self._wrap(self._call_tool(self._tool("commit"), args))
+
+    @staticmethod
+    def _wrap(raw: Any) -> dict:
+        """Normalise an mcporter response into AdapterResponse dict shape."""
+        if not isinstance(raw, dict):
+            return AdapterResponse(
+                ok=False, error=f"Non-dict response: {type(raw).__name__}"
+            ).to_dict()
+        return AdapterResponse.from_dict(raw).to_dict()
 
     def _call_tool(self, tool_name: str, args: dict) -> dict:
         """
         Call an MCP tool. In the hermes-agent environment, this uses
-        the native MCP client. For standalone CLI usage, this shells out
-        to `mcporter call` or returns a stub.
+        the native MCP client. For standalone CLI usage, this shells
+        out to ``mcporter call`` with a scrubbed env (see _safe_env).
+
+        Returns a raw dict (success or ``{"ok": False, "error": ...}``).
+        Final normalisation happens in :py:meth:`_wrap` before the
+        result reaches the caller.
         """
-        # Try mcporter CLI first (standalone)
         mcporter = os.environ.get("MCPORTER_BIN", "mcporter")
         try:
             cmd = [
@@ -96,25 +140,37 @@ class MCPAdapter:
                 "--tool", tool_name,
                 "--args", json.dumps(args),
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=30,
+                env=_safe_env(),
+            )
             if result.returncode == 0:
-                return json.loads(result.stdout)
-            return {"error": True, "reason": result.stderr.strip() or "mcporter failed"}
+                try:
+                    return json.loads(result.stdout)
+                except json.JSONDecodeError as e:
+                    return {"ok": False, "error": f"mcporter returned non-JSON: {e}"}
+            return {"ok": False, "error": result.stderr.strip() or "mcporter failed"}
         except FileNotFoundError:
             pass
+        except subprocess.TimeoutExpired:
+            return {"ok": False, "error": f"MCP tool '{tool_name}' timed out (30s)"}
         except Exception as e:
-            return {"error": True, "reason": str(e)}
+            return {"ok": False, "error": f"MCP call failed: {e}"}
 
-        # Fallback: not available outside agent context
+        # Fallback: mcporter not on PATH (and we are not running inside an agent context)
         return {
-            "error": True,
-            "reason": f"MCP tool '{tool_name}' not available. "
-                      "Run inside an agent with MCP configured, or use HTTP adapter.",
+            "ok": False,
+            "error": (
+                f"MCP tool '{tool_name}' not available — install mcporter "
+                "or run inside an agent with MCP configured, or use the HTTP adapter."
+            ),
         }
 
     def ping(self) -> dict:
-        """Check if the MCP server is reachable by attempting a lightweight tool call."""
-        return self._call_tool(self._tool("search"), {"query": "ping", "limit": 1})
+        """Check if the MCP server is reachable via a minimal search call."""
+        return self._wrap(
+            self._call_tool(self._tool("search"), {"query": "ping", "limit": 1})
+        )
 
     def close(self):
         pass

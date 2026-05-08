@@ -37,16 +37,22 @@ def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0
             query=query, scope=config.user_scope,
             limit=limit, memory_type=mtype, min_score=min_score,
         )
-        if result.get("error"):
-            # Try agent scope for agent_reflection
-            if mtype == "agent_reflection":
-                result = adapter.search(
-                    query=query, scope=config.agent_scope,
-                    limit=limit, memory_type=mtype, min_score=min_score,
-                )
-        memories = result.get("memories", result.get("data", []))
-        if isinstance(memories, list):
-            all_memories.extend(memories)
+        if not result.get("ok") and mtype == "agent_reflection":
+            # Retry agent scope for agent_reflection types
+            result = adapter.search(
+                query=query, scope=config.agent_scope,
+                limit=limit, memory_type=mtype, min_score=min_score,
+            )
+        if not result.get("ok"):
+            continue
+        data = result.get("data")
+        # Adapters may return either a bare list or a dict with "memories"
+        if isinstance(data, list):
+            all_memories.extend(data)
+        elif isinstance(data, dict):
+            inner = data.get("memories", data.get("results", []))
+            if isinstance(inner, list):
+                all_memories.extend(inner)
 
     # Deduplicate by ID
     seen = set()

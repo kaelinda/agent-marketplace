@@ -14,42 +14,28 @@ from lib.mcp_adapter import MCPAdapter
 
 
 def _unwrap(result: dict) -> dict:
-    """Normalize adapter response to a flat dict.
+    """Flatten an AdapterResponse-shape dict into the form doctor expects.
 
-    HTTPAdapter returns raw API JSON: {"id": "...", "error": True, ...}
-    Mem0Adapter wraps in AdapterResponse shape: {"ok": True, "data": {...}} or {"ok": False, "error": "..."}
-
-    This helper flattens both into a consistent dict where:
-    - "error" key is present and truthy when the call failed
-    - "id" is at top level (extracted from "data" if needed)
-    - "memories" / "data" list is at top level as "memories"
+    All adapters now uniformly return ``{ok, data, error, meta}`` (see
+    Phase 2 — ``lib/adapter_protocol.AdapterResponse``). This helper
+    converts that into the legacy ``{error, reason, memories, ...}``
+    shape this file reads from.
     """
     if not isinstance(result, dict):
         return {"error": True, "reason": "Non-dict response"}
-
-    # Already a flat error (HTTP style)
-    if result.get("error") is True and "ok" not in result:
-        return result
-
-    # AdapterResponse-wrapped error
     if result.get("ok") is False:
         flat = {"error": True, "reason": result.get("error", "unknown error")}
         flat.update(result.get("meta", {}))
         return flat
-
-    # AdapterResponse-wrapped success
-    if result.get("ok") is True and "data" in result:
-        data = result["data"]
-        if isinstance(data, list):
-            return {"memories": data}
-        if isinstance(data, dict):
-            flat = dict(data)
-            flat.setdefault("error", None)
-            return flat
-        return {"data": data}
-
-    # HTTP-style flat success (no "ok" key, no "error" key)
-    return result
+    data = result.get("data")
+    if isinstance(data, list):
+        return {"memories": data, **result.get("meta", {})}
+    if isinstance(data, dict):
+        flat = dict(data)
+        flat.setdefault("error", None)
+        flat.update(result.get("meta", {}))
+        return flat
+    return {"data": data, **result.get("meta", {})}
 
 
 def _check(name, fn):

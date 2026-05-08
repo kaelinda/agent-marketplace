@@ -44,18 +44,23 @@ class AdapterResponse:
 
     @classmethod
     def from_dict(cls, raw: dict) -> "AdapterResponse":
-        """Build an AdapterResponse from a raw dict (e.g. HTTP JSON body)."""
-        if raw.get("error") is True or raw.get("ok") is False:
-            return cls(
-                ok=False,
-                error=raw.get("reason") or raw.get("error", "unknown error"),
-                meta={k: v for k, v in raw.items() if k.startswith("_")},
-            )
-        return cls(
-            ok=True,
-            data=raw,
-            meta={k: v for k, v in raw.items() if k.startswith("_")},
-        )
+        """Build an AdapterResponse from a raw dict (e.g. HTTP JSON body).
+
+        Recognises three shapes for backwards compatibility:
+        - new: ``{"ok": False, "error": "..."}`` → preserved as-is
+        - legacy HTTP: ``{"error": True, "reason": "..."}`` → translated
+        - any other dict → wrapped as ``ok=True, data=raw``
+        """
+        if raw.get("ok") is False or raw.get("error") is True:
+            err_field = raw.get("error")
+            err_msg = err_field if isinstance(err_field, str) else None
+            err_msg = err_msg or raw.get("reason") or "unknown error"
+            meta = {k: v for k, v in raw.items() if k.startswith("_")}
+            return cls(ok=False, error=err_msg, meta=meta)
+        meta = {k: v for k, v in raw.items() if k.startswith("_")}
+        # Strip meta keys from the surfaced data payload
+        data = {k: v for k, v in raw.items() if not k.startswith("_")}
+        return cls(ok=True, data=data, meta=meta)
 
 
 # ── Response shape docs (for implementors) ─────────────────

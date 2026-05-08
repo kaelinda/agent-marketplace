@@ -1,8 +1,20 @@
 """
-OpenViking Memory Skill Suite — HTTP adapter.
-Wraps the OVClient into the same interface as MCPAdapter for unified usage.
+memory plugin — HTTP adapter.
+
+Thin wrapper that exposes ``OVClient`` through the ``MemoryAdapter`` protocol
+and normalises every response into ``AdapterResponse.to_dict()`` shape.
 """
+from .adapter_protocol import AdapterResponse
 from .client import OVClient
+
+
+def _wrap(raw: dict) -> dict:
+    """Normalise a raw OVClient response into AdapterResponse dict."""
+    if not isinstance(raw, dict):
+        return AdapterResponse(
+            ok=False, error=f"Non-dict response: {type(raw).__name__}"
+        ).to_dict()
+    return AdapterResponse.from_dict(raw).to_dict()
 
 
 class HTTPAdapter:
@@ -20,25 +32,29 @@ class HTTPAdapter:
 
     def search(self, query: str, scope: str = "", limit: int = 6,
                memory_type: str = "", min_score: float = 0.0) -> dict:
-        return self.client.search(query, scope, limit, memory_type, min_score)
+        return _wrap(self.client.search(query, scope, limit, memory_type, min_score))
 
     def read(self, memory_id: str) -> dict:
-        return self.client.read(memory_id)
+        return _wrap(self.client.read(memory_id))
 
     def write(self, memory: dict, scope: str = "") -> dict:
-        return self.client.write(memory, scope)
+        return _wrap(self.client.write(memory, scope))
 
     def update(self, memory_id: str, patch: dict) -> dict:
-        return self.client.update(memory_id, patch)
+        return _wrap(self.client.update(memory_id, patch))
 
     def delete(self, memory_id: str) -> dict:
-        return self.client.delete(memory_id)
+        return _wrap(self.client.delete(memory_id))
 
     def browse(self, scope: str = "", limit: int = 20, offset: int = 0) -> dict:
-        return self.client.browse(scope, limit, offset)
+        return _wrap(self.client.browse(scope, limit, offset))
 
     def commit(self, memories: list[dict], scope: str = "") -> dict:
-        return self.client.commit(memories, scope)
+        return _wrap(self.client.commit(memories, scope))
+
+    def ping(self) -> dict:
+        """Pass-through health check used by doctor / contract tests."""
+        return _wrap(self.client.ping())
 
     def close(self):
         self.client.close()

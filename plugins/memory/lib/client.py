@@ -51,17 +51,16 @@ class OVClient:
             except Exception:
                 pass
             return {
-                "error": True,
-                "status": e.code,
-                "reason": e.reason,
-                "body": body_text,
+                "ok": False,
+                "error": f"HTTP {e.code} {e.reason}".strip(),
                 "_status": e.code,
+                "_body": body_text,
                 "_elapsed_ms": int((time.monotonic() - start) * 1000),
             }
         except urllib.error.URLError as e:
-            return {"error": True, "reason": str(e.reason), "_status": 0, "_elapsed_ms": 0}
+            return {"ok": False, "error": f"URL error: {e.reason}", "_status": 0, "_elapsed_ms": 0}
         except Exception as e:
-            return {"error": True, "reason": str(e), "_status": 0, "_elapsed_ms": 0}
+            return {"ok": False, "error": f"client error: {e}", "_status": 0, "_elapsed_ms": 0}
 
     # ── Health / Ping ────────────────────────────────────────────
 

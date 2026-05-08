@@ -10,6 +10,20 @@ from lib.sensitive_detector import scan
 from lib.formatter import format_stats
 
 
+def _memories_from(result: dict) -> list:
+    """Extract memory list from a normalised AdapterResponse dict."""
+    if not isinstance(result, dict) or not result.get("ok"):
+        return []
+    data = result.get("data")
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for key in ("memories", "results", "items"):
+            if isinstance(data.get(key), list):
+                return data[key]
+    return []
+
+
 def _parse_older_than(expr: str) -> datetime.datetime | None:
     """
     Parse a relative time expression like '180d', '30d', '6m', '1y', '24h'
@@ -46,7 +60,7 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
 
     if action == "stats":
         result = adapter.browse(scope=target_scope, limit=500)
-        memories = result.get("memories", result.get("data", []))
+        memories = _memories_from(result)
         by_type = {}
         by_status = {}
         for m in memories:
@@ -58,7 +72,7 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
 
     elif action == "backup":
         result = adapter.browse(scope=target_scope, limit=500)
-        memories = result.get("memories", result.get("data", []))
+        memories = _memories_from(result)
         out = output or f"backup_{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
         with open(out, "w") as f:
             _json.dump({"scope": target_scope, "memories": memories, "backed_up_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")},
@@ -75,18 +89,20 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
         restored = 0
         failed = 0
         for m in memories:
-            mid = m.pop("id", None)
-            result = adapter.write(m, scope=data.get("scope", target_scope))
-            if not result.get("error"):
+            mid = m.get("id")
+            payload = {k: v for k, v in m.items() if k != "id"}
+            result = adapter.write(payload, scope=data.get("scope", target_scope))
+            if result.get("ok"):
                 restored += 1
             else:
                 failed += 1
-                print(f"  WARN: Failed to restore [{mid or '?'}]: {result.get('reason', 'unknown error')}", file=sys.stderr)
+                err = result.get("error", "unknown error")
+                print(f"  WARN: Failed to restore [{mid or '?'}]: {err}", file=sys.stderr)
         print(f"Restored {restored}/{len(memories)} memories ({failed} failed)")
 
     elif action == "dedupe":
         result = adapter.browse(scope=target_scope, limit=500)
-        memories = result.get("memories", result.get("data", []))
+        memories = _memories_from(result)
         # Simple dedupe: same title + type = keep newest
         seen = {}
         dupes = []
@@ -110,7 +126,7 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
 
     elif action == "prune":
         result = adapter.browse(scope=target_scope, limit=500)
-        memories = result.get("memories", result.get("data", []))
+        memories = _memories_from(result)
         # Filter: if specific status given, use it; otherwise default to deleted+obsolete
         if status:
             targets = [m for m in memories if m.get("status") == status]
@@ -136,7 +152,7 @@ def run_admin(config: Config, action: str, scope: str = "", output: str = "",
 
     elif action == "audit":
         result = adapter.browse(scope=target_scope, limit=500)
-        memories = result.get("memories", result.get("data", []))
+        memories = _memories_from(result)
         flagged = []
         for m in memories:
             content = m.get("content", "")

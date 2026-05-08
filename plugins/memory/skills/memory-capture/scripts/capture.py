@@ -65,12 +65,13 @@ def run_capture(config: Config, content: str, memory_type: str = "",
     result = adapter.write(memory, scope=scope)
     adapter.close()
 
-    if result.get("error"):
-        return result
+    if not result.get("ok"):
+        return {"error": True, "reason": result.get("error", "write failed")}
 
     memory["scope"] = scope
-    if "id" in result:
-        memory["id"] = result["id"]
+    written = result.get("data") or {}
+    if isinstance(written, dict) and written.get("id"):
+        memory["id"] = written["id"]
 
     # 6. AFTER_STORE hooks
     hooks.trigger(HookEvent.AFTER_STORE, {"memory": memory, "config": config})
