@@ -1,18 +1,38 @@
 """
-OpenViking Memory Skill Suite — Output formatter.
+memory plugin — Output formatter.
+
 Formats memory results for Agent context injection and human display.
+Phase 3 added a "shared by <owner>" provenance suffix on cross-owner
+memories so the Agent can tell its own facts from teammate's facts —
+crucial when the recall block becomes input for a write-back path.
 """
-from typing import Any
+from typing import Any, Optional
 
 
-def format_recall_block(memories: list[dict], header: str = "Relevant OpenViking Memory") -> str:
+def _provenance_suffix(memory: dict, viewer_identity: Optional[str]) -> str:
+    """Return a short ``(shared by <owner>)`` tag if the memory's owner
+    differs from the viewer identity. Empty string otherwise.
+
+    ``viewer_identity`` is one of the viewer's identity strings (e.g.
+    ``"agent:devbot"``). Pass None to disable provenance display.
+    """
+    if not viewer_identity:
+        return ""
+    owner = memory.get("owner_id") or ""
+    if not owner or owner == viewer_identity:
+        return ""
+    return f" (shared by {owner})"
+
+
+def format_recall_block(memories: list[dict],
+                         header: str = "Relevant OpenViking Memory",
+                         viewer_identity: Optional[str] = None) -> str:
     """
     Format recalled memories as an injectable context block for Agents.
-    Output looks like:
-    [Relevant OpenViking Memory]
-    - Project: ...
-    - Preference: ...
-    [/Relevant OpenViking Memory]
+
+    Phase 3: pass ``viewer_identity`` (e.g. ``f"agent:{config.agent_id}"``)
+    to surface "(shared by user:bob)" tags on memories the viewer doesn't
+    own — keeps cross-agent provenance visible in the injected context.
     """
     if not memories:
         return ""
@@ -21,12 +41,13 @@ def format_recall_block(memories: list[dict], header: str = "Relevant OpenViking
         mtype = m.get("type", "unknown").replace("_", " ").title()
         summary = m.get("summary") or m.get("content", "")
         title = m.get("title", "")
+        prov = _provenance_suffix(m, viewer_identity)
         if title and summary:
-            lines.append(f"- {mtype}: {title} — {summary}")
+            lines.append(f"- {mtype}: {title} — {summary}{prov}")
         elif summary:
-            lines.append(f"- {mtype}: {summary}")
+            lines.append(f"- {mtype}: {summary}{prov}")
         elif title:
-            lines.append(f"- {mtype}: {title}")
+            lines.append(f"- {mtype}: {title}{prov}")
     lines.append(f"[/{header}]")
     return "\n".join(lines)
 

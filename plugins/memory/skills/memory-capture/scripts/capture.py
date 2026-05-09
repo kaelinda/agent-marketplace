@@ -40,8 +40,19 @@ def _join_scope(base: str, suffix: str) -> str:
 
 
 def run_capture(config: Config, content: str, memory_type: str = "",
-                title: str = "", scope: str = "") -> dict:
-    """Capture a new memory after safety checks."""
+                title: str = "", scope: str = "",
+                visibility: str = "private",
+                shared_with: list[str] | None = None) -> dict:
+    """Capture a new memory after safety checks.
+
+    Phase 3 args:
+        visibility: ``"private"`` (default), ``"team"`` or ``"public"``.
+                    ``"team"`` requires the scope to be a team scope.
+        shared_with: optional list of identity strings (``"<kind>:<id>"``)
+                     to grant read access at write time. The adapter
+                     stores them in memory.shared_with; SharingManager
+                     evaluates them on recall.
+    """
     # 0. Initialize hooks
     hooks = HookRegistry(config.get("hooks", {}))
 
@@ -58,6 +69,22 @@ def run_capture(config: Config, content: str, memory_type: str = "",
 
     # 3. Build memory object
     now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    if visibility not in ("private", "team", "public"):
+        return {"error": True, "reason": f"invalid visibility {visibility!r}"}
+    valid_shared_with: list[str] = []
+    if shared_with:
+        for ident in shared_with:
+            if isinstance(ident, str) and ":" in ident and ident.split(":", 1)[0] in ("user", "agent", "team"):
+                valid_shared_with.append(ident)
+            else:
+                return {"error": True, "reason": f"invalid shared_with entry {ident!r}"}
+    # Owner identity at write time — used by SharingManager.can_access
+    # so we don't have to re-parse the scope. Prefer agent identity for
+    # agent_reflection memories so they show up under "agent:devbot".
+    owner_id = (
+        f"agent:{config.agent_id}" if memory_type == "agent_reflection"
+        else f"user:{config.user_id}"
+    )
     memory = {
         "id": _generate_memory_id(),
         "type": memory_type,
@@ -70,6 +97,10 @@ def run_capture(config: Config, content: str, memory_type: str = "",
         "source": {"kind": "manual"},
         "policy": {"sensitive": False, "user_confirmed": True, "retention": "long_term"},
         "status": "active",
+        "owner_id": owner_id,
+        "visibility": visibility,
+        "shared_with": valid_shared_with,
+        "shared_perms": {ident: "read" for ident in valid_shared_with},
         "created_at": now,
         "updated_at": now,
     }
@@ -86,6 +117,21 @@ def run_capture(config: Config, content: str, memory_type: str = "",
             "agent_reflection": _join_scope(config.agent_scope, "reflections"),
         }
         scope = scope_map.get(memory_type, config.user_scope)
+
+    # 4b. visibility="team" sanity: scope must contain "/teams/" segment
+    # so that team membership ACL works without an explicit shared_with
+    # list. Fail fast — silent fall-through here = data leak in reverse
+    # ("you wanted team-shared but stored as user-only").
+    if visibility == "team" and "/teams/" not in scope:
+        return {
+            "error": True,
+            "reason": (
+                f"visibility=team requires the scope to be a team scope "
+                f"(viking://.../teams/<team_id>/...); got {scope}. "
+                f"Pass --scope explicitly or set memory_type to a "
+                f"team-routed type."
+            ),
+        }
 
     # 5. Write
     adapter = get_adapter(config)

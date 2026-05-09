@@ -3,6 +3,8 @@
 > 本文档由 Ralph Loop iter1 产出，作为后续迭代的"地图"。每个迭代的工作以此为锚点推进。
 >
 > **2026-05-08 修订（iter2 启动前）**：根据 Code Reviewer 审查意见，4 项优先级折回（详见 §2.4 修订记录）。Phase 2 同步覆盖原 P1（adapter 协议）+ 原 P8（默认 identity）+ 原 Phase 5（测试）的关键部分。
+>
+> **2026-05-09 进度（iter3 / Phase 3 启动）**：Phase 2 已合入 main（PR #2）。本迭代落 Cross-Agent 共享层：scope 加 `team` entity_type、memory ACL（owner_id / visibility / shared_with / shared_perms）、`MemoryAdapter` 协议加 `share` / `unshare` / `list_subscribed`、新 `lib/sharing.py` `SharingManager`、`memory-share` skill + slash command、以及 sharing 相关测试。FakeAdapter 落地参考实现，HTTP / MCP / mem0 走 capability-aware 降级。
 
 ---
 
@@ -36,7 +38,10 @@ plugins/memory/
     ├── docs/
     │   ├── best-practices.md           (383行) ⚠️ 三份 best-practices
     │   └── sub-skills-guide.md         (361行)
-    ├── lib/                            ← 核心库（共 11 个模块，2273 行）
+    ├── lib/                            ← 核心库（iter1 共 13 个文件含 __init__；
+    │   │                                 Phase 2 加 skill_loader.py，Phase 3 将
+    │   │                                 加 sharing.py，最终 ~15 个）
+    │   ├── __init__.py                          re-export 包外可见的 API
     │   ├── adapter_protocol.py         (147行) ✅ 设计良好
     │   ├── adapter_factory.py          (106行) ✅ 工厂模式 OK
     │   ├── config.py                   (322行) ✅

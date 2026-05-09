@@ -8,10 +8,23 @@ from lib.config import Config
 from lib.adapter_factory import get_adapter
 from lib.policy import get_recall_types_order, get_default_recall_limit
 from lib.hooks import HookRegistry, HookEvent
+from lib.sharing import SharingManager
 
 
-def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0) -> list:
-    """Recall memories relevant to the query."""
+def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0,
+               include_subscribed: bool | None = None) -> list:
+    """Recall memories relevant to the query.
+
+    Phase 3: when ``safety.auto_include_subscribed`` is true (or
+    ``include_subscribed=True`` is passed explicitly), team scopes the
+    current identity belongs to are added as ``extra_scopes`` so a
+    single recall surfaces both own + subscribed memories. After the
+    raw search, results are filtered through ``SharingManager.can_access``
+    so private memories from other agents that share the same team
+    scope still get rejected (defence in depth — the adapter shouldn't
+    have returned them in the first place, but this stops a misconfigured
+    backend from leaking).
+    """
     hooks = HookRegistry(config.get("hooks", {}))
 
     # BEFORE_RECALL hook
@@ -27,7 +40,12 @@ def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0
     limit = min(limit, config.get("recall.max_limit", 12))
     min_score = config.recall_min_score
 
+    if include_subscribed is None:
+        include_subscribed = bool(config.get("safety.auto_include_subscribed", False))
+
     adapter = get_adapter(config)
+    sharing = SharingManager(adapter, config)
+    extra_scopes = sharing.subscribed_scopes() if include_subscribed else []
 
     all_memories = []
     types = [t.strip() for t in memory_type.split(",")] if memory_type else get_recall_types_order()
@@ -36,12 +54,14 @@ def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0
         result = adapter.search(
             query=query, scope=config.user_scope,
             limit=limit, memory_type=mtype, min_score=min_score,
+            extra_scopes=extra_scopes,
         )
         if not result.get("ok") and mtype == "agent_reflection":
             # Retry agent scope for agent_reflection types
             result = adapter.search(
                 query=query, scope=config.agent_scope,
                 limit=limit, memory_type=mtype, min_score=min_score,
+                extra_scopes=extra_scopes,
             )
         if not result.get("ok"):
             continue
@@ -62,6 +82,12 @@ def run_recall(config: Config, query: str, memory_type: str = "", limit: int = 0
         if mid and mid not in seen:
             seen.add(mid)
             unique.append(m)
+
+    # ACL filter: drop anything the current identity can't read. This
+    # is a no-op for legacy private memories in own scope (owner check
+    # passes) and only meaningful when extra_scopes folded in shared
+    # data the caller can't actually access.
+    unique = list(sharing.visible_memories(unique, op="read"))
 
     # Sort by score (descending) and limit
     unique.sort(key=lambda m: m.get("score", m.get("_score", 0)), reverse=True)

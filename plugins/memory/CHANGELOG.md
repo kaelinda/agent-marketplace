@@ -5,7 +5,81 @@ All notable changes to the `memory` plugin are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — Phase 2 (iter2)
+## [Unreleased] — Phase 3 (iter3)
+
+### Added
+- **Cross-agent sharing layer.** New `lib/sharing.py` `SharingManager`
+  + identity-string helpers (`parse_identity`, `is_identity_string`,
+  `owner_from_scope`). Pure-Python ACL evaluation runs locally — the
+  adapter only stores grants.
+- **`MemoryAdapter` protocol grew three methods**: `share()`,
+  `unshare()`, `list_subscribed()`. `search()` gained a fifth keyword
+  arg `extra_scopes` so callers can fold in shared / team scopes
+  without N round-trips.
+- **`team` entity_type** in `Config.build_scope()`. New config slots:
+  `identity.team_ids: list[str]`, `safety.auto_include_subscribed:
+  bool`. `OV_TEAM_IDS` env override (comma-separated, whitespace tolerated).
+- **ACL fields on memory schema**: `owner_id`, `visibility`
+  (`private` | `team` | `public`, default `private`), `shared_with` (list of
+  identity strings), `shared_perms` (per-target `read` | `write`).
+- **New skill `memory-share`** (`skills/memory-share/`) with three
+  entry-points: `run_share`, `run_unshare`, `run_list_subscribed`.
+  Goes via SharingManager so target validation runs before any backend
+  call.
+- **New slash command** `/memory-share` (`commands/memory-share.md`)
+  dispatching `share` / `unshare` / `subscribed`.
+- **CLI subcommands**: `memory-cli share <id> --to <target>`,
+  `memory-cli unshare <id> --to <target>`, `memory-cli subscribed`.
+  `capture` got `--visibility` + repeatable `--share-with`. `recall`
+  got `--include-subscribed` / `--no-include-subscribed`.
+- **Formatter provenance**: `format_recall_block(memories,
+  viewer_identity=...)` now appends `(shared by user:bob)` after lines
+  whose `owner_id` differs from the viewer.
+- **Tests**: `tests/test_sharing.py` (28 cases — ACL paths, share
+  round-trip, subscription dedup, recall ACL filter), `tests/test_scope.py`
+  (10 cases — `build_scope` per entity_type, OV_TEAM_IDS edge cases,
+  identity aggregation).
+
+### Changed
+- `capture.run_capture` now writes `owner_id` (`user:` for most types,
+  `agent:` for `agent_reflection`), `visibility` (default `private`),
+  `shared_with`, `shared_perms` on every new memory. Legacy Phase 2
+  memories without these fields still work — `SharingManager.can_access`
+  falls back to parsing `scope`.
+- `capture` rejects `visibility="team"` when the resolved scope doesn't
+  contain `/teams/` (silent fall-through here would be a reverse data
+  leak: "user wanted team visibility but stored under user scope").
+- `recall.run_recall` has a new optional `include_subscribed` arg and
+  passes `extra_scopes=SharingManager.subscribed_scopes()` to
+  `adapter.search` when enabled. Results are post-filtered through
+  `SharingManager.visible_memories` so a misbehaving adapter cannot
+  leak unauthorized memories. Off by default — `safety.auto_include_subscribed`
+  flips it on globally.
+- `Config.build_scope` now rejects unknown `entity_type` with
+  `ValueError`. Previously it would silently format whatever you gave
+  it into the URI template.
+- `adapter_protocol.AdapterResponse.from_dict` documentation tightened
+  to call out the legacy / new error-shape support is for migration.
+- All three real adapters (`HTTPAdapter`, `MCPAdapter`, `Mem0Adapter`)
+  now satisfy the expanded `MemoryAdapter` protocol — Mem0Adapter
+  with full sharing support via `metadata.shared_with`, HTTP / MCP
+  via client-side read-modify-write of memory metadata.
+  HTTP / MCP `list_subscribed` returns ok=False with the explanatory
+  error "OpenViking ... does not expose a subscription index; use mem0
+  backend or wait for Phase 4 ACL endpoints."
+
+### Migration
+
+Phase 2 memories are forward-compatible. They have no `owner_id` /
+`visibility` / `shared_with`, which means `SharingManager.can_access`
+treats them as private and uses the scope URI to derive ownership.
+No migration script needed.
+
+If you have automation that calls `Config.build_scope` with an unusual
+`entity_type`, audit it — Phase 3 raises on unknown types. Before, it
+silently produced URIs like `viking://tenants/x/orgs/y/memories/`.
+
+## Phase 2 (iter2) — released 2026-05-08
 
 ### Added
 - `commands/recall.md` and `commands/memory-doctor.md` slash commands so

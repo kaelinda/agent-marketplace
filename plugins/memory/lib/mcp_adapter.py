@@ -75,7 +75,8 @@ class MCPAdapter:
         )
 
     def search(self, query: str, scope: str = "", limit: int = 6,
-               memory_type: str = "", min_score: float = 0.0) -> dict:
+               memory_type: str = "", min_score: float = 0.0,
+               extra_scopes: list[str] = ()) -> dict:
         args = {"query": query, "limit": limit}
         if scope:
             args["scope"] = scope
@@ -83,7 +84,40 @@ class MCPAdapter:
             args["type"] = memory_type
         if min_score > 0:
             args["min_score"] = min_score
-        return self._wrap(self._call_tool(self._tool("search"), args))
+        primary = self._wrap(self._call_tool(self._tool("search"), args))
+        if not extra_scopes:
+            return primary
+        if not primary.get("ok"):
+            return primary
+        seen_ids: set[str] = set()
+        merged: list[dict] = []
+        primary_data = primary.get("data") or []
+        if isinstance(primary_data, dict):
+            primary_data = primary_data.get("memories") or primary_data.get("results") or []
+        for m in primary_data:
+            mid = m.get("id", "") if isinstance(m, dict) else ""
+            if mid and mid not in seen_ids:
+                seen_ids.add(mid)
+                merged.append(m)
+        for s in extra_scopes:
+            extra_args = dict(args)
+            extra_args["scope"] = s
+            extra = self._wrap(self._call_tool(self._tool("search"), extra_args))
+            if not extra.get("ok"):
+                continue
+            extra_data = extra.get("data") or []
+            if isinstance(extra_data, dict):
+                extra_data = extra_data.get("memories") or extra_data.get("results") or []
+            for m in extra_data:
+                mid = m.get("id", "") if isinstance(m, dict) else ""
+                if mid and mid not in seen_ids:
+                    seen_ids.add(mid)
+                    merged.append(m)
+                    if len(merged) >= limit:
+                        break
+            if len(merged) >= limit:
+                break
+        return AdapterResponse(ok=True, data=merged[:limit], meta={"backend": "mcp"}).to_dict()
 
     def read(self, memory_id: str) -> dict:
         return self._wrap(self._call_tool(self._tool("read"), {"id": memory_id}))
@@ -165,6 +199,57 @@ class MCPAdapter:
                 "or run inside an agent with MCP configured, or use the HTTP adapter."
             ),
         }
+
+    # ── Sharing (Phase 3) ──────────────────────────────────────
+    # MCPAdapter goes through the same OpenViking server as HTTPAdapter,
+    # so it shares the same fallback strategy: read-modify-write on
+    # memory metadata, plus list_subscribed unsupported until Phase 4.
+
+    def share(self, memory_id: str, target: str,
+              permission: str = "read") -> dict:
+        if permission not in ("read", "write"):
+            return AdapterResponse(
+                ok=False, error=f"invalid permission {permission!r}"
+            ).to_dict()
+        read = self._wrap(self._call_tool(self._tool("read"), {"id": memory_id}))
+        if not read.get("ok"):
+            return read
+        mem = read.get("data") or {}
+        if not isinstance(mem, dict):
+            return AdapterResponse(
+                ok=False, error="unexpected non-dict response from read()"
+            ).to_dict()
+        shared_with = list(mem.get("shared_with") or [])
+        if target not in shared_with:
+            shared_with.append(target)
+        perms = dict(mem.get("shared_perms") or {})
+        perms[target] = permission
+        patch = {"id": memory_id, "shared_with": shared_with, "shared_perms": perms}
+        return self._wrap(self._call_tool(self._tool("update"), patch))
+
+    def unshare(self, memory_id: str, target: str) -> dict:
+        read = self._wrap(self._call_tool(self._tool("read"), {"id": memory_id}))
+        if not read.get("ok"):
+            return read
+        mem = read.get("data") or {}
+        if not isinstance(mem, dict):
+            return AdapterResponse(
+                ok=False, error="unexpected non-dict response from read()"
+            ).to_dict()
+        shared_with = [t for t in (mem.get("shared_with") or []) if t != target]
+        perms = {k: v for k, v in (mem.get("shared_perms") or {}).items()
+                 if k != target}
+        patch = {"id": memory_id, "shared_with": shared_with, "shared_perms": perms}
+        return self._wrap(self._call_tool(self._tool("update"), patch))
+
+    def list_subscribed(self, identity: str) -> dict:
+        return AdapterResponse(
+            ok=False,
+            error=(
+                "OpenViking MCP backend does not expose a subscription index; "
+                "use mem0 backend or wait for Phase 4 ACL endpoints."
+            ),
+        ).to_dict()
 
     def ping(self) -> dict:
         """Check if the MCP server is reachable via a minimal search call."""
