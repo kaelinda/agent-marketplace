@@ -54,11 +54,20 @@ def cmd_doctor(args, config):
 
 def cmd_recall(args, config):
     run_recall = load_skill_module("memory-recall", "recall").run_recall
-    memories = run_recall(config, query=args.query, memory_type=args.type, limit=args.limit)
+    memories = run_recall(
+        config,
+        query=args.query,
+        memory_type=args.type,
+        limit=args.limit,
+        include_subscribed=args.include_subscribed,
+    )
     if not memories:
         print("(no relevant memories found)")
         return 0
-    print(format_recall_block(memories))
+    # Phase 3: tag cross-owner provenance from the agent's POV so the
+    # injected block makes it clear which lines came from teammates.
+    viewer = f"agent:{config.agent_id}"
+    print(format_recall_block(memories, viewer_identity=viewer))
     return 0
 
 
@@ -75,7 +84,15 @@ def cmd_capture(args, config):
         print(f"Auto-classified as: {mem_type} (confidence: {confidence})")
 
     title = args.title or content[:80]
-    result = run_capture(config, content=content, memory_type=mem_type, title=title)
+    result = run_capture(
+        config,
+        content=content,
+        memory_type=mem_type,
+        title=title,
+        scope=getattr(args, "scope", "") or "",
+        visibility=getattr(args, "visibility", "private"),
+        shared_with=getattr(args, "share_with", None),
+    )
     if result.get("error"):
         print(f"Error: {result.get('reason', 'unknown')}", file=sys.stderr)
         return 1
@@ -213,6 +230,17 @@ def build_parser():
     p.add_argument("query", help="Search query")
     p.add_argument("--type", help="Filter by memory type (comma-separated)")
     p.add_argument("--limit", type=int, default=6, help="Max results")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument(
+        "--include-subscribed", dest="include_subscribed",
+        action="store_true", default=None,
+        help="Fold team scopes into the search (Phase 3 cross-agent recall).",
+    )
+    g.add_argument(
+        "--no-include-subscribed", dest="include_subscribed",
+        action="store_false",
+        help="Skip team scopes even if config.safety.auto_include_subscribed=true.",
+    )
 
     p = sub.add_parser("capture", help="Store a new memory")
     p.add_argument("--content", required=True, help="Memory content")
@@ -220,6 +248,15 @@ def build_parser():
     p.add_argument("--title", help="Memory title")
     p.add_argument("--auto-classify", action="store_true", help="Auto-detect type")
     p.add_argument("--scope", help="Target namespace/scope")
+    p.add_argument(
+        "--visibility", choices=("private", "team", "public"), default="private",
+        help="Phase 3: who can read this memory (default private).",
+    )
+    p.add_argument(
+        "--share-with", dest="share_with", action="append", default=None,
+        help="Phase 3: identity string to grant read at write time, e.g. "
+             "'agent:devbot' or 'team:platform'. Repeat for multiple.",
+    )
 
     p = sub.add_parser("merge", help="Merge new info into existing memory")
     p.add_argument("--memory-id", required=True, help="Target memory ID")
