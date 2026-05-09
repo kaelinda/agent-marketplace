@@ -124,8 +124,18 @@ class MemoryAdapter(Protocol):
         ...
 
     def search(self, query: str, scope: str = "", limit: int = 6,
-               memory_type: str = "", min_score: float = 0.0) -> dict:
-        """Search memories by query. Returns AdapterResponse(data=[...])."""
+               memory_type: str = "", min_score: float = 0.0,
+               extra_scopes: list[str] = ()) -> dict:
+        """Search memories by query.
+
+        Phase 3: ``extra_scopes`` lets callers fold in additional scopes
+        (e.g. team scopes the current identity is subscribed to) so a
+        single adapter call can return memories from "own" + "subscribed"
+        without N round-trips. Adapters that can't natively multi-scope
+        a single query must iterate and merge client-side.
+
+        Returns AdapterResponse(data=[...]).
+        """
         ...
 
     def read(self, memory_id: str) -> dict:
@@ -150,6 +160,58 @@ class MemoryAdapter(Protocol):
 
     def commit(self, memories: list[dict], scope: str = "") -> dict:
         """Batch commit memories. Returns AdapterResponse(data={"committed": N})."""
+        ...
+
+    # ── Sharing (Phase 3) ──────────────────────────────────────
+    #
+    # All three methods MUST return AdapterResponse-shape dicts.
+    # Backends that don't natively support sharing (e.g. plain
+    # OpenViking REST without ACL) should:
+    #   1. Implement client-side fallback if feasible (e.g. mem0 stores
+    #      shared_with in metadata and filters via metadata query)
+    #   2. Otherwise return ok=False with a clear "backend doesn't
+    #      support sharing — see Phase 4 for ACL support" error string.
+    # Either way, lib.sharing.SharingManager treats both equivalently.
+
+    def share(self, memory_id: str, target: str,
+              permission: str = "read") -> dict:
+        """Grant ``target`` access to memory ``memory_id``.
+
+        Args:
+            memory_id:  ID of the memory to share.
+            target:     Identity string of the recipient — must match
+                        ``^(user|agent|team):.+$`` (e.g. ``team:platform``).
+            permission: ``"read"`` (default) or ``"write"``.
+
+        Returns:
+            AdapterResponse(data={"id": ..., "target": ..., "permission": ...})
+            on success, or ok=False with explanatory error on failure /
+            unsupported backend.
+        """
+        ...
+
+    def unshare(self, memory_id: str, target: str) -> dict:
+        """Revoke ``target``'s access to memory ``memory_id``.
+
+        Returns AdapterResponse(data={"id": ..., "target": ...}) on
+        success. Unsharing a target that wasn't shared is a no-op
+        success (idempotent).
+        """
+        ...
+
+    def list_subscribed(self, identity: str) -> dict:
+        """List memories that have been shared TO ``identity``.
+
+        Args:
+            identity: Identity string ``"<entity_type>:<id>"``.
+
+        Returns:
+            AdapterResponse(data=[memory dicts]) — each memory has its
+            full metadata. Backends should NOT filter by visibility
+            here; SharingManager.can_access does the final ACL check
+            so the same data path can support both audit ("show me what
+            I have access to") and recall flows.
+        """
         ...
 
     def close(self):
