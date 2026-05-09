@@ -106,8 +106,11 @@ class MemoryAdapter(Protocol):
 
         Args:
             tenant_id:   Tenant identifier.
-            entity_type: "user" | "agent" | "system".
-            entity_id:   User or agent ID.
+            entity_type: ``user`` | ``agent`` | ``team`` | ``system``.
+                         Phase 3 added ``team`` for cross-agent shared
+                         memories (multiple agents subscribe to one
+                         team scope).
+            entity_id:   User / agent / team ID, or system component.
 
         Returns:
             Backend-native scope string.
@@ -115,6 +118,8 @@ class MemoryAdapter(Protocol):
         Example (OpenViking):
             build_scope("default", "user", "alice")
             → "viking://tenants/default/users/alice/memories/"
+            build_scope("default", "team", "platform")
+            → "viking://tenants/default/teams/platform/memories/"
         """
         ...
 

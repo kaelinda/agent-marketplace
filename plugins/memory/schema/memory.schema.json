@@ -110,6 +110,31 @@
         "archived"
       ]
     },
+    "owner_id": {
+      "type": "string",
+      "description": "Identity string of the writer (Phase 3). Format: '<entity_type>:<id>', e.g. 'agent:devbot' or 'user:alice'. Used by SharingManager.can_access to evaluate ownership."
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["private", "team", "public"],
+      "description": "Default 'private' (only owner can read). 'team' grants read to anyone in the same team_ids. 'public' grants read to anyone in the same tenant. Phase 3."
+    },
+    "shared_with": {
+      "type": "array",
+      "description": "Identity strings explicitly granted access (Phase 3). Each item is '<entity_type>:<id>', e.g. 'agent:devbot' / 'team:platform' / 'user:alice'.",
+      "items": {
+        "type": "string",
+        "pattern": "^(user|agent|team):.+$"
+      }
+    },
+    "shared_perms": {
+      "type": "object",
+      "description": "Optional per-target permission overrides (Phase 3). Key is the same identity string as shared_with; value is 'read' or 'write'. Identities not listed here default to 'read'.",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["read", "write"]
+      }
+    },
     "created_at": {
       "type": "string",
       "format": "date-time"
