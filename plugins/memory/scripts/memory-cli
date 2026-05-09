@@ -17,6 +17,9 @@ Usage:
     memory-cli admin (stats|backup|restore|dedupe|prune|audit) [ARGS...] [--config PATH]
     memory-cli browse [--scope SCOPE] [--limit N] [--config PATH]
     memory-cli read <memory-id> [--config PATH]
+    memory-cli share <memory-id> --to <kind>:<id> [--permission read|write] [--config PATH]
+    memory-cli unshare <memory-id> --to <kind>:<id> [--config PATH]
+    memory-cli subscribed [--config PATH]
 """
 import argparse
 import json
@@ -119,6 +122,61 @@ def cmd_commit(args, config):
     else:
         print(format_commit_candidates(candidates, discarded))
         print("Run with --apply to store these candidates.")
+    return 0
+
+
+def cmd_share(args, config):
+    """Phase 3: grant `target` access to a memory."""
+    sm = load_skill_module("memory-share", "share")
+    result = sm.run_share(
+        config,
+        memory_id=args.memory_id,
+        target=args.target,
+        permission=args.permission,
+    )
+    if not result.get("ok"):
+        print(f"Error: {result.get('error', 'share failed')}", file=sys.stderr)
+        return 1
+    data = result.get("data") or {}
+    print(
+        f"Memory shared: [{data.get('id', args.memory_id)}] → "
+        f"{data.get('target', args.target)} ({data.get('permission', args.permission)})"
+    )
+    return 0
+
+
+def cmd_unshare(args, config):
+    """Phase 3: revoke `target`'s access to a memory."""
+    sm = load_skill_module("memory-share", "share")
+    result = sm.run_unshare(config, memory_id=args.memory_id, target=args.target)
+    if not result.get("ok"):
+        print(f"Error: {result.get('error', 'unshare failed')}", file=sys.stderr)
+        return 1
+    data = result.get("data") or {}
+    print(
+        f"Unshared: [{data.get('id', args.memory_id)}] from "
+        f"{data.get('target', args.target)}"
+    )
+    return 0
+
+
+def cmd_subscribed(args, config):
+    """Phase 3: list memories shared TO the current identity."""
+    sm = load_skill_module("memory-share", "share")
+    result = sm.run_list_subscribed(config)
+    if not result.get("ok"):
+        print(f"Error: {result.get('error', 'list_subscribed failed')}", file=sys.stderr)
+        meta = result.get("meta") or {}
+        # Surface per-identity errors so the user sees whether it was
+        # "all backends say unsupported" or just one identity that failed.
+        for entry in meta.get("errors", []):
+            print(f"  [{entry.get('identity')}] {entry.get('error')}", file=sys.stderr)
+        return 1
+    memories = result.get("data") or []
+    if not memories:
+        print("(no memories shared with you)")
+        return 0
+    print(format_memory_list(memories))
     return 0
 
 
@@ -312,6 +370,23 @@ def build_parser():
     p.add_argument("--content", help="")
     p.add_argument("--query", help="")
 
+    # ── Sharing (Phase 3) ─────────────────────────────────────
+
+    p = sub.add_parser("share", help="Grant a target read/write access to a memory")
+    p.add_argument("memory_id", help="Memory ID to share")
+    p.add_argument("--to", dest="target", required=True,
+                   help="Target identity string '<kind>:<id>' "
+                        "where kind ∈ user|agent|team")
+    p.add_argument("--permission", choices=("read", "write"), default="read")
+
+    p = sub.add_parser("unshare", help="Revoke a target's access to a memory")
+    p.add_argument("memory_id", help="Memory ID")
+    p.add_argument("--to", dest="target", required=True,
+                   help="Target identity string '<kind>:<id>'")
+
+    p = sub.add_parser("subscribed",
+                        help="List memories shared TO the current identity")
+
     p = sub.add_parser("admin", help="Memory administration")
     p.add_argument("admin_action", choices=["stats", "backup", "restore", "dedupe", "prune", "audit"])
     p.add_argument("--scope", help="")
@@ -349,6 +424,10 @@ def main():
         "pref": cmd_pref,
         "reflection": cmd_reflection,
         "admin": cmd_admin,
+        # Phase 3 sharing
+        "share": cmd_share,
+        "unshare": cmd_unshare,
+        "subscribed": cmd_subscribed,
     }
 
     handler = commands.get(args.command)
