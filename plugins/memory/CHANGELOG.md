@@ -8,6 +8,13 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 ## [Unreleased] — Phase 2 (iter2)
 
 ### Added
+- `docs/` user-facing documentation set, replacing the "see EVAL.md /
+  CHANGELOG.md" placeholder in the top-level README:
+  `docs/README.md` (index), `getting-started.md`, `backends.md`,
+  `skills.md`, `cli.md`, `configuration.md`, `troubleshooting.md`,
+  `architecture.md`, `faq.md`. Phase 1 docs preserved under
+  `docs/legacy/` for historical reference (their CLI flags are stale —
+  do not copy commands from there).
 - `commands/recall.md` and `commands/memory-doctor.md` slash commands so
   users can invoke memory operations from inside Claude Code (previously
   the only entry point was `python scripts/ov-memory ...`).

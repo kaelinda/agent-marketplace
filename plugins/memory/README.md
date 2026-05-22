@@ -4,7 +4,7 @@
 >
 > Phase 2（v0.2.0）已落地：5 个 Claude Code skill / 2 个 slash command / 3 个适配器（OpenViking / MCP / mem0）/ FakeAdapter 合同测试 / fail-closed identity 校验。
 >
-> 完整的用户使用文档与跨 Agent 共享场景说明在 Phase 6 / Phase 3 里继续打磨；本 README 只覆盖能让你跑起来的最小集合。
+> 本 README 只覆盖能让你跑起来的最小集合。完整使用文档（入门、后端选型、CLI 参考、配置、排障、架构、FAQ）在 [`docs/`](docs/README.md)。跨 Agent 共享一等抽象在 Phase 3 路线图里。
 
 ## 这是什么
 
@@ -101,6 +101,15 @@ memory-cli recall "项目技术栈"
 
 ## 更详细的话
 
+- **使用文档全集**：[`docs/`](docs/README.md)
+  - 入门：[`docs/getting-started.md`](docs/getting-started.md)
+  - 后端选型：[`docs/backends.md`](docs/backends.md)
+  - 5 个 skill 详解：[`docs/skills.md`](docs/skills.md)
+  - CLI 完整参考：[`docs/cli.md`](docs/cli.md)
+  - 配置 / 环境变量 / scope：[`docs/configuration.md`](docs/configuration.md)
+  - 排障：[`docs/troubleshooting.md`](docs/troubleshooting.md)
+  - 架构（给扩展者）：[`docs/architecture.md`](docs/architecture.md)
+  - FAQ：[`docs/faq.md`](docs/faq.md)
 - **现状评估与重构路线图**：`EVAL.md`
 - **Phase 2 变更总览**：`CHANGELOG.md`
 - **跨 Agent 共享 / 三份 best-practices 合一**：Phase 3 / Phase 6 落地
