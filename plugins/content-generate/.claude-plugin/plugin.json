@@ -1,0 +1,21 @@
+{
+  "name": "content-generate",
+  "version": "0.2.0",
+  "description": "内容创作与发布工具集：md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎、mermaid 构建时出图）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "content",
+    "markdown",
+    "html",
+    "publish",
+    "mdnice",
+    "mermaid",
+    "oss",
+    "aliyun",
+    "upload"
+  ]
+}
