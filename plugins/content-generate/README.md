@@ -1,4 +1,4 @@
-# Content Plugin
+# Content Generate Plugin
 
 内容创作与发布相关的技能集合。
 
@@ -14,7 +14,7 @@
 **快速开始：**
 
 ```bash
-cd plugins/content/skills/md-to-html
+cd plugins/content-generate/skills/md-to-html
 
 # 列出所有可用主题
 python3 scripts/md_to_html.py list-themes

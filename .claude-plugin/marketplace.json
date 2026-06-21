@@ -33,6 +33,14 @@
       "version": "0.2.0",
       "category": "memory",
       "tags": ["memory", "context", "long-term-memory", "agent", "recall", "session", "persistence"]
+    },
+    {
+      "name": "content-generate",
+      "source": "./plugins/content-generate",
+      "description": "内容创作与发布工具集，目前包含 md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）。",
+      "version": "0.1.0",
+      "category": "content",
+      "tags": ["content", "markdown", "html", "publish", "mdnice"]
     }
   ]
 }
