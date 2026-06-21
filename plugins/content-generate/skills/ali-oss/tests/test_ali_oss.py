@@ -51,6 +51,21 @@ class TestSigning(unittest.TestCase):
             "/b/k?acl",
         )
 
+    def test_canonicalized_oss_headers(self):
+        # only x-oss-* headers, lowercased + sorted, each "k:v\n"; others ignored
+        self.assertEqual(ali._canonicalized_oss_headers(None), "")
+        self.assertEqual(ali._canonicalized_oss_headers({"Content-Length": "10"}), "")
+        self.assertEqual(
+            ali._canonicalized_oss_headers({"x-oss-object-acl": "public-read"}),
+            "x-oss-object-acl:public-read\n",
+        )
+        self.assertEqual(
+            ali._canonicalized_oss_headers(
+                {"X-OSS-Meta-B": "2", "x-oss-meta-a": "1", "Content-Length": "5"}
+            ),
+            "x-oss-meta-a:1\nx-oss-meta-b:2\n",
+        )
+
     def test_sign_url_shape(self):
         cfg = {"access_key_id": "AKID", "access_key_secret": "SEC"}
         url = ali.sign_url(cfg, "mybucket", "oss-cn-hangzhou.aliyuncs.com", "a/b.png", 600)

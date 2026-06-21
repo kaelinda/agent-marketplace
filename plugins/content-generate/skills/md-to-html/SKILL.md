@@ -25,6 +25,12 @@ python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes githu
 python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes 极客黑,橙蓝风 --output article-preview.html
 # override the paired code / diagram themes
 python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes 简 --code-theme github --mermaid-theme neutral --output article.html
+# PUBLISH pipeline: render mermaid to images at build time + upload all images to OSS (public URLs)
+python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes 极客黑 \
+  --mermaid-render image --image-host oss --oss-prefix my-article --output article.html
+# fully self-contained variant: mermaid -> image + every image inlined as base64 (no external links)
+python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes 极客黑 \
+  --mermaid-render image --image-host base64 --output article.html
 ```
 
 Theme selectors accept MDNice IDs, exact names, unique name substrings, or stylesheet-theme slugs (e.g. `github-light`, `sakura`, `latex`, `heti`). With one theme, the generated HTML is a pure article document suitable for publishing/copying into platforms such as WeChat Official Account or Zhihu. For MDNice themes, theme CSS is applied as inline `style` attributes on the generated article DOM; only the small renderer compatibility layer remains in `<style>`. With 2-5 themes, the generated HTML is a tabbed comparison preview using isolated iframes; each tab renders with its own engine.
@@ -64,9 +70,27 @@ Override auto-detection with `--wrapper-class` (or `none`), `--appearance light|
 ## Code Blocks and Diagrams
 
 - **Code highlighting**: code blocks are tokenized with Pygments into `.hljs-*` spans. The code BLOCK colours (background + token colours) are a separate "highlight.js theme" dimension. The skill ships a registry of standard themes (`atom-one-dark`, `atom-one-light`, `github`, `vs2015`, `monokai`, `dracula`) and pairs each layout/stylesheet theme with a fitting one (MDNice 极客黑 → atom-one-dark, 科技蓝 → vs2015; stylesheet `github-dark` → atom-one-dark, light themes → github / atom-one-light). For MDNice themes the code CSS is inlined onto each token span (survives WeChat/Zhihu paste); for stylesheet themes it is appended as a `<style>` block scoped to the theme's wrapper so it wins the cascade and owns the code block consistently. Override with `--code-theme`.
-- **Mermaid diagrams**: ` ```mermaid ` fences render as real flowcharts/sequence diagrams via mermaid.js (loaded from CDN only when a document contains diagrams), not as raw code. Each theme is paired with a mermaid theme (`default`/`dark`/`forest`/`neutral`/`base`); dark layout/stylesheet themes pair with `dark`. Override with `--mermaid-theme`. To publish, open the HTML in a browser and copy the rendered content — the SVG is copied along.
+- **Mermaid diagrams**: ` ```mermaid ` fences render as real flowcharts/sequence diagrams. **Default (`--mermaid-render client`)**: rendered in the browser by mermaid.js (loaded from CDN only when a document contains diagrams) — great for the web, but a WeChat paste washes the `<script>` so the diagram is lost. **`--mermaid-render image`**: each diagram is rendered to a PNG **at build time** via a server-side renderer (`--mermaid-renderer mermaid.ink` (default) or `kroki`) and emitted as an `<img>`, so it survives a WeChat paste. The PNG is then hosted per `--image-host` (OSS URL, base64, or — when `--image-host none` — self-hosted as base64). Each theme is paired with a mermaid theme (`default`/`dark`/`forest`/`neutral`/`base`); override with `--mermaid-theme`. For a hand-crafted, mobile-tuned look beyond standard mermaid styling, see `references/mermaid-design-language.md`.
 - **Footnotes**: inline links are converted to footnote references — the link text keeps a superscript `[N]` marker and the URLs are collected into a 引用链接 list at the end of the article. This is **on by default for the inline paste output** (WeChat/Zhihu strip inline link URLs, so footnotes preserve them) and **off for stylesheet documents** (web pages keep links clickable). Override with `--footnotes` / `--no-footnotes`.
-- **Frontmatter**: a leading YAML frontmatter block (`--- ... ---`) is stripped, not rendered as body text.
+- **Frontmatter & comments**: a leading YAML frontmatter block (`--- ... ---`) is stripped, not rendered as body text. `<!-- HTML comments -->` are also stripped from the markdown before parsing (publishing default); pass `--keep-comments` to retain them.
+
+## Publishing (build-time images + image hosting)
+
+WeChat Official Account washes `<style>` / `class` / `<script>` and keeps only inline `style` and `<img>`. To publish reliably, turn diagrams and local images into images. These flags apply to **single-theme output only** (skipped for tabbed previews):
+
+- `--mermaid-render client|image` — `image` renders each diagram to a PNG at build time (see above).
+- `--mermaid-renderer mermaid.ink|kroki` — server-side renderer for `image` mode. The diagram text is sent to this third-party service; both are HTTP-only (no browser/SDK install).
+- `--image-host none|oss|base64` — how to carry images (mermaid PNGs **and** local `![](./x.png)` references):
+  - `none` (default): leave `<img src>` untouched (current behaviour). Mermaid `image` mode still needs a carrier, so it self-hosts diagrams as base64.
+  - `oss`: upload every local image and mermaid PNG to Aliyun OSS via the sibling **ali-oss** skill and rewrite `<img src>` to the object URL. Object keys are content-hashed (`<prefix>/<sha1>-<name>`), so re-runs are idempotent. Requires ali-oss to have a default bucket configured (`ali_oss.py add-bucket …`). Set the bucket with `--oss-bucket`, the key prefix with `--oss-prefix` (default `md-to-html`), the ali-oss script with `--oss-script`, and the object ACL with `--oss-acl`. **Public reachability**: for WeChat to fetch the image the object must be publicly readable — either the bucket is public-read, or pass `--oss-acl public-read` (which only works if the bucket permits public-read objects; locked-down buckets reject it). With a private bucket the URL is not directly viewable, though `ali_oss.py sign-url` still produces a time-limited link.
+  - `base64`: inline every image as a `data:` URI — fully self-contained HTML, no external links, larger file.
+- Remote (`http(s)://`) and existing `data:` image sources are always left untouched.
+
+```bash
+# publish to WeChat: diagrams as images, all images on OSS public URLs
+python3 skills/md-to-html/scripts/md_to_html.py render article.md --themes 极客黑 \
+  --mermaid-render image --image-host oss --oss-bucket my-bucket --oss-prefix article-2026 --output out.html
+```
 
 ## Refresh Theme Data
 
@@ -99,6 +123,7 @@ python3 skills/md-to-html/scripts/md_to_html.py split-catalog
 - `references/theme-hub-themes.json`: stylesheet-engine theme catalog (slug, wrapper class, appearance, paired code/mermaid theme, license, source).
 - `references/theme-hub/`: vendored CSS theme files (`content-platform/`, `minimal/`) plus `NOTICE.md` provenance/licensing.
 - `references/mdnice-api.md`: endpoint notes, auth requirements, and known side effects.
+- `references/mermaid-design-language.md`: the hand-crafted CSS-diagram design language + mobile-tuning + screenshot→image workflow for premium mermaid output (the manual path complementing `--mermaid-render image`).
 - `references/technical-principles.md`: rendering architecture, both engines, MDNice-like DOM mapping, preview isolation, and known limits.
 - `scripts/md_to_html.py --help`: command options.
 

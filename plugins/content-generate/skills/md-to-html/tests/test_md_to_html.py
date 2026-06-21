@@ -175,5 +175,116 @@ class Footnotes(unittest.TestCase):
         self.assertIn('href="https://e.com"', html)
 
 
+class AssetEncoders(unittest.TestCase):
+    def test_kroki_url_roundtrip(self):
+        import base64
+        import zlib
+        url = m.kroki_url("graph TD; A-->B")
+        self.assertTrue(url.startswith("https://kroki.io/mermaid/png/"))
+        enc = url.rsplit("/", 1)[-1]
+        pad = enc + "=" * (-len(enc) % 4)
+        self.assertEqual(zlib.decompress(base64.urlsafe_b64decode(pad)).decode(), "graph TD; A-->B")
+
+    def test_mermaid_ink_url_carries_theme(self):
+        import base64
+        import zlib
+        url = m.mermaid_ink_url("graph TD; A-->B", "dark")
+        self.assertIn("/img/pako:", url)
+        self.assertTrue(url.endswith("?type=png"))
+        pako = url.split("pako:")[1].split("?")[0]
+        pad = pako + "=" * (-len(pako) % 4)
+        state = json.loads(zlib.decompress(base64.urlsafe_b64decode(pad)).decode())
+        self.assertEqual(state["code"], "graph TD; A-->B")
+        self.assertEqual(state["mermaid"]["theme"], "dark")
+
+    def test_classify_src(self):
+        self.assertEqual(m.classify_src("https://x/y.png"), "remote")
+        self.assertEqual(m.classify_src("//x/y.png"), "remote")
+        self.assertEqual(m.classify_src("data:image/png;base64,AA"), "data")
+        self.assertEqual(m.classify_src("./a.png"), "local")
+        self.assertEqual(m.classify_src("img/a.png"), "local")
+
+    def test_base64_data_uri(self):
+        uri = m.base64_data_uri(b"\x89PNG", "image/png")
+        self.assertTrue(uri.startswith("data:image/png;base64,"))
+
+    def test_strip_html_comments(self):
+        self.assertEqual(m.strip_html_comments("a<!-- x -->b"), "ab")
+        self.assertEqual(m.strip_html_comments("a<!--\nmulti\nline\n-->b"), "ab")
+        self.assertEqual(m.strip_html_comments("no comment"), "no comment")
+
+
+class AssetPostProcess(unittest.TestCase):
+    def setUp(self):
+        # Stub the network renderer so the post-process pass runs fully offline.
+        self._orig = m.render_mermaid_to_image
+        self.addCleanup(lambda: setattr(m, "render_mermaid_to_image", self._orig))
+        m.render_mermaid_to_image = lambda src, theme, renderer, timeout=30: (b"\x89PNGFAKE", "image/png")
+
+    def test_mermaid_to_oss_and_local_image(self):
+        uploads = {}
+
+        def upload(data, key):
+            url = "https://bkt.oss-cn-beijing.aliyuncs.com/" + key
+            uploads[key] = url
+            return url
+
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "pic.png").write_bytes(b"localbytes")
+            mer = m.render_mermaid_block("graph TD; A[x]-->B")
+            script = m.mermaid_runtime("default")
+            html_in = (
+                f"<head>{script}</head><body>{mer}"
+                '<img src="pic.png" alt="a"><img src="https://cdn/x.png"></body>'
+            )
+            opts = m.AssetOptions(image_host="oss", mermaid_render="image", base_dir=Path(d), oss_prefix="t")
+            out = m.post_process_assets(html_in, opts, upload=upload)
+
+        self.assertIn('<img src="https://bkt.oss-cn-beijing.aliyuncs.com/t/mermaid-', out)
+        self.assertNotIn("cdn.jsdelivr", out)              # CDN runtime script removed
+        self.assertTrue(any(k.endswith("-pic.png") for k in uploads))  # local image uploaded
+        self.assertIn("https://cdn/x.png", out)            # remote image untouched
+        self.assertNotIn('src="pic.png"', out)             # local src rewritten
+
+    def test_mermaid_base64_when_host_none(self):
+        mer = m.render_mermaid_block("graph TD; A-->B")
+        script = m.mermaid_runtime("default")
+        opts = m.AssetOptions(image_host="none", mermaid_render="image")
+        out = m.post_process_assets(f"<head>{script}</head>{mer}", opts)
+        self.assertIn('src="data:image/png;base64,', out)  # self-hosted as base64
+        self.assertNotIn("cdn.jsdelivr", out)
+
+    def test_local_image_base64(self):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "pic.png").write_bytes(b"\x89PNGdata")
+            opts = m.AssetOptions(image_host="base64", base_dir=Path(d))
+            out = m.post_process_assets('<img src="pic.png">', opts)
+        self.assertIn("data:image/png;base64,", out)
+
+    def test_missing_local_image_left_as_is(self):
+        opts = m.AssetOptions(image_host="base64", base_dir=Path("/nonexistent"))
+        warnings = []
+        out = m.post_process_assets('<img src="nope.png">', opts, warn=warnings.append)
+        self.assertIn('src="nope.png"', out)
+        self.assertTrue(warnings)
+
+
+class RenderCommentStrip(unittest.TestCase):
+    def test_html_comment_stripped_by_default(self):
+        md = "# T\n\nbefore <!-- KEEPME_COMMENT --> after\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "in.md"
+            o = Path(tmp) / "o.html"
+            p.write_text(md, encoding="utf-8")
+            self.assertEqual(run("render", str(p), "--themes", "极客黑", "--output", str(o)).returncode, 0)
+            default = o.read_text(encoding="utf-8")
+            self.assertEqual(
+                run("render", str(p), "--themes", "极客黑", "--keep-comments", "--output", str(o)).returncode, 0
+            )
+            kept = o.read_text(encoding="utf-8")
+        self.assertNotIn("KEEPME_COMMENT", default)
+        self.assertIn("KEEPME_COMMENT", kept)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

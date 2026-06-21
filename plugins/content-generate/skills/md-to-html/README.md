@@ -88,11 +88,37 @@ python3 $S render article.md --themes 极客黑 --mode stylesheet --output a.htm
   python3 $S render article.md --themes 简 --code-theme github --output a.html
   ```
 
-- **mermaid 流程图**：```` ```mermaid ```` 代码块渲染成真实流程图 / 时序图（仅当文档含图时才从 CDN 加载 mermaid.js）。每个主题配一套 mermaid 主题（`default`/`dark`/`forest`/`neutral`/`base`），覆盖用 `--mermaid-theme`。
+- **mermaid 流程图**：```` ```mermaid ```` 代码块渲染成真实流程图 / 时序图。
+  - **默认 `--mermaid-render client`**：浏览器里用 mermaid.js 渲染（仅含图时才从 CDN 加载）。适合网页，但公众号会洗掉 `<script>`，图就没了。
+  - **`--mermaid-render image`**：构建时把每个图渲染成 PNG（服务端 `--mermaid-renderer mermaid.ink`(默认)/`kroki`），输出 `<img>`，**能扛住公众号粘贴**。图片再按 `--image-host` 承载（OSS / base64）。
+  - 每个主题配一套 mermaid 主题（`default`/`dark`/`forest`/`neutral`/`base`），覆盖用 `--mermaid-theme`。想要超出标准 mermaid 的精美手绘风，见 `references/mermaid-design-language.md`。
 
-  > 发布时：在浏览器打开 HTML 再复制，渲染出的 SVG 会一起被复制（与 MDNice 工作流一致）。mermaid 需要浏览器执行 JS。
+- **Frontmatter & 注释**：开头的 YAML（`--- ... ---`）会被剥离；`<!-- HTML 注释 -->` 默认也会在解析前去掉（发布场景），用 `--keep-comments` 保留。
 
-- **Frontmatter**：开头的 YAML（`--- ... ---`）会被自动剥离，不会渲染成正文。
+---
+
+## 发布管线（构建时出图 + 图片承载）
+
+公众号洗 `<style>`/`class`/`<script>`，只留行内 `style` 和 `<img>`。要稳发布，就把图和本地图片都变成图片。下列参数**仅对单主题输出生效**（tab 预览会跳过）：
+
+- `--mermaid-render client|image`：`image` 构建时把图渲染成 PNG（见上）。
+- `--mermaid-renderer mermaid.ink|kroki`：`image` 模式的服务端渲染器，纯 HTTP 无需装浏览器；图表文本会发送到该第三方服务。
+- `--image-host none|oss|base64`：图片（mermaid PNG **和** 正文 `![](./x.png)` 本地图）如何承载：
+  - `none`（默认）：`<img src>` 原样不动；`image` 模式的 mermaid 图无承载时自动转 base64。
+  - `oss`：经同插件 **ali-oss** skill 上传，`<img src>` 改写成对象 URL。对象 key 用内容哈希（`<prefix>/<sha1>-<name>`），重复跑幂等。需先给 ali-oss 配好默认 bucket。`--oss-bucket` 指定桶、`--oss-prefix` 指定前缀（默认 `md-to-html`）、`--oss-script` 指定脚本路径、`--oss-acl` 指定对象 ACL。**公网可读**：公众号要能抓图，对象必须公网可读——要么 bucket 本身 public-read，要么传 `--oss-acl public-read`（仅当 bucket 允许公共读对象；锁定的桶会拒绝）。私有桶下 URL 不可直接访问，但 `ali_oss.py sign-url` 仍可生成限时链接。
+  - `base64`：每张图内联成 `data:` URI —— HTML 自包含、无外链、体积大。
+- `http(s)://` 远程图和已有 `data:` 图始终不动。
+
+```bash
+# 发公众号：图转图片 + 全部图片上 OSS 公网链接
+python3 $S render article.md --themes 极客黑 \
+  --mermaid-render image --image-host oss --oss-bucket my-bucket --oss-prefix article-2026 --output out.html
+
+# 自包含版：图转图片 + 所有图 base64 内联（无外链）
+python3 $S render article.md --themes 极客黑 --mermaid-render image --image-host base64 --output out.html
+```
+
+> ali-oss 配置：`python3 ../ali-oss/scripts/ali_oss.py add-bucket <bucket> --access-key-id ... --access-key-secret ... --default`（凭证存仓库外 `~/.config/ali-oss/`）。详见 ali-oss skill 文档。
 
 ---
 
@@ -148,7 +174,7 @@ python3 $S add-theme --pack mweb-theme --manifest ./mweb.json
 | 命令 | 作用 |
 |---|---|
 | `list-themes [--query Q] [--json] [--with-style-only]` | 列出主题 |
-| `render <md> --themes ... --output <html> [--mode] [--code-theme] [--mermaid-theme] [--preview-tabs] [--title]` | 渲染 |
+| `render <md> --themes ... --output <html> [--mode] [--code-theme] [--mermaid-theme] [--mermaid-render] [--image-host] [--oss-bucket] [--oss-prefix] [--keep-comments] [--preview-tabs] [--title]` | 渲染（含发布管线） |
 | `add-theme --pack P --from CSS --slug S [...] / --manifest J` | 收录 stylesheet 主题到某个包 |
 | `fetch-themes [--include-styles]` | 刷新 MDNice 主题目录（带样式需登录态） |
 | `split-catalog` | 把内联了 `styleCss` 的旧目录迁移成「每主题一个 CSS 文件」 |
@@ -175,7 +201,8 @@ CSS 以**每主题一个文件**存放于 `references/mdnice-themes/`，目录 J
 
 - 单主题 = 干净可发布 HTML；2–5 主题 = 标签页对比预览（`--preview-tabs` 可强制单主题也用预览）。
 - stylesheet 主题用于网页，**不要用于公众号粘贴**；公众号请用 MDNice 内联主题。
-- mermaid 需浏览器执行 JS 才能出图；纯静态环境只会保留图源文本。
+- mermaid 默认需浏览器执行 JS 出图；要发公众号请用 `--mermaid-render image` 在构建时出图。
+- `--image-host oss` 需先配置 ali-oss 默认 bucket，且对象为公网可读；凭证存仓库外，勿入库。
 - 不要把 `MDNICE_TOKEN` 写进任何技能文件、引用、示例或产物。
 
 ## 相关文件
@@ -184,4 +211,5 @@ CSS 以**每主题一个文件**存放于 `references/mdnice-themes/`，目录 J
 - `scripts/md_to_html.py`：CLI 主程序。
 - `references/mdnice-themes.json` + `references/mdnice-themes/`：MDNice 目录 + 每主题 CSS。
 - `references/theme-hub-themes.json` + `references/theme-hub/`：stylesheet 主题包 + 出处/许可（`NOTICE.md`）。
+- `references/mermaid-design-language.md`：手绘 CSS 图设计语言 + 移动适配 + 截图出图工作流（`--mermaid-render image` 的高质量手动补充路径）。
 - `references/technical-principles.md`：渲染架构、双引擎、主题包机制与已知限制。
