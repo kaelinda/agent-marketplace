@@ -4,21 +4,27 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import datetime as dt
+import hashlib
 import html
 import json
+import mimetypes
 import os
 import re
 import ssl
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zlib
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 
 API_BASE = "https://api.mdnice.com"
@@ -2223,6 +2229,256 @@ def ensure_theme_styles(args: argparse.Namespace, themes: list[dict[str, Any]], 
         write_catalog(catalog_path, catalog)
 
 
+# --- Asset externalization --------------------------------------------------
+# A post-processing pass over the finished single-theme HTML that (1) renders
+# mermaid diagrams to images at build time (via a server-side HTTP renderer, so
+# no browser/SDK is needed) and (2) externalizes images — uploading them to
+# Aliyun OSS through the sibling `ali-oss` skill and rewriting <img src> to the
+# public URL, or inlining them as base64 data URIs. This is what lets a document
+# survive a WeChat Official Account paste, which washes <style>/class/<script>
+# but keeps <img>. All of it is opt-in; defaults leave the HTML untouched.
+
+MERMAID_INK_BASE = "https://mermaid.ink"
+KROKI_BASE = "https://kroki.io"
+
+_MERMAID_SECTION_RE = re.compile(
+    r'<section class="mermaid-figure" data-mermaid="1"[^>]*>\s*'
+    r'<div class="mermaid">(.*?)</div>\s*</section>',
+    re.S,
+)
+_MERMAID_SCRIPT_RE = re.compile(
+    r'<script type="module">\s*import mermaid\b.*?</script>\s*', re.S
+)
+_IMG_SRC_RE = re.compile(r'(<img\b[^>]*?\bsrc=")([^"]*)("[^>]*>)', re.I | re.S)
+
+_IMAGE_MIME_EXT = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/gif": "gif",
+    "image/svg+xml": "svg",
+    "image/webp": "webp",
+}
+
+
+@dataclass
+class AssetOptions:
+    image_host: str = "none"               # none | oss | base64
+    mermaid_render: str = "client"         # client | image
+    mermaid_renderer: str = "mermaid.ink"  # mermaid.ink | kroki
+    mermaid_theme: str = DEFAULT_MERMAID_THEME
+    oss_bucket: str | None = None
+    oss_prefix: str = "md-to-html"
+    oss_script: str | None = None
+    oss_acl: str | None = None  # None -> inherit bucket ACL; e.g. "public-read"
+    base_dir: Path = field(default_factory=Path)  # resolve local image paths against this
+    timeout: int = 30
+
+
+def strip_html_comments(markdown_text: str) -> str:
+    """Drop every <!-- ... --> HTML comment. Applied to the raw markdown before
+    parsing so editorial comments never reach the published output."""
+    return re.sub(r"<!--.*?-->", "", markdown_text, flags=re.S)
+
+
+def classify_src(src: str) -> str:
+    """Bucket an <img src> into 'remote' (http/https/protocol-relative),
+    'data' (already a data URI), or 'local' (a path we can read and host)."""
+    low = src.strip().lower()
+    if low.startswith(("http://", "https://", "//")):
+        return "remote"
+    if low.startswith("data:"):
+        return "data"
+    return "local"
+
+
+def _b64url_nopad(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def mermaid_ink_url(source: str, theme: str = DEFAULT_MERMAID_THEME, fmt: str = "img") -> str:
+    """Build a mermaid.ink URL with the pako (zlib + base64url) encoding so the
+    diagram theme rides along. fmt: 'img' (PNG) or 'svg'."""
+    state = json.dumps({"code": source, "mermaid": {"theme": theme}}, ensure_ascii=False)
+    packed = _b64url_nopad(zlib.compress(state.encode("utf-8"), 9))
+    query = "?type=png" if fmt == "img" else ""
+    return f"{MERMAID_INK_BASE}/{fmt}/pako:{packed}{query}"
+
+
+def kroki_url(source: str, fmt: str = "png") -> str:
+    """Build a kroki.io mermaid URL (deflate + base64url of the raw source)."""
+    packed = _b64url_nopad(zlib.compress(source.encode("utf-8"), 9))
+    return f"{KROKI_BASE}/mermaid/{fmt}/{packed}"
+
+
+def render_mermaid_to_image(
+    source: str, theme: str, renderer: str, timeout: int = 30
+) -> tuple[bytes, str]:
+    """Render mermaid source to image bytes via a server-side HTTP renderer.
+    Returns (image_bytes, content_type). Raises on any failure."""
+    if renderer == "kroki":
+        url = kroki_url(source, "png")
+    else:
+        url = mermaid_ink_url(source, theme, "img")
+    req = urllib.request.Request(
+        url, headers={"User-Agent": USER_AGENT, "Accept": "image/png,image/*"}
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = resp.read()
+        ctype = resp.headers.get("Content-Type", "image/png").split(";")[0].strip()
+    if not data:
+        raise RuntimeError(f"empty image from {renderer}")
+    return data, ctype
+
+
+def base64_data_uri(data: bytes, content_type: str) -> str:
+    mime = content_type if content_type in _IMAGE_MIME_EXT else "image/png"
+    return f"data:{mime};base64,{base64.b64encode(data).decode('ascii')}"
+
+
+def default_oss_script() -> Path:
+    # sibling skill: skills/ali-oss/scripts/ali_oss.py
+    return Path(__file__).resolve().parents[2] / "ali-oss" / "scripts" / "ali_oss.py"
+
+
+def oss_upload(data: bytes, key: str, opts: AssetOptions) -> str:
+    """Upload bytes to OSS via the ali-oss skill (subprocess) and return the URL."""
+    script = Path(opts.oss_script) if opts.oss_script else default_oss_script()
+    if not script.exists():
+        raise RuntimeError(f"ali-oss script not found at {script}; pass --oss-script")
+    fd, tmp_path = tempfile.mkstemp(suffix="-" + os.path.basename(key))
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(data)
+        cmd = [
+            sys.executable, str(script), "upload", tmp_path,
+            "--key", key, "--quiet",
+        ]
+        if opts.oss_acl:
+            cmd += ["--acl", opts.oss_acl]
+        if opts.oss_bucket:
+            cmd += ["--bucket", opts.oss_bucket]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RuntimeError(
+                "ali-oss upload failed: " + (result.stderr.strip() or result.stdout.strip())
+            )
+        lines = [ln.strip() for ln in result.stdout.splitlines() if ln.strip()]
+        url = lines[-1] if lines else ""
+        if not url.startswith("http"):
+            raise RuntimeError(f"ali-oss returned no URL (stdout={result.stdout!r})")
+        return url
+    finally:
+        os.unlink(tmp_path)
+
+
+def host_image(
+    data: bytes, content_type: str, basename: str, kind: str, host: str,
+    opts: AssetOptions, upload: Callable[[bytes, str], str] | None,
+) -> str:
+    """Return an <img src> value for `data` under the chosen host ('base64'|'oss').
+    `kind` is 'mermaid' or 'image'; `upload` is the injectable OSS uploader."""
+    if host == "base64":
+        return base64_data_uri(data, content_type)
+    if host == "oss":
+        if upload is None:
+            raise RuntimeError("no OSS uploader configured")
+        ext = _IMAGE_MIME_EXT.get(content_type, "png")
+        digest = hashlib.sha1(data).hexdigest()[:12]
+        prefix = (opts.oss_prefix or "md-to-html").strip("/")
+        if kind == "mermaid":
+            key = f"{prefix}/mermaid-{digest}.{ext}"
+        else:
+            key = f"{prefix}/{digest}-{basename}"
+        return upload(data, key)
+    raise RuntimeError(f"unknown image host: {host}")
+
+
+def post_process_assets(
+    html_text: str,
+    opts: AssetOptions,
+    upload: Callable[[bytes, str], str] | None = None,
+    warn: Callable[[str], None] | None = None,
+) -> str:
+    """Rewrite mermaid diagrams and local images in finished HTML per `opts`.
+    `upload` (data, key) -> url is injectable for testing; when None and OSS is
+    requested, the real ali-oss subprocess uploader is used."""
+    if warn is None:
+        def warn(message: str) -> None:  # noqa: E306
+            print(f"note: {message}", file=sys.stderr)
+    if opts.image_host == "oss" and upload is None:
+        upload = lambda data, key: oss_upload(data, key, opts)  # noqa: E731
+
+    # 1) mermaid -> image (build-time render via HTTP). Falls back to the
+    #    client-side <div> on any failure so the output is never broken.
+    converted = 0
+    if opts.mermaid_render == "image":
+        # mermaid images always need a carrier; if --image-host is none, self-host
+        # them as base64 so the diagram still renders without a CDN/script.
+        mermaid_host = opts.image_host if opts.image_host != "none" else "base64"
+
+        def repl_mermaid(match: re.Match[str]) -> str:
+            nonlocal converted
+            source = html.unescape(match.group(1))
+            try:
+                data, ctype = render_mermaid_to_image(
+                    source, opts.mermaid_theme, opts.mermaid_renderer, opts.timeout
+                )
+                src = host_image(data, ctype, "diagram", "mermaid", mermaid_host, opts, upload)
+            except Exception as exc:  # noqa: BLE001 - resilience: keep client-side diagram
+                warn(f"mermaid render/host failed, keeping client-side diagram: {exc}")
+                return match.group(0)
+            converted += 1
+            return (
+                '<section class="mermaid-figure" style="text-align:center;margin:16px 0;">'
+                f'<img src="{html.escape(src, quote=True)}" alt="diagram" '
+                'style="width:100%;max-width:680px;display:block;margin:16px auto;">'
+                "</section>"
+            )
+
+        html_text = _MERMAID_SECTION_RE.sub(repl_mermaid, html_text)
+        if converted:
+            html_text = _MERMAID_SCRIPT_RE.sub("", html_text)
+
+    # 2) local images -> host (upload to OSS or inline as base64). Remote/data
+    #    srcs (including the mermaid <img> just produced) are left untouched.
+    if opts.image_host != "none":
+        def repl_img(match: re.Match[str]) -> str:
+            pre, src, post = match.group(1), match.group(2), match.group(3)
+            if classify_src(src) != "local":
+                return match.group(0)
+            raw = urllib.parse.unquote(src)
+            path = Path(raw) if os.path.isabs(raw) else (opts.base_dir / raw)
+            if not path.exists():
+                warn(f"local image not found, leaving as-is: {src}")
+                return match.group(0)
+            try:
+                data = path.read_bytes()
+                ctype = (mimetypes.guess_type(str(path))[0] or "image/png")
+                new_src = host_image(data, ctype, path.name, "image", opts.image_host, opts, upload)
+            except Exception as exc:  # noqa: BLE001
+                warn(f"image host failed for {src}: {exc}")
+                return match.group(0)
+            return f"{pre}{html.escape(new_src, quote=True)}{post}"
+
+        html_text = _IMG_SRC_RE.sub(repl_img, html_text)
+
+    return html_text
+
+
+def asset_options_from_args(args: argparse.Namespace) -> AssetOptions:
+    return AssetOptions(
+        image_host=getattr(args, "image_host", "none"),
+        mermaid_render=getattr(args, "mermaid_render", "client"),
+        mermaid_renderer=getattr(args, "mermaid_renderer", "mermaid.ink"),
+        mermaid_theme=(getattr(args, "mermaid_theme", None) or DEFAULT_MERMAID_THEME),
+        oss_bucket=getattr(args, "oss_bucket", None),
+        oss_prefix=getattr(args, "oss_prefix", None) or "md-to-html",
+        oss_script=getattr(args, "oss_script", None),
+        oss_acl=getattr(args, "oss_acl", None),
+        base_dir=args.markdown.resolve().parent,
+    )
+
+
 def render_command(args: argparse.Namespace) -> None:
     catalog = load_catalog(args.catalog)
     refs = split_theme_refs(args.themes)
@@ -2235,15 +2491,27 @@ def render_command(args: argparse.Namespace) -> None:
     ensure_theme_styles(args, themes, args.catalog)
 
     markdown_text = args.markdown.read_text(encoding="utf-8")
+    if not getattr(args, "keep_comments", False):
+        markdown_text = strip_html_comments(markdown_text)
     title = args.title or derive_title(markdown_text, args.markdown)
     code_theme = getattr(args, "code_theme", None)
     mermaid_theme = getattr(args, "mermaid_theme", None)
     mode = getattr(args, "mode", "auto")
     footnotes = getattr(args, "footnotes", None)
+    opts = asset_options_from_args(args)
+    externalize = opts.image_host != "none" or opts.mermaid_render == "image"
     if len(themes) == 1 and not args.preview_tabs:
         output_html = build_theme_document(title, markdown_text, themes[0], code_theme, mermaid_theme, mode, footnotes)
+        if externalize:
+            output_html = post_process_assets(output_html, opts)
         output_label = "publish HTML"
     else:
+        if externalize:
+            print(
+                "note: --image-host / --mermaid-render image apply to single-theme output "
+                "only; skipped for the tabbed preview",
+                file=sys.stderr,
+            )
         output_html = build_preview_page(title, markdown_text, themes, code_theme, mermaid_theme, mode, footnotes)
         output_label = "tabbed preview"
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -2336,6 +2604,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="convert inline links to footnotes (default: on for inline paste output, off for stylesheet documents)",
     )
     render.add_argument("--preview-tabs", action="store_true", help="force a tabbed preview even when one theme is selected")
+    # --- publish pipeline: build-time mermaid images + image externalization ---
+    render.add_argument(
+        "--mermaid-render",
+        choices=["client", "image"],
+        default="client",
+        help="client (mermaid.js in the browser, default) or image (render each diagram to a PNG at build time via a server-side renderer so it survives a WeChat paste). Single-theme output only.",
+    )
+    render.add_argument(
+        "--mermaid-renderer",
+        choices=["mermaid.ink", "kroki"],
+        default="mermaid.ink",
+        help="server-side renderer used by --mermaid-render image (diagram text is sent to this service)",
+    )
+    render.add_argument(
+        "--image-host",
+        choices=["none", "oss", "base64"],
+        default="none",
+        help="externalize images on single-theme output: none (leave as-is, default); oss (upload local images + mermaid PNGs via the ali-oss skill, rewrite to public URLs); base64 (inline as data URIs)",
+    )
+    render.add_argument("--oss-bucket", help="OSS bucket for --image-host oss (default: ali-oss default bucket)")
+    render.add_argument("--oss-prefix", default="md-to-html", help="OSS key prefix for uploaded images (default: md-to-html)")
+    render.add_argument("--oss-script", help="path to ali-oss ali_oss.py (default: the sibling ali-oss skill)")
+    render.add_argument(
+        "--oss-acl",
+        choices=["private", "public-read", "public-read-write", "default"],
+        help="per-object ACL for uploaded images (default: inherit the bucket ACL). Use public-read so published links are fetchable — only works if the bucket permits public-read objects.",
+    )
+    render.add_argument("--keep-comments", action="store_true", help="keep <!-- HTML comments --> (default: stripped for publishing)")
     render.add_argument("--refresh-missing-styles", action="store_true")
     render.add_argument("--cache-styles", action="store_true")
     render.add_argument("--token-env", default="MDNICE_TOKEN")
