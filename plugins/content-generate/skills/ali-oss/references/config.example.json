@@ -1,0 +1,15 @@
+{
+  "default_bucket": "my-bucket",
+  "buckets": {
+    "my-bucket": {
+      "access_key_id": "LTAI-your-ram-user-access-key-id",
+      "access_key_secret": "your-access-key-secret",
+      "endpoint": "oss-cn-beijing.aliyuncs.com"
+    },
+    "another-bucket": {
+      "access_key_id": "LTAI-...",
+      "access_key_secret": "...",
+      "endpoint": "oss-cn-hangzhou.aliyuncs.com"
+    }
+  }
+}

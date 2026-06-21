@@ -37,10 +37,10 @@
     {
       "name": "content-generate",
       "source": "./plugins/content-generate",
-      "description": "内容创作与发布工具集，目前包含 md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）。",
-      "version": "0.1.0",
+      "description": "内容创作与发布工具集：md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）。",
+      "version": "0.2.0",
       "category": "content",
-      "tags": ["content", "markdown", "html", "publish", "mdnice"]
+      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload"]
     }
   ]
 }
