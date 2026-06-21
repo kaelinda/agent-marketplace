@@ -155,6 +155,20 @@ def _canonicalized_resource(bucket: str | None, key: str, query: dict | None) ->
     return resource
 
 
+def _canonicalized_oss_headers(extra_headers: dict | None) -> str:
+    """Build CanonicalizedOSSHeaders: every x-oss-* header, lowercased, sorted,
+    joined as "k:v\\n". Must be part of the string-to-sign or a request carrying
+    e.g. x-oss-object-acl fails with SignatureDoesNotMatch."""
+    if not extra_headers:
+        return ""
+    oss_hdrs = {
+        k.lower(): str(v).strip()
+        for k, v in extra_headers.items()
+        if k.lower().startswith("x-oss-")
+    }
+    return "".join(f"{k}:{oss_hdrs[k]}\n" for k in sorted(oss_hdrs))
+
+
 def _sign(secret: str, string_to_sign: str) -> str:
     digest = hmac.new(
         secret.encode("utf-8"), string_to_sign.encode("utf-8"), hashlib.sha1
@@ -197,7 +211,8 @@ def oss_request(
 
     date = _gmt_now()
     canon_resource = _canonicalized_resource(bucket, key, query)
-    string_to_sign = f"{method}\n\n{content_type}\n{date}\n{canon_resource}"
+    canon_headers = _canonicalized_oss_headers(extra_headers)
+    string_to_sign = f"{method}\n\n{content_type}\n{date}\n{canon_headers}{canon_resource}"
     signature = _sign(sk, string_to_sign)
 
     path = "/" + urllib.parse.quote(key, safe="/~")
@@ -444,6 +459,10 @@ def cmd_upload(args):
         if prefix:
             key = f"{prefix}/{key}"
         url = put_object(cfg, bucket, endpoint, key, local, args.content_type, args.acl)
+        if args.quiet:
+            # Machine-readable: just the URL, one per line (for scripting / piping).
+            print(url)
+            continue
         size = human_size(os.path.getsize(local))
         print(f"✓ {local}  ({size})")
         print(f"  → {url}")
@@ -523,6 +542,8 @@ def build_parser() -> argparse.ArgumentParser:
     u.add_argument("--acl", choices=["private", "public-read", "public-read-write", "default"],
                    help="Per-object ACL")
     u.add_argument("--recursive", action="store_true", help="Recurse into directories")
+    u.add_argument("--quiet", action="store_true",
+                   help="Print only the uploaded URL(s), one per line (for scripting)")
     u.add_argument("--sign", type=int, metavar="SECONDS",
                    help="Also print a presigned URL valid for SECONDS")
     u.set_defaults(func=cmd_upload)
