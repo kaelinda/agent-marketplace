@@ -38,17 +38,33 @@ class FakeAdapter:
         return f"viking://tenants/{tenant_id}/{entity_type}s/{entity_id}/memories/"
 
     def search(self, query: str, scope: str = "", limit: int = 6,
-               memory_type: str = "", min_score: float = 0.0) -> dict:
-        self.calls.append(("search", {"query": query, "scope": scope}))
+               memory_type: str = "", min_score: float = 0.0,
+               extra_scopes: list[str] = ()) -> dict:
+        self.calls.append((
+            "search",
+            {"query": query, "scope": scope, "extra_scopes": list(extra_scopes)},
+        ))
         if self._maybe_fail("search"):
             return self._err("forced search failure")
-        bucket = self._store.get(scope, {})
-        hits = [
-            dict(m, score=1.0) for m in bucket.values()
-            if (not memory_type or m.get("type") == memory_type)
-            and (not query or query.lower() in (m.get("content") or "").lower())
-        ]
-        hits = hits[:limit]
+        scopes_to_search = [scope] if scope else []
+        scopes_to_search.extend(extra_scopes or ())
+        seen_ids: set[str] = set()
+        hits: list[dict] = []
+        for s in scopes_to_search:
+            for m in self._store.get(s, {}).values():
+                if memory_type and m.get("type") != memory_type:
+                    continue
+                if query and query.lower() not in (m.get("content") or "").lower():
+                    continue
+                mid = m.get("id", "")
+                if mid in seen_ids:
+                    continue
+                seen_ids.add(mid)
+                hits.append(dict(m, score=1.0))
+                if len(hits) >= limit:
+                    break
+            if len(hits) >= limit:
+                break
         return self._ok(hits)
 
     def read(self, memory_id: str) -> dict:
@@ -115,6 +131,86 @@ class FakeAdapter:
                 committed.append(r["data"])
         return self._ok({"committed": len(committed), "memories": committed})
 
+    # ── Sharing (Phase 3) ──────────────────────────────────────
+
+    def share(self, memory_id: str, target: str,
+              permission: str = "read") -> dict:
+        self.calls.append(("share", {"id": memory_id, "target": target,
+                                       "permission": permission}))
+        if self._maybe_fail("share"):
+            return self._err("forced share failure")
+        if permission not in ("read", "write"):
+            return self._err(f"invalid permission {permission!r}; expected read|write")
+        if not _is_identity_string(target):
+            return self._err(
+                f"invalid target {target!r}; must match '<entity_type>:<id>' "
+                f"with entity_type in user|agent|team"
+            )
+        for bucket in self._store.values():
+            if memory_id in bucket:
+                mem = bucket[memory_id]
+                shared_with = list(mem.get("shared_with") or [])
+                if target not in shared_with:
+                    shared_with.append(target)
+                mem["shared_with"] = shared_with
+                perms = dict(mem.get("shared_perms") or {})
+                perms[target] = permission
+                mem["shared_perms"] = perms
+                mem["updated_at"] = _now_iso()
+                return self._ok({"id": memory_id, "target": target,
+                                   "permission": permission})
+        return self._err(f"memory {memory_id} not found")
+
+    def unshare(self, memory_id: str, target: str) -> dict:
+        self.calls.append(("unshare", {"id": memory_id, "target": target}))
+        if self._maybe_fail("unshare"):
+            return self._err("forced unshare failure")
+        for bucket in self._store.values():
+            if memory_id in bucket:
+                mem = bucket[memory_id]
+                shared_with = [t for t in (mem.get("shared_with") or []) if t != target]
+                mem["shared_with"] = shared_with
+                perms = {k: v for k, v in (mem.get("shared_perms") or {}).items()
+                         if k != target}
+                mem["shared_perms"] = perms
+                mem["updated_at"] = _now_iso()
+                # Idempotent — unsharing a target that wasn't shared is fine.
+                return self._ok({"id": memory_id, "target": target})
+        return self._err(f"memory {memory_id} not found")
+
+    def list_subscribed(self, identity: str) -> dict:
+        self.calls.append(("list_subscribed", {"identity": identity}))
+        if self._maybe_fail("list_subscribed"):
+            return self._err("forced list_subscribed failure")
+        if not _is_identity_string(identity):
+            return self._err(
+                f"invalid identity {identity!r}; must match '<entity_type>:<id>'"
+            )
+        results: list[dict] = []
+        seen: set[str] = set()
+        # 1. team scope memberships: if identity is "team:X", every memory
+        #    living in viking://.../teams/X/... is subscribed.
+        if identity.startswith("team:"):
+            team_id = identity.split(":", 1)[1]
+            team_marker = f"/teams/{team_id}/"
+            for scope, bucket in self._store.items():
+                if team_marker in scope:
+                    for m in bucket.values():
+                        mid = m.get("id", "")
+                        if mid and mid not in seen:
+                            seen.add(mid)
+                            results.append(dict(m))
+        # 2. explicit shared_with grants — across all scopes
+        for bucket in self._store.values():
+            for m in bucket.values():
+                shared_with = m.get("shared_with") or []
+                if identity in shared_with:
+                    mid = m.get("id", "")
+                    if mid and mid not in seen:
+                        seen.add(mid)
+                        results.append(dict(m))
+        return self._ok(results)
+
     def ping(self) -> dict:
         self.calls.append(("ping", {}))
         if self._maybe_fail("ping"):
@@ -143,3 +239,11 @@ class FakeAdapter:
 def _now_iso() -> str:
     # Lightweight UTC ISO timestamp, no tzdata dependency.
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def _is_identity_string(s: str) -> bool:
+    """Validate ``<entity_type>:<id>`` where entity_type is user|agent|team."""
+    if not isinstance(s, str) or ":" not in s:
+        return False
+    head, _, tail = s.partition(":")
+    return head in ("user", "agent", "team") and bool(tail)

@@ -18,7 +18,7 @@ adapter (HTTP / MCP / mem0)
 后端服务（OpenViking / mem0 cloud / 任意 MCP server）
 ```
 
-## 5 个 Claude Code skill
+## 6 个 Claude Code skill
 
 | Skill | 触发场景（简版） | CLI 等价 |
 |---|---|---|
@@ -26,14 +26,16 @@ adapter (HTTP / MCP / mem0)
 | `memory-capture` | 用户说"记住" / "以后这样" / Agent 识别到值得长期保存 | `memory-cli capture --content "..."` |
 | `memory-commit`  | 会话结束 / 周期 checkpoint / 主动沉淀经验 | `memory-cli commit --session-file s.json [--apply]` |
 | `memory-doctor`  | 报错排查 / 切换后端 / 验证配置 | `memory-cli doctor [--mode quick\|standard\|full]` |
+| `memory-share`   | 把记忆分享给 agent / team / user，撤销共享，看共享给我的（Phase 3） | `memory-cli share <id> --to <kind>:<id>` |
 | `memory-admin`   | stats / backup / restore / dedupe / prune / audit | `memory-cli admin <action>` |
 
-详细 frontmatter 与触发词见各 `skills/<name>/SKILL.md`。
+详细 frontmatter 与触发词见各 `skills/<name>/SKILL.md`。跨 Agent 共享的完整心智模型 + 双 Agent 端到端例子见 [`docs/cross-agent-sharing.md`](./docs/cross-agent-sharing.md)。
 
-## 2 个 slash command
+## 3 个 slash command
 
 - `/recall <query>` — 调 `memory-recall`，把召回结果作为结构化记忆块注入当前对话上下文
 - `/memory-doctor [mode]` — 调 `memory-doctor`，跑一次诊断检查并展示结果
+- `/memory-share share|unshare|subscribed [...]` — 调 `memory-share`，授权 / 撤销 / 看共享给我的
 
 ## 安装与最小配置
 
@@ -93,6 +95,7 @@ memory-cli recall "项目技术栈"
 | `OV_USER_ID` | identity.user_id 覆盖（必须） |
 | `OV_AGENT_ID` | identity.agent_id 覆盖（必须） |
 | `OV_TENANT_ID` | identity.tenant_id 覆盖（可选） |
+| `OV_TEAM_IDS` | 逗号分隔的 team_id 列表，决定订阅哪些 team scope（Phase 3） |
 | `OPENVIKING_API_KEY` | OpenViking HTTP / MCP 后端 API key |
 | `OPENVIKING_URL` | OpenViking HTTP base URL（覆盖 config） |
 | `MEM0_API_KEY` | mem0 云后端 API key |

@@ -202,37 +202,52 @@ class Mem0Adapter:
         limit: int = 6,
         memory_type: str = "",
         min_score: float = 0.0,
+        extra_scopes: list[str] = (),
     ) -> dict:
-        """Search memories by semantic similarity."""
+        """Search memories by semantic similarity.
+
+        Phase 3: ``extra_scopes`` is honoured by issuing one mem0 search
+        per scope and merging client-side. mem0's filter API is
+        single-entity (one user_id or one agent_id per query), so
+        multi-scope can't be done in a single round-trip.
+        """
         start = time.monotonic()
 
         try:
-            filters = _parse_scope(scope, self.default_user_id)
+            scopes_to_search = [scope] if scope else []
+            scopes_to_search.extend(extra_scopes or ())
+            if not scopes_to_search:
+                scopes_to_search = [""]
 
-            # memory_type → metadata filter
-            if memory_type:
-                filters["metadata"] = {"type": memory_type}
-
-            raw = self._mem0.search(
-                query=query,
-                filters=filters,
-                top_k=limit,
-                threshold=min_score if min_score > 0 else 0.1,
-            )
+            seen_ids: set[str] = set()
+            memories: list[dict] = []
+            for s in scopes_to_search:
+                filters = _parse_scope(s, self.default_user_id)
+                if memory_type:
+                    filters["metadata"] = {"type": memory_type}
+                raw = self._mem0.search(
+                    query=query,
+                    filters=filters,
+                    top_k=limit,
+                    threshold=min_score if min_score > 0 else 0.1,
+                )
+                results = raw.get("results", []) if isinstance(raw, dict) else []
+                for item in results:
+                    mem = _to_standard_memory(item)
+                    mem["score"] = item.get("score", 0.0)
+                    if min_score > 0 and mem["score"] < min_score:
+                        continue
+                    mid = mem.get("id", "")
+                    if mid in seen_ids:
+                        continue
+                    seen_ids.add(mid)
+                    memories.append(mem)
+                    if len(memories) >= limit:
+                        break
+                if len(memories) >= limit:
+                    break
 
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            results = raw.get("results", [])
-
-            memories = []
-            for item in results:
-                mem = _to_standard_memory(item)
-                mem["score"] = item.get("score", 0.0)
-                memories.append(mem)
-
-            # Client-side min_score guard (mem0 threshold isn't always exact)
-            if min_score > 0:
-                memories = [m for m in memories if m.get("score", 0) >= min_score]
-
             return _ok(memories, {"backend": "mem0", "elapsed_ms": elapsed_ms})
 
         except Exception as e:
@@ -415,6 +430,105 @@ class Mem0Adapter:
             f"{len(errors)} of {len(memories)} memories failed to commit",
             {"backend": "mem0", "committed": len(committed), "errors": errors},
         )
+
+    # ── Sharing (Phase 3) ──────────────────────────────────────
+    #
+    # mem0's metadata is queryable, so we store ACL fields on the
+    # memory's metadata and use metadata filters to find subscribed
+    # memories. SharingManager.can_access does the final ACL check
+    # so we don't have to push complex predicates to mem0.
+
+    def share(self, memory_id: str, target: str,
+              permission: str = "read") -> dict:
+        if permission not in ("read", "write"):
+            return _err(f"invalid permission {permission!r}; expected read|write")
+        try:
+            raw = self._mem0.get(memory_id)
+            if not raw:
+                return _err(f"memory {memory_id} not found")
+            metadata = (raw.get("metadata") or {}) if isinstance(raw, dict) else {}
+            shared_with = list(metadata.get("shared_with") or [])
+            if target not in shared_with:
+                shared_with.append(target)
+            perms = dict(metadata.get("shared_perms") or {})
+            perms[target] = permission
+            new_metadata = dict(metadata)
+            new_metadata["shared_with"] = shared_with
+            new_metadata["shared_perms"] = perms
+            self._mem0.update(memory_id, data=None, metadata=new_metadata)
+            return _ok(
+                {"id": memory_id, "target": target, "permission": permission},
+                {"backend": "mem0"},
+            )
+        except Exception as e:
+            return _err(f"mem0 share failed: {e}", {"backend": "mem0"})
+
+    def unshare(self, memory_id: str, target: str) -> dict:
+        try:
+            raw = self._mem0.get(memory_id)
+            if not raw:
+                return _err(f"memory {memory_id} not found")
+            metadata = (raw.get("metadata") or {}) if isinstance(raw, dict) else {}
+            shared_with = [t for t in (metadata.get("shared_with") or []) if t != target]
+            perms = {k: v for k, v in (metadata.get("shared_perms") or {}).items()
+                     if k != target}
+            new_metadata = dict(metadata)
+            new_metadata["shared_with"] = shared_with
+            new_metadata["shared_perms"] = perms
+            self._mem0.update(memory_id, data=None, metadata=new_metadata)
+            return _ok({"id": memory_id, "target": target}, {"backend": "mem0"})
+        except Exception as e:
+            return _err(f"mem0 unshare failed: {e}", {"backend": "mem0"})
+
+    def list_subscribed(self, identity: str) -> dict:
+        """Find memories whose metadata.shared_with contains ``identity``.
+
+        For ``team:<id>`` we additionally union memories living in the
+        team's mem0 entity (agent_id = "{tenant}:{team_id}") so a write
+        to a team scope is automatically subscribed by every member.
+        """
+        try:
+            results: list[dict] = []
+            seen: set[str] = set()
+            # Team scope: memories written into the team's entity
+            if identity.startswith("team:"):
+                team_id = identity.split(":", 1)[1]
+                # Use the same encoding as _parse_scope for system→agent_id.
+                # We don't know tenant here so we can't be precise; iterate
+                # over the in-mem cache by metadata _scope marker to be safe.
+                team_marker = f"/teams/{team_id}/"
+                raw = self._mem0.get_all(filters={}, top_k=1000)
+                for item in (raw.get("results") or []):
+                    meta = item.get("metadata") or {}
+                    if team_marker in (meta.get("_scope") or ""):
+                        mem = _to_standard_memory(item)
+                        mid = mem.get("id", "")
+                        if mid and mid not in seen:
+                            seen.add(mid)
+                            results.append(mem)
+            # Explicit shared_with grants — mem0 metadata filter
+            try:
+                raw = self._mem0.search(
+                    query="*",  # match-anything; threshold low
+                    filters={"metadata": {"shared_with": {"contains": identity}}},
+                    top_k=1000,
+                    threshold=0.0,
+                )
+                items = raw.get("results", []) if isinstance(raw, dict) else []
+            except Exception:
+                # Fallback: get_all and filter client-side
+                items = (self._mem0.get_all(filters={}, top_k=1000) or {}).get("results", [])
+            for item in items:
+                meta = item.get("metadata") or {}
+                if identity in (meta.get("shared_with") or []):
+                    mem = _to_standard_memory(item)
+                    mid = mem.get("id", "")
+                    if mid and mid not in seen:
+                        seen.add(mid)
+                        results.append(mem)
+            return _ok(results, {"backend": "mem0"})
+        except Exception as e:
+            return _err(f"mem0 list_subscribed failed: {e}", {"backend": "mem0"})
 
     # ── Scope-level operations ──────────────────────────────
 

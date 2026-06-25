@@ -7,6 +7,10 @@ from .mem0_adapter import Mem0Adapter
 from .adapter_protocol import AdapterResponse, MemoryAdapter
 from .adapter_factory import get_adapter, list_backends, register_backend
 from .skill_loader import load_skill_module, load_subcommand_module
+from .sharing import (
+    SharingManager,
+    parse_identity, is_identity_string, owner_from_scope,
+)
 from .policy import (
     should_recall, should_store, get_recall_types_order,
     get_default_recall_limit, RECALL_PRIORITY,
@@ -29,6 +33,7 @@ __all__ = [
     "AdapterResponse", "MemoryAdapter",
     "get_adapter", "list_backends", "register_backend",
     "load_skill_module", "load_subcommand_module",
+    "SharingManager", "parse_identity", "is_identity_string", "owner_from_scope",
     "should_recall", "should_store", "get_recall_types_order",
     "get_default_recall_limit", "RECALL_PRIORITY",
     "get_store_worthy_indicators", "get_skip_indicators",

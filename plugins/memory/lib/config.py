@@ -29,6 +29,11 @@ from typing import Any
 _DEFAULT_USER_SENTINEL = "default_user"
 _DEFAULT_AGENT_SENTINEL = "default_agent"
 
+# Valid entity_type values for build_scope() / SharingManager.
+# Phase 3 added "team" so multiple agents can subscribe to a single
+# shared scope. ``system`` is reserved for plugin internals (doctor).
+_VALID_ENTITY_TYPES = frozenset({"user", "agent", "team", "system"})
+
 
 class ConfigError(ValueError):
     """Raised when configuration is invalid or unsafe to use."""
@@ -45,8 +50,10 @@ _DEFAULT_CONFIG = {
         "version": "v1.1",
     },
     "backend": "openviking",
-    # Scope template — {tenant}, {type} (user|agent|system), {entity} are placeholders.
-    # Change this when switching backends (Mem0, Zep, etc. use different namespaces).
+    # Scope template — {tenant}, {type} (user|agent|team|system), {entity} are
+    # placeholders. Change this when switching backends (Mem0, Zep, etc. use
+    # different namespaces). Phase 3 added "team" as a valid {type} so multiple
+    # agents can subscribe to a shared team scope.
     "scope_template": "viking://tenants/{tenant}/{type}s/{entity}/memories/",
     "mcp": {
         "enabled": True,
@@ -65,6 +72,10 @@ _DEFAULT_CONFIG = {
         "tenant_id": "default",
         "user_id": "default_user",
         "agent_id": "default_agent",
+        # Phase 3: teams the current identity belongs to. Drives which
+        # team scopes get folded into recall(). Override via OV_TEAM_IDS
+        # (comma-separated) or this list directly.
+        "team_ids": [],
     },
     "scopes": {
         "_comment": "Scopes are built dynamically from scope_template + identity. Override here to use fixed values.",
@@ -98,6 +109,11 @@ _DEFAULT_CONFIG = {
         # default_* sentinels. Tests / one-shot scripts that genuinely
         # want the placeholder identity should explicitly opt in.
         "allow_default_identity": False,
+        # Phase 3: when True, recall() automatically folds in memories
+        # from team scopes the current identity belongs to. Off by
+        # default — explicit subscribers must opt in to confirm they
+        # understand the cross-agent visibility.
+        "auto_include_subscribed": False,
     },
     "classifier": {
         "builtin_rules": True,
@@ -218,9 +234,15 @@ class Config:
         Build a scope URI from the template.
 
         Args:
-            entity_type: "user" | "agent" | "system"
-            entity_id:   User ID, agent ID, or system component name.
+            entity_type: ``user`` | ``agent`` | ``team`` | ``system``
+            entity_id:   user_id / agent_id / team_id / system component
+                         name (depending on entity_type).
         """
+        if entity_type not in _VALID_ENTITY_TYPES:
+            raise ValueError(
+                f"Unknown entity_type {entity_type!r}; expected one of "
+                f"{sorted(_VALID_ENTITY_TYPES)}"
+            )
         # Allow explicit scope overrides in config to take precedence
         override_keys = {
             ("user", self.user_id): "user_memories",
@@ -250,6 +272,36 @@ class Config:
     @property
     def doctor_scope(self) -> str:
         return self.build_scope("system", "doctor")
+
+    @property
+    def team_ids(self) -> list[str]:
+        """List of team IDs the current identity belongs to."""
+        teams = self.get("identity.team_ids", [])
+        if isinstance(teams, str):
+            teams = [t.strip() for t in teams.split(",") if t.strip()]
+        return list(teams) if isinstance(teams, list) else []
+
+    def team_scope(self, team_id: str) -> str:
+        """Convenience: build the scope URI for a given team."""
+        return self.build_scope("team", team_id)
+
+    @property
+    def team_scopes(self) -> list[str]:
+        """All team scopes the current identity belongs to."""
+        return [self.team_scope(t) for t in self.team_ids]
+
+    def my_identity_strings(self) -> list[str]:
+        """
+        Return all colon-prefixed identity strings the current config
+        speaks for: ``user:<user_id>``, ``agent:<agent_id>``, plus one
+        ``team:<team_id>`` per declared team.
+
+        Used by SharingManager to evaluate which memories are visible
+        through ACL and to compute extra_scopes for cross-agent recall.
+        """
+        out = [f"user:{self.user_id}", f"agent:{self.agent_id}"]
+        out.extend(f"team:{tid}" for tid in self.team_ids)
+        return out
 
     @property
     def mem0_config(self) -> dict:
@@ -355,6 +407,11 @@ def load_config(config_path: str | None = None) -> Config:
     env_agent = os.environ.get("OV_AGENT_ID")
     if env_agent:
         merged.setdefault("identity", {})["agent_id"] = env_agent
+
+    env_teams = os.environ.get("OV_TEAM_IDS")
+    if env_teams is not None:
+        teams = [t.strip() for t in env_teams.split(",") if t.strip()]
+        merged.setdefault("identity", {})["team_ids"] = teams
 
     # Note: scopes are now built dynamically by Config.build_scope()
     # from scope_template + identity. No static rebuild needed.
