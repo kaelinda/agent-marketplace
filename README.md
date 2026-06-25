@@ -3,7 +3,7 @@
 > 一个开源的 Claude Code 插件市场，按 [Anthropic 官方 Marketplace 标准](https://docs.claude.com/en/docs/claude-code/plugins) 组织，收录 **agent / skill / command / hook / MCP** 等可复用的扩展能力。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-2-blue.svg)](#-插件目录)
+[![Plugins](https://img.shields.io/badge/plugins-5-blue.svg)](#-插件目录)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 
 > **蛮吉** 是国产动画《魁拔》的主角——一个憨直、热血、不知疲倦的小纹耀，从一根小铁棍打到能扛魁拔。希望每个插件都像蛮吉一样：朴实、能打、越战越强。
@@ -56,6 +56,8 @@
 | [`agents`](./plugins/agents) | 外部 AI Agent 调度 | 把任务派发给 Cursor / Codex 等外部 AI CLI，目前含 `cursor-cli` skill（review / task / ask 三模式） | ✅ stable |
 | [`core`](./plugins/core) | 市场核心功能 | 版本检测、自动更新、频率控制，每次使用 skill 时自动检查更新 | ✅ stable |
 | [`memory`](./plugins/memory) | 跨会话记忆 | 长期记忆持久化 + 召回 + 治理；5 个 skill（recall/capture/commit/doctor/admin），支持 OpenViking / MCP / mem0 三后端 | 🟡 v0.2.0 (Phase 2 完成) |
+| [`content-generate`](./plugins/content-generate) | 内容创作与发布 | `md-to-html`（Markdown → 可发布 HTML，MDNice + 开源 CSS 双主题引擎）、`ali-oss`（上传文件到阿里云 OSS） | ✅ v0.2.0 |
+| [`playground`](./plugins/playground) | 趣味/实验 | `mbti-test`（根据本机 Claude Code / Codex 会话历史推断 MBTI，纯本地、不上传、娱乐向） | 🧪 v0.1.0 (experimental) |
 
 > 计划中：`docs`（文档生成相关）等主题型插件，每个插件聚合多个相关 skill。
 >
