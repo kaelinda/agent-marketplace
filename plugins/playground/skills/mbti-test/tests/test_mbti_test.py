@@ -168,5 +168,39 @@ class TestScoring(unittest.TestCase):
         self.assertEqual(mbti.run_analysis(abstract, 3)["type"][1], "N")
 
 
+class TestRendering(unittest.TestCase):
+    def _result(self):
+        return mbti.run_analysis(
+            ["先规划方案然后列出步骤", "请帮我看看 src/main.py:10 的报错，谢谢",
+             "试试看这个架构思路为什么更好"] * 6, 3)
+
+    def test_every_type_has_humorous_roast(self):
+        # All 16 types carry a (nickname, tag, roast) triple with non-empty roast.
+        self.assertEqual(len(mbti.TYPE_INFO), 16)
+        for t, (nick, tag, roast) in mbti.TYPE_INFO.items():
+            self.assertTrue(nick and tag and roast, f"{t} missing witty text")
+
+    def test_axis_quip_nonempty_for_all_letters(self):
+        stats = {"terse_ratio": 0.2, "prompts_per_session": 5.0,
+                 "median_length_units": 18.0, "politeness_density": 0.3}
+        for letter in "EISNTFJP":
+            self.assertTrue(mbti.axis_quip(letter, 75.0, stats))
+
+    def test_html_report_well_formed(self):
+        meta = {"per_tool": {"claude": 18}, "dropped_oversized": 2}
+        html = mbti.render_html(self._result(), meta,
+                                source_label="Claude Code", generated_at="2026-06-25 16:00")
+        self.assertTrue(html.startswith("<!doctype html>"))
+        self.assertTrue(html.rstrip().endswith("</html>"))
+        self.assertEqual(html.count('<div class="axis">'), 4)
+        # No leaked garbage from the earlier CSS typo.
+        self.assertNotIn("governing", html)
+        self.assertNotIn("punto", html)
+
+    def test_html_empty_corpus(self):
+        html = mbti.render_html({"n_prompts": 0}, {}, source_label="x")
+        self.assertIn("没有可分析", html)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -15,14 +15,18 @@ MBTI 类型。
 - **透明可解释**：评分基于中英文关键词词率 + 结构信号（路径密度、礼貌用语、计划/探索
   词等），`-v` 可查看每个维度命中的关键词证据。打分细节见
   [`scoring.md`](skills/mbti-test/references/scoring.md)。
+- **诙谐解读**：16 种类型各有一句「锐评」，每个维度还会结合你的真实数据抛个梗
+  （如「{terse}% 的提示词短到像发电报」）。
+- **精美 HTML**：`--html` 导出一张主题化、可离线打开的独立 HTML 报告。
 
 **快速开始：**
 
 ```bash
 SCRIPT=plugins/playground/skills/mbti-test/scripts/mbti_test.py
 
-python3 $SCRIPT analyze            # 综合两个工具、全部历史，输出人格卡片
+python3 $SCRIPT analyze            # 综合两个工具、全部历史，输出人格卡片（含锐评）
 python3 $SCRIPT analyze -v         # 附带每个维度的关键词证据
+python3 $SCRIPT analyze --html     # 导出精美 HTML 报告 → ./mbti-report.html
 python3 $SCRIPT analyze --source codex --days 30   # 只看 Codex、最近 30 天
 python3 $SCRIPT sources            # 看看会分析哪些会话文件
 ```

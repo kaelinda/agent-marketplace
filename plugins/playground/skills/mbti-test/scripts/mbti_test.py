@@ -440,24 +440,94 @@ def run_analysis(prompts: list[str], sessions: int) -> dict:
 # Type catalogue
 # --------------------------------------------------------------------------- #
 
+# type -> (nickname, one-line tag, witty roast)
 TYPE_INFO = {
-    "INTJ": ("建筑师", "深谋远虑的策略家——先想清架构再动手。"),
-    "INTP": ("逻辑学家", "拆解原理的思想者——对「为什么」永不满足。"),
-    "ENTJ": ("指挥官", "目标驱动的统帅——计划清晰、推进果断。"),
-    "ENTP": ("辩论家", "点子机关枪——爱头脑风暴和「要不试试」。"),
-    "INFJ": ("提倡者", "理想主义的设计者——抽象愿景配细腻关怀。"),
-    "INFP": ("调停者", "温和的探索者——重价值、重感受、爱探索。"),
-    "ENFJ": ("主人公", "暖心的协作者——「我们一起」挂在嘴边。"),
-    "ENFP": ("竞选者", "热情的探险家——好奇、外放、随性试错。"),
-    "ISTJ": ("物流师", "务实的执行者——精确、按部就班、说一不二。"),
-    "ISFJ": ("守卫者", "细心的守护者——具体、可靠、客客气气。"),
-    "ESTJ": ("总经理", "雷厉风行的组织者——流程化、要结果。"),
-    "ESFJ": ("执政官", "周到的协调者——既要落地细节也要照顾人。"),
-    "ISTP": ("鉴赏家", "动手派的工匠——少废话，先跑起来看看。"),
-    "ISFP": ("探险家", "安静的实验者——边做边调、随手玩玩。"),
-    "ESTP": ("企业家", "行动至上的玩家——直接上手、快速迭代。"),
-    "ESFP": ("表演者", "活力四射的即兴者——边聊边干、随性发挥。"),
+    "INTJ": ("建筑师", "深谋远虑的策略家",
+             "脑子里永远跑着一张三年后的架构图，跟你聊需求像在被面试。计划通本通，就是偶尔忘了人类需要解释。"),
+    "INTP": ("逻辑学家", "拆解原理的思想者",
+             "对「为什么」的执着堪比三岁小孩，能为一个边界条件跟 AI 辩到天亮。落地？等我先把原理想明白。"),
+    "ENTJ": ("指挥官", "目标驱动的统帅",
+             "开口就是路线图和里程碑，AI 在你这儿不是助手是下属。效率拉满，连 DDL 都怕你。"),
+    "ENTP": ("辩论家", "点子机关枪",
+             "点子比 commit 还多，「要不试试这个」是口头禅。九个坑同时挖，填完算我输。"),
+    "INFJ": ("提倡者", "理想主义的设计者",
+             "既要宏大愿景又要照顾每个细节的感受，AI 一边写代码一边被你的理想主义感动到。"),
+    "INFP": ("调停者", "温和的探索者",
+             "在乎的不是能不能跑，是这段代码「对不对味」。温柔地探索，认真地纠结。"),
+    "ENFJ": ("主人公", "暖心的协作者",
+             "「我们一起」挂在嘴边，连重构都要让 AI 有参与感。团队气氛组组长，bug 都被你哄好了。"),
+    "ENFP": ("竞选者", "热情的探险家",
+             "好奇心爆棚，三句话能跳四个话题，AI 陪你聊天得开五个浏览器标签。热情就是生产力。"),
+    "ISTJ": ("物流师", "务实的执行者",
+             "字段、路径、行号张口就来，你不是在提问，是在派工单。说一不二，AI 不敢摸鱼。"),
+    "ISFJ": ("守卫者", "细心的守护者",
+             "需求说得明明白白还不忘说声谢谢，AI 在你这儿被照顾得明明白白。靠谱二字写在脸上。"),
+    "ESTJ": ("总经理", "雷厉风行的组织者",
+             "流程、步骤、先后顺序安排得明明白白，AI 是你流水线上的一环。要的是结果，不是借口。"),
+    "ESFJ": ("执政官", "周到的协调者",
+             "既盯落地细节又顾及他人感受，催进度都催得让人心甘情愿。组织协调天花板。"),
+    "ISTP": ("鉴赏家", "动手派的工匠",
+             "少废话，先跑起来看看再说。文档？代码能跑就是最好的文档。动手能力点满。"),
+    "ISFP": ("探险家", "安静的实验者",
+             "安静地边做边调，不喜欢被计划绑架，手感对了就上。随性，但有审美。"),
+    "ESTP": ("企业家", "行动至上的玩家",
+             "直接上手快速迭代，能 demo 绝不画饼，「先跑通再优化」是信仰。行动派代言人。"),
+    "ESFP": ("表演者", "活力四射的即兴者",
+             "边聊边干即兴发挥，会话现场感拉满，写代码都自带 BGM。气氛和产出双在线。"),
 }
+
+# Type group → display theme (used by both the catalogue text and the HTML report).
+TYPE_GROUP = {
+    **{t: ("分析家 Analysts", "#7c5cbf", "#a98be0") for t in ("INTJ", "INTP", "ENTJ", "ENTP")},
+    **{t: ("外交家 Diplomats", "#2e9e74", "#5cc79a") for t in ("INFJ", "INFP", "ENFJ", "ENFP")},
+    **{t: ("守护者 Sentinels", "#3d86c6", "#6fb0e6") for t in ("ISTJ", "ISFJ", "ESTJ", "ESFJ")},
+    **{t: ("探险家 Explorers", "#d99a2b", "#f0c45e") for t in ("ISTP", "ISFP", "ESTP", "ESFP")},
+}
+
+
+def axis_quip(letter: str, conf: float, stats: dict) -> str:
+    """A data-aware, tongue-in-cheek one-liner for an axis result."""
+    terse = stats["terse_ratio"] * 100
+    pps = stats["prompts_per_session"]
+    med = stats["median_length_units"]
+    polite = stats["politeness_density"]
+    if letter == "I":
+        if terse >= 20:
+            return f"{terse:.0f}% 的提示词短到像发电报——标点都嫌多余，言简意赅本赅。"
+        if pps < 6:
+            return f"每会话平均才 {pps:.0f} 句就把活派完，社恐人士的高效典范。"
+        return "话不多，但每句都踩在点上，惜字如金。"
+    if letter == "E":
+        if med >= 25:
+            return f"平均一条 {med:.0f} 词元，话痨实锤，AI 都得中途喘口气。"
+        if pps >= 14:
+            return f"一个会话能聊 {pps:.0f} 个来回，AI 是你最忠实的搭子。"
+        return "想到哪说到哪，边聊边把思路理顺。"
+    if letter == "S":
+        if conf >= 80:
+            return "张口就是字段 / 路径 / 报错——你不是在聊天，是在写需求文档。"
+        return "偏爱具体细节，喜欢有图有真相。"
+    if letter == "N":
+        if conf >= 80:
+            return "满嘴「架构 / 思路 / 为什么」，AI 怀疑自己在陪你上哲学课。"
+        return "更关心大方向和「为什么」，细节嘛交给 AI 去抠。"
+    if letter == "T":
+        if conf >= 70:
+            return "「逻辑 / 验证 / 对比」轮番上阵，对就是对、错就是错，AI 不敢造次。"
+        return "讲道理为主，偶尔也会客气一句。"
+    if letter == "F":
+        if polite >= 0.2:
+            return "「请 / 谢谢 / 麻烦」不离口，AI 被尊重得有点受宠若惊。"
+        return "在意沟通的温度，代码也要有点人情味。"
+    if letter == "J":
+        if conf >= 70:
+            return "「先…然后…列出步骤」，没有计划浑身难受，甘特图刻进了 DNA。"
+        return "习惯先谋后动，心里得先有个谱。"
+    if letter == "P":
+        if conf >= 70:
+            return "「试试看 / 或者 / 再说」——方案？跑起来再说，敏捷开发亲儿子。"
+        return "走一步看一步，灵活应变不内耗。"
+    return ""
 
 
 # --------------------------------------------------------------------------- #
@@ -479,11 +549,14 @@ def render(result: dict, meta: dict, *, verbose: bool, color: bool) -> str:
                 "Codex (~/.codex/sessions) 的会话历史，或放宽 --days / --project 过滤。")
 
     mtype = result["type"]
-    title, blurb = TYPE_INFO.get(mtype, ("神秘类型", ""))
+    nick, tag, roast = TYPE_INFO.get(mtype, ("神秘类型", "未解之谜", ""))
+    group = TYPE_GROUP.get(mtype, ("", "", ""))[0]
     lines = []
     lines.append(c("1;36", "╭───────────────  AI 会话人格画像  ───────────────╮"))
-    lines.append(f"  你的 MBTI 类型：{c('1;33', mtype)}  「{c('1;35', title)}」")
-    lines.append(f"  {blurb}")
+    lines.append(f"  你的 MBTI 类型：{c('1;33', mtype)}  「{c('1;35', nick)}」"
+                 + (f"  · {c('2', group)}" if group else ""))
+    lines.append(f"  {c('3', tag)}")
+    lines.append(f"  {c('1;37', '锐评：')}{roast}")
     pt = meta.get("per_tool", {})
     src = " + ".join(f"{k} {v}" for k, v in pt.items()) or "—"
     lines.append(f"  样本：{result['n_prompts']} 条你亲手输入的提示词（{src}）")
@@ -501,6 +574,7 @@ def render(result: dict, meta: dict, *, verbose: bool, color: bool) -> str:
         rL = c("1;32", right) if chosen == right else c("2", right)
         lines.append(f"{lL} {ln:<6} {_bar(100 - pr)}┃{_bar(pr)} {rn:<6} {rL}"
                      f"   →  {c('1;32', chosen)} {ax['confidence']:.0f}%")
+        lines.append(f"    {c('2', '↪ ' + axis_quip(chosen, ax['confidence'], result['stats']))}")
         if verbose:
             tk = ax["evidence"]["top_keywords"]
             for pole in (left, right):
@@ -526,6 +600,160 @@ def render(result: dict, meta: dict, *, verbose: bool, color: bool) -> str:
     lines.append("")
     lines.append(c("2", "纯本地启发式推断 · 仅读取本机文件 · 不上传任何数据 · 娱乐向，非心理诊断"))
     return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------- #
+# HTML report
+# --------------------------------------------------------------------------- #
+
+# Warm tones for the left poles (E/S/T/J), cool tones for the right (I/N/F/P).
+_POLE_COLOR = {
+    "E": "#ff8a5c", "S": "#ff8a5c", "T": "#ff8a5c", "J": "#ff8a5c",
+    "I": "#5a9fe0", "N": "#5a9fe0", "F": "#5a9fe0", "P": "#5a9fe0",
+}
+
+
+def render_html(result: dict, meta: dict, *, source_label: str,
+                generated_at: str = "") -> str:
+    """Render a self-contained, offline HTML report (no external assets)."""
+    from html import escape as e
+
+    if result.get("n_prompts", 0) == 0:
+        return ("<!doctype html><meta charset='utf-8'>"
+                "<body style='font-family:sans-serif;padding:3rem'>"
+                "<h1>没有可分析的会话历史 🤷</h1>"
+                "<p>请确认本机存在 Claude Code / Codex 的会话历史，或放宽 --days / --project 过滤。</p>")
+
+    mtype = result["type"]
+    nick, tag, roast = TYPE_INFO.get(mtype, ("神秘类型", "未解之谜", ""))
+    group, c1, c2 = TYPE_GROUP.get(mtype, ("", "#555", "#888"))
+    pt = meta.get("per_tool", {})
+    src = "、".join(f"{k} {v} 条" for k, v in pt.items()) or "—"
+    s = result["stats"]
+
+    axis_html = []
+    for ax in result["axes"]:
+        left, right, win = ax["left"], ax["right"], ax["letter"]
+        pl, pr = ax["p_left"] * 100, ax["p_right"] * 100
+        ln, rn = AXIS_NAMES[left], AXIS_NAMES[right]
+        quip = axis_quip(win, ax["confidence"], s)
+        win_kws = ax["evidence"]["top_keywords"].get(win, [])
+        chips = "".join(
+            f"<span class='chip'>{e(str(w))}<i>×{n}</i></span>" for w, n in win_kws[:6])
+        chips_html = f"<div class='chips'>{chips}</div>" if chips else ""
+        axis_html.append(f"""
+      <div class="axis">
+        <div class="poles">
+          <span class="pole {'win' if win == left else 'lose'}" style="--pc:{_POLE_COLOR[left]}">
+            <b>{left}</b> {e(ln.split()[0])}</span>
+          <span class="verdict">→ {win} · {ax['confidence']:.0f}%</span>
+          <span class="pole right {'win' if win == right else 'lose'}" style="--pc:{_POLE_COLOR[right]}">
+            {e(rn.split()[0])} <b>{right}</b></span>
+        </div>
+        <div class="track">
+          <div class="fill {'win' if win == left else 'lose'}" style="width:{pl:.1f}%;background:{_POLE_COLOR[left]}"></div>
+          <div class="fill {'win' if win == right else 'lose'}" style="width:{pr:.1f}%;background:{_POLE_COLOR[right]}"></div>
+        </div>
+        <div class="quip">{e(quip)}</div>
+        {chips_html}
+      </div>""")
+
+    dropped = meta.get("dropped_oversized", 0)
+    dropped_note = (f"（已忽略 {dropped} 条超长粘贴/自动展开消息，只看你的对话语气）"
+                    if dropped else "")
+    small_warn = ("<p class='warn'>⚠ 样本偏少，结果仅供娱乐，置信度有限。</p>"
+                  if result["n_prompts"] < 20 else "")
+    gen = f"<span>· 生成于 {e(generated_at)}</span>" if generated_at else ""
+
+    return f"""<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 会话人格画像 · {mtype} {e(nick)}</title>
+<style>
+  :root {{ --c1:{c1}; --c2:{c2}; }}
+  * {{ box-sizing: border-box; }}
+  body {{ margin:0; padding:2.2rem 1rem 3rem; background:#0f1117;
+         font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
+         color:#e8eaf0; line-height:1.6; }}
+  .wrap {{ max-width:720px; margin:0 auto; }}
+  .card {{ background:#171a23; border:1px solid #242838; border-radius:18px;
+          padding:1.6rem 1.8rem; margin-bottom:1.1rem;
+          box-shadow:0 10px 40px rgba(0,0,0,.35); }}
+  .hero {{ background:linear-gradient(135deg,var(--c1),var(--c2));
+          color:#fff; position:relative; overflow:hidden; border:none; }}
+  .hero .watermark {{ position:absolute; right:-.4rem; bottom:-2.4rem; font-size:9rem;
+          font-weight:800; letter-spacing:-.05em; opacity:.16; line-height:1; }}
+  .hero .group {{ display:inline-block; font-size:.8rem; padding:.15rem .7rem;
+          background:rgba(255,255,255,.2); border-radius:999px; margin-bottom:.6rem; }}
+  .hero h1 {{ margin:.1rem 0 .2rem; font-size:3.2rem; letter-spacing:.06em; }}
+  .hero h1 small {{ font-size:1.4rem; font-weight:600; opacity:.95; letter-spacing:0; }}
+  .hero .tag {{ font-size:1.05rem; opacity:.95; margin:.1rem 0 .9rem; }}
+  .hero .roast {{ background:rgba(0,0,0,.18); border-radius:12px; padding:.7rem .9rem;
+          font-size:.98rem; position:relative; z-index:1; }}
+  .hero .roast b {{ opacity:.85; }}
+  .sample {{ color:#aeb4c6; font-size:.9rem; margin-top:.9rem; position:relative; z-index:1; }}
+  h2.sec {{ font-size:.85rem; text-transform:uppercase; letter-spacing:.12em;
+          color:#8b93a9; margin:0 0 1rem; font-weight:700; }}
+  .axis {{ margin-bottom:1.35rem; }}
+  .axis:last-child {{ margin-bottom:.2rem; }}
+  .poles {{ display:flex; align-items:center; justify-content:space-between;
+          font-size:.92rem; margin-bottom:.4rem; }}
+  .pole b {{ font-size:1.05rem; color:var(--pc); }}
+  .pole.lose {{ opacity:.4; }}
+  .pole.win b {{ text-shadow:0 0 12px var(--pc); }}
+  .verdict {{ font-weight:700; color:#fff; font-size:.9rem; }}
+  .track {{ display:flex; height:13px; border-radius:999px; overflow:hidden;
+          background:#0f1117; }}
+  .fill.lose {{ opacity:.28; }}
+  .quip {{ color:#c7cdde; font-size:.92rem; margin-top:.5rem; }}
+  .chips {{ margin-top:.5rem; display:flex; flex-wrap:wrap; gap:.4rem; }}
+  .chip {{ background:#222636; border:1px solid #2e3346; color:#c7cdde;
+          font-size:.78rem; padding:.16rem .55rem; border-radius:8px; }}
+  .chip i {{ color:#7f879c; font-style:normal; margin-left:.2rem; }}
+  .signals {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+          gap:.7rem; }}
+  .sig {{ background:#1c2030; border-radius:12px; padding:.7rem .8rem; }}
+  .sig .v {{ font-size:1.3rem; font-weight:700; color:#fff; }}
+  .sig .k {{ font-size:.78rem; color:#8b93a9; }}
+  .warn {{ color:#f0c45e; font-size:.9rem; }}
+  .foot {{ text-align:center; color:#697089; font-size:.8rem; margin-top:1.4rem; }}
+  .foot b {{ color:#8b93a9; }}
+</style></head>
+<body><div class="wrap">
+
+  <div class="card hero">
+    <div class="watermark">{mtype}</div>
+    {f'<span class="group">{e(group)}</span>' if group else ''}
+    <h1>{mtype} <small>「{e(nick)}」</small></h1>
+    <div class="tag">{e(tag)}</div>
+    <div class="roast"><b>锐评 ·</b> {e(roast)}</div>
+    <div class="sample">📊 基于你亲手输入的 {result['n_prompts']} 条提示词 · {e(src)}（{e(source_label)}）<br>{e(dropped_note)}</div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">四维度倾向</h2>
+    {''.join(axis_html)}
+  </div>
+
+  <div class="card">
+    <h2 class="sec">信号面板</h2>
+    <div class="signals">
+      <div class="sig"><div class="v">{s['median_length_units']:.0f}</div><div class="k">提示词长度中位数（词元）</div></div>
+      <div class="sig"><div class="v">{s['prompts_per_session']:.1f}</div><div class="k">每会话提示词数</div></div>
+      <div class="sig"><div class="v">{s['terse_ratio']*100:.0f}%</div><div class="k">极简短提示词占比</div></div>
+      <div class="sig"><div class="v">{s['path_density']:.2f}</div><div class="k">路径 / 代码密度</div></div>
+      <div class="sig"><div class="v">{s['politeness_density']:.2f}</div><div class="k">礼貌用语密度</div></div>
+      <div class="sig"><div class="v">{s['emoji_density']:.2f}</div><div class="k">emoji 密度</div></div>
+    </div>
+    {small_warn}
+  </div>
+
+  <div class="foot">
+    <b>纯本地启发式推断</b> · 仅读取本机文件 · 不上传任何数据 · 娱乐向，非心理诊断 {gen}
+  </div>
+
+</div></body></html>"""
 
 
 # --------------------------------------------------------------------------- #
@@ -568,6 +796,20 @@ def cmd_analyze(args) -> int:
         print(json.dumps({"result": result, "meta": meta}, ensure_ascii=False, indent=2))
         return 0
 
+    if args.html:
+        from datetime import datetime
+        src_label = {"all": "Claude Code + Codex", "claude": "Claude Code",
+                     "codex": "Codex"}[args.source]
+        if args.days:
+            src_label += f" · 近 {args.days} 天"
+        html = render_html(result, result_meta, source_label=src_label,
+                           generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"))
+        out = Path(args.output or "mbti-report.html").expanduser()
+        out.write_text(html, encoding="utf-8")
+        print(f"✅ HTML 报告已生成：{out.resolve()}")
+        print(f"   在浏览器打开： open \"{out.resolve()}\"")
+        return 0
+
     color = sys.stdout.isatty() and not args.no_color
     print(render(result, result_meta, verbose=args.verbose, color=color))
     return 0
@@ -591,6 +833,9 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--max-chars", type=int, default=4000,
                    help="忽略长于该字符数的消息（粘贴/自动展开，非对话语气；0=不限制，默认 4000）")
     a.add_argument("--json", action="store_true", help="输出 JSON")
+    a.add_argument("--html", action="store_true", help="导出精美的独立 HTML 报告")
+    a.add_argument("-o", "--output", default=None,
+                   help="HTML 报告输出路径（默认 ./mbti-report.html）")
     a.add_argument("--no-color", action="store_true", help="禁用彩色输出")
     a.add_argument("-v", "--verbose", action="store_true", help="显示每个维度的关键词证据")
     a.set_defaults(func=cmd_analyze)

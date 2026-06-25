@@ -30,6 +30,10 @@ python3 $SCRIPT analyze -v
 python3 $SCRIPT analyze --source codex --days 30      # only Codex, last 30 days
 python3 $SCRIPT analyze --project hr-console          # only sessions whose cwd ~ "hr-console"
 
+# Export a polished standalone HTML report (themed, offline, self-contained)
+python3 $SCRIPT analyze --html                       # → ./mbti-report.html
+python3 $SCRIPT analyze --html -o ~/Desktop/me.html  # custom path
+
 # Machine-readable
 python3 $SCRIPT analyze --json
 
@@ -54,6 +58,8 @@ python3 $SCRIPT sources
 | `--min-len N` | `2` | Ignore prompts shorter than N length-units. |
 | `--max-chars N` | `4000` | Ignore messages longer than N chars (pastes / slash-command expansions / auto-generated plans — not conversational voice). `0` = no limit. |
 | `-v, --verbose` | off | Show the top matched keywords per axis. |
+| `--html` | off | Export a polished standalone HTML report instead of printing to the terminal. |
+| `-o, --output PATH` | `./mbti-report.html` | Where to write the HTML report (with `--html`). |
 | `--json` | off | Emit structured JSON. |
 | `--no-color` | off | Disable ANSI color. |
 
@@ -88,10 +94,22 @@ coefficient table and rationale: [`references/scoring.md`](references/scoring.md
 
 ## Output
 
-A card with the 4-letter type and Chinese nickname, a bar per axis with the winning
-letter and confidence %, a signals panel (median length, prompts/session, densities),
-and — with `-v` — the matched-keyword evidence. Small samples (<20 prompts) print a
-low-confidence warning.
+Both the terminal card and the HTML report carry **tongue-in-cheek commentary**:
+
+- a per-type **锐评** (witty roast) for all 16 types, plus the MBTI group badge
+  (分析家 / 外交家 / 守护者 / 探险家);
+- a **data-aware quip** under each axis that references your actual signals
+  (e.g. *"{terse}% 的提示词短到像发电报"*, *"张口就是字段/路径/报错，你不是在聊天，是在写需求文档"*).
+
+**Terminal** (`analyze`): a card with the 4-letter type, nickname, roast, a bar per
+axis with the winning letter + confidence %, the witty quip, a signals panel, and —
+with `-v` — the matched-keyword evidence. Small samples (<20 prompts) warn about low
+confidence.
+
+**HTML** (`analyze --html`): a self-contained, **offline** page (no external assets,
+nothing loaded over the network) with a gradient hero card themed to your MBTI group,
+warm/cool dual-color axis bars, keyword evidence chips, and a signals grid. Open it
+with `open ./mbti-report.html`.
 
 ## Tests
 
