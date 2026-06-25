@@ -1,0 +1,19 @@
+# 发布 / 合并前必查 — {{PROJECT}}
+
+> 合 release / master / 发版前的 gate——最容易漏的工作流检查。
+> 用户提到「合版 / 发布 / 上线 / 合 release」时，Claude 必过一遍本清单再动手。按需读取。
+> 可选规则——不需要就删本文件 + 删 `CLAUDE.local.md` 里对应条目。
+
+## 清单
+
+每条注明：**查什么 + 怎么查（命令）+ 不过怎么办**。
+
+<!-- 示例（删掉换成真实检查）：
+- [ ] <某关键修复 commit> 是否已是目标分支祖先
+      git merge-base --is-ancestor <hash> <目标分支> && echo 已含 || echo ⚠️缺
+      缺 → 先合 develop / cherry-pick 再发版
+- [ ] <某调试开关> 已恢复生效态（grep 扫一遍）
+- [ ] lint / typecheck 通过
+-->
+
+（初始为空，把发版前真实要卡的项填进来。）

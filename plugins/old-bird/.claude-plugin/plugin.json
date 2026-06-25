@@ -1,0 +1,20 @@
+{
+  "name": "old-bird",
+  "version": "0.1.0",
+  "description": "老鸟工具集（old-bird）：把资深开发者打磨过的私房实践，纯本地、安全（不联网、不入库）地蒸馏成可复用机制。local-distill-me —— 在本机把『CLAUDE.local.md 索引 + ~/.claude/shared 共享规则』私有指令体系蒸馏并一键移植到项目，为多 git worktree 配置不漂移的统一私有规则（三层 + 软链架构，引导式向导）。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "old-bird",
+    "workflow",
+    "claude-config",
+    "claude-local-md",
+    "worktree",
+    "private-rules",
+    "scaffold",
+    "dev-workflow"
+  ]
+}

@@ -1,0 +1,29 @@
+# 子 Agent 编排规则 — {{PROJECT}}
+
+> 索引文件：列出五类高频场景对应的 Agent / Skill / Memory 编排。Claude 识别到触发词时，
+> 先按速查表定位 playbook，再读对应详细文件执行；允许按上下文裁剪步骤（裁剪需明说理由）。
+> 五类通用 playbook 骨架在 `~/.claude/shared/_common/agents/`，本项目特化可在
+> `~/.claude/shared/{{PROJECT}}/project-rules/agents/` 下覆盖（覆盖后把下表链接指过去）。
+
+## 速查表
+
+| Playbook | 触发词（任选其一） | 详细 playbook | 主力工具 | 必做前置 |
+| --- | --- | --- | --- | --- |
+| 1. 需求理解 | "理解需求 / 这个需求是啥 / 帮我看下这个 PRD" | `~/.claude/shared/_common/agents/requirement-understanding.md` | 记忆三件套 + Explore + `requirements-analyst` | 必查 memory，必扫代码现状 |
+| 2. 需求实现 | "给个实现方案 / 怎么实现 / 实现思路" | `~/.claude/shared/_common/agents/requirement-implementation.md` | `Plan` + 业务 skill + codex consult | 需求理解已完成（或当前 context 明确） |
+| 3. Code Review | "review 一下 / 帮我看下改动 / 提交前看下" | `~/.claude/shared/_common/agents/code-review.md` | `review` skill + `codex` review + `codex:rescue` | `git diff` 拿到当前未提交改动 |
+| 4. 架构师 | "架构优化 / 重构建议 / 看看结构问题" | `~/.claude/shared/_common/agents/architect.md` | `system-architect` + Explore + codex consult | 业务全貌 + 模块/进程边界扫描 |
+| 5. Bug 洞察 | "线上 bug / 用户反馈 / 这个报错怎么回事" | `~/.claude/shared/_common/agents/bug-insight.md` | AI trace 源 + 业务日志源 + `root-cause-analyst` | 并行拉多源日志 |
+
+## 跨 Playbook 通用约定
+
+- **并行优先**：多 reviewer / 多日志源 / 多 agent 召唤时，一条消息多 tool calls，不要串行
+- **memory 必标来源**：呼应 `_common/memory.md`，输出引用记忆必须写「来自记忆文件 `xxx.md`」
+- **业务沉淀**：playbook 跑完发现可复用的新模式，按 [business-summary.md](business-summary.md) 同步到对应 skill
+- **commit 前**：呼应 [commit-preflight.md](commit-preflight.md)，必扫测试 / 调试开关
+
+## 新增 / 覆盖 Playbook 时
+
+1. 项目特化：在 `{{PROJECT}}/project-rules/agents/` 下新建 `<场景>.md`，参照 `_common/agents/` 结构，把速查表对应行的链接指过去
+2. 全新场景：在 `_common/agents/`（通用）或本目录（项目特有）新建，并在速查表加一行
+3. 如需固化跨会话强制生效，考虑加进 `CLAUDE.local.md` 的强制加载组

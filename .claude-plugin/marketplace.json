@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
@@ -49,6 +49,14 @@
       "version": "0.1.0",
       "category": "playground",
       "tags": ["playground", "fun", "mbti", "personality", "claude-code", "codex", "session-history", "local"]
+    },
+    {
+      "name": "old-bird",
+      "source": "./plugins/old-bird",
+      "description": "老鸟工具集：把资深开发者打磨过的私房实践，纯本地、安全（不联网、不入库）地蒸馏成可复用机制。local-distill-me（在本机把『CLAUDE.local.md 索引 + ~/.claude/shared 共享规则』私有指令体系蒸馏并一键移植到项目，为多 git worktree 配置不漂移的统一私有规则；三层 + 软链架构，引导式向导）。",
+      "version": "0.1.0",
+      "category": "workflow",
+      "tags": ["old-bird", "workflow", "claude-config", "claude-local-md", "worktree", "private-rules", "scaffold", "dev-workflow"]
     }
   ]
 }

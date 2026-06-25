@@ -1,0 +1,48 @@
+# CLAUDE.local.md（项目级私有指令 / 已在 .gitignore）
+
+> 索引文件：通用规则在 `~/.claude/shared/_common/`，本项目规则在 `~/.claude/shared/{{PROJECT}}/`。
+> 本文件在所有 worktree 中**软链**到 `~/.claude/shared/{{PROJECT}}/CLAUDE.local.md`（唯一权威，改一处全 worktree 生效）。
+> `@` 开头的强制每次会话加载，裸路径按需读取。
+
+## 强制加载（通用层 · 每次会话必读）
+
+@~/.claude/shared/_common/soul.md
+— LLM 写代码通用准则：先想后写、最小实现、外科手术式改动、目标驱动验证
+
+@~/.claude/shared/_common/memory.md
+— 记忆检索/写入：本地 MEMORY.md（+ 可选记忆类 MCP），输出必标来源
+
+## 强制加载（项目层 · 每次会话必读）
+
+@~/.claude/shared/{{PROJECT}}/project-rules/commit-preflight.md
+— 提交前红线清单（测试开关 / 本地调试开关回滚等）：commit/push 前 Claude 必扫描
+
+## 按需读取（通用层）
+
+- [~/.claude/shared/_common/code-review.md](~/.claude/shared/_common/code-review.md)
+  — code review 默认范围 = 当前未提交改动
+- `~/.claude/shared/_common/agents/`
+  — 五类高频场景（需求理解 / 需求实现 / code review / 架构 / bug 洞察）的子 Agent 编排骨架
+
+## 按需读取（项目层）
+
+- [~/.claude/shared/{{PROJECT}}/project-rules/subagents.md](~/.claude/shared/{{PROJECT}}/project-rules/subagents.md)
+  — 本项目子 Agent 编排索引（触发词 → playbook 映射）
+- [~/.claude/shared/{{PROJECT}}/project-rules/business-summary.md](~/.claude/shared/{{PROJECT}}/project-rules/business-summary.md)
+  — 业务改动后 skill / references 同步规则
+- [~/.claude/shared/{{PROJECT}}/project-rules/logging-conventions.md](~/.claude/shared/{{PROJECT}}/project-rules/logging-conventions.md)
+  — 日志 / 埋点命名约定（如项目有统一日志规范）
+- [~/.claude/shared/{{PROJECT}}/project-rules/pitfalls.md](~/.claude/shared/{{PROJECT}}/project-rules/pitfalls.md)
+  — 坑点 / 反模式：代码看不出的隐性知识，踩到即记、过时即删
+- [~/.claude/shared/{{PROJECT}}/project-rules/architecture-invariants.md](~/.claude/shared/{{PROJECT}}/project-rules/architecture-invariants.md)
+  — 架构红线：不可违背的硬约束，改架构 / 重构前必读
+- [~/.claude/shared/{{PROJECT}}/project-rules/release-checklist.md](~/.claude/shared/{{PROJECT}}/project-rules/release-checklist.md)
+  — 发布 / 合并前必查 gate（合版 / 发布时触发）
+- [~/.claude/shared/{{PROJECT}}/project-rules/glossary.md](~/.claude/shared/{{PROJECT}}/project-rules/glossary.md)
+  — 项目术语 / 缩写表，防误读领域词
+
+> 上面项目层规则默认都「按需读取」。某条若必须**每会话生效**，把它单独提到「强制加载（项目层）」组；可选规则不用就删文件 + 删本条目。
+
+## 跨 worktree 私有（用户私有，不入 git）
+
+@~/.claude/shared/{{PROJECT}}/personal.md
