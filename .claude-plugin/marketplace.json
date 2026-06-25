@@ -41,6 +41,14 @@
       "version": "0.2.0",
       "category": "content",
       "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload"]
+    },
+    {
+      "name": "playground",
+      "source": "./plugins/playground",
+      "description": "趣味/实验性工具集：mbti-test（根据本机 Claude Code / Codex 会话历史推断你的 MBTI 类型，含诙谐锐评与数据梗，可 --html 导出精美离线报告；纯本地、不上传、娱乐向）。",
+      "version": "0.1.0",
+      "category": "playground",
+      "tags": ["playground", "fun", "mbti", "personality", "claude-code", "codex", "session-history", "local"]
     }
   ]
 }

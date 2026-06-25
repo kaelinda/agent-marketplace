@@ -1,0 +1,20 @@
+{
+  "name": "playground",
+  "version": "0.1.0",
+  "description": "趣味/实验性工具集（playground）：mbti-test —— 根据本机 Claude Code / Codex 会话历史推断你的 MBTI 类型，含诙谐锐评与数据梗，可 --html 导出精美离线报告；纯本地启发式、不上传任何数据、娱乐向。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "playground",
+    "fun",
+    "mbti",
+    "personality",
+    "claude-code",
+    "codex",
+    "session-history",
+    "local"
+  ]
+}
