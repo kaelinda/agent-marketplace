@@ -56,7 +56,7 @@
 | [`agents`](./plugins/agents) | 外部 AI Agent 调度 | 把任务派发给 Cursor / Codex 等外部 AI CLI，目前含 `cursor-cli` skill（review / task / ask 三模式） | ✅ stable |
 | [`core`](./plugins/core) | 市场核心功能 | 版本检测、自动更新、频率控制，每次使用 skill 时自动检查更新 | ✅ stable |
 | [`memory`](./plugins/memory) | 跨会话记忆 | 长期记忆持久化 + 召回 + 治理；5 个 skill（recall/capture/commit/doctor/admin），支持 OpenViking / MCP / mem0 三后端 | 🟡 v0.2.0 (Phase 2 完成) |
-| [`content-generate`](./plugins/content-generate) | 内容创作与发布 | `md-to-html`（Markdown → 可发布 HTML，MDNice + 开源 CSS 双主题引擎）、`ali-oss`（上传文件到阿里云 OSS） | ✅ v0.2.0 |
+| [`content-generate`](./plugins/content-generate) | 内容创作与发布 | `md-to-html`（Markdown → 可发布 HTML，MDNice + 开源 CSS 双主题引擎）、`ali-oss`（上传文件到阿里云 OSS）、`wechat-publisher`（将 Markdown/HTML 发布到微信公众号草稿箱，多主题 + 多账号） | ✅ v0.3.0 |
 | [`playground`](./plugins/playground) | 趣味/实验 | `mbti-test`（根据本机 Claude Code / Codex 会话历史推断 MBTI，纯本地、不上传、娱乐向） | 🧪 v0.1.0 (experimental) |
 | [`old-bird`](./plugins/old-bird) | 配置 / 工作流治理 | `local-distill-me`（把 `CLAUDE.local.md` 私有规则体系**纯本地**蒸馏并移植到项目，多 worktree 零漂移；引导式向导） | 🆕 v0.1.0 |
 
