@@ -1,6 +1,14 @@
 # Content Generate Plugin
 
-内容创作与发布相关的技能集合。
+内容创作与发布相关的技能集合。7 个 skill 覆盖技术公众号内容生产全流程：
+
+```text
+① 写作                ② 审核               ③ 封面
+tech-content-writer → tech-content-audit → wechat-cover-html / wechat-cover-image
+                                                    │
+④ 排版                ⑤ 资源上传            ⑥ 发布   ▼
+md-to-html      →     ali-oss        →     wechat-publisher（公众号草稿箱）
+```
 
 ## Skills
 
@@ -84,3 +92,59 @@ python3 scripts/publish_html.py --file ./article.html --title "文章标题" --c
 **依赖：** Node.js ≥ 18（ESM），可选 Python 3 + `requests`（HTML 发布方式）。
 
 详情请见 [wechat-publisher 技能文档](skills/wechat-publisher/SKILL.md)。
+
+### tech-content-writer
+
+技术公众号文章写作：无 AI 味、由浅入深、简洁严谨、优先引用官方文档。内置禁用词扫描
+（`scripts/banned_word_scan.py`）、DeepSeek API 调用模板、X/Twitter 内容抓取指南、
+段落化 + 字数迭代方法论等 9 篇参考资料。
+
+**依赖：** 环境变量 `DEEPSEEK_API_KEY`（写作时调用 DeepSeek API）。
+
+详情请见 [tech-content-writer 技能文档](skills/tech-content-writer/SKILL.md)。
+
+### tech-content-audit
+
+发布前内容审核：技术准确性 / 实用性 / 深度 / 风险标注 / 禁止内容五大维度审查，
+输出 ✅ 通过 / ⚠️ 修改 / ❌ 拒绝 结论。纯 LLM 审核，无外部依赖；禁用词检查复用
+`tech-content-writer` 的 `banned_word_scan.py`。
+
+详情请见 [tech-content-audit 技能文档](skills/tech-content-audit/SKILL.md)。
+
+### wechat-cover-html
+
+公众号 20:9 封面图生成 — HTML + Playwright 管线，**代码密集型文章首选**（封面上能渲染真实
+Swift/JS/Python 语法高亮代码）。内置 6 套配色模板（蓝/紫/橙/绿/青/纯文字），输出
+1200×540（2x retina）PNG，可选 `--upload` 直传 OSS。
+
+**快速开始：**
+
+```bash
+cp ${CLAUDE_PLUGIN_ROOT}/skills/wechat-cover-html/templates/code-card-blue.html /tmp/cover.html
+# ...编辑标题与代码片段后渲染：
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/wechat-cover-html/scripts/render_cover.py \
+  --html /tmp/cover.html --output /tmp/cover.png
+```
+
+**依赖：** `pip install playwright && playwright install chromium`；上传需 `OSS_AK` / `OSS_SK`
+（bucket / endpoint 可用 `OSS_BUCKET` / `OSS_ENDPOINT` 覆盖）。
+
+详情请见 [wechat-cover-html 技能文档](skills/wechat-cover-html/SKILL.md)。
+
+### wechat-cover-image
+
+公众号封面图生成 — Pillow 纯本地绘制（**无外部 AI 图片服务时的备选方案**）。支持 20:9
+（1200×540，官方比例）与 9:16（900×1260，竖版）两种比例，标题 / 副标题 / 品牌标 / 视觉主体。
+
+**依赖：** `pip install pillow`；中文字体 macOS 自带 PingFang，Linux 需 Noto Sans CJK。
+
+详情请见 [wechat-cover-image 技能文档](skills/wechat-cover-image/SKILL.md)。
+
+## 关键 Pitfalls
+
+1. **封面比例**：公众号官方要求 **20:9 横向**（1200×540），不是 9:16 竖版
+2. **禁用词扫描**：必须扫描整篇文章（含标题区），不能只扫正文段
+3. **凭证管理**：OSS AccessKey / DeepSeek API Key 统一用环境变量，不要硬编码
+4. **英文→中文**：「不是X，而是Y」是英文对比结构的自动翻译，每篇初稿几乎必然出现
+5. **md-to-html 脚注**：公众号粘贴场景默认开启脚注模式（`<a href>` 会被公众号编辑器剥离）
+6. **封面方案选择**：代码密集型文章用 `wechat-cover-html`（支持语法高亮），纯观点/综述用 `wechat-cover-image`

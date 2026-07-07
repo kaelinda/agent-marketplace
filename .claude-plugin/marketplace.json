@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "plugins": [
     {
@@ -37,10 +37,10 @@
     {
       "name": "content-generate",
       "source": "./plugins/content-generate",
-      "description": "内容创作与发布工具集：md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）、wechat-publisher（将 Markdown/HTML 文章发布到微信公众号草稿箱，多主题排版 + 封面图与正文图片自动上传 + 多账号切换）。",
-      "version": "0.3.0",
+      "description": "内容创作与发布工具集，覆盖技术公众号全流程：tech-content-writer（技术文章写作，无 AI 味 + 禁用词扫描）、tech-content-audit（发布前五大维度内容审核）、wechat-cover-html（20:9 封面图，HTML + Playwright，代码密集型首选）、wechat-cover-image（封面图 Pillow 备选方案）、md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）、wechat-publisher（将 Markdown/HTML 文章发布到微信公众号草稿箱，多主题排版 + 封面图与正文图片自动上传 + 多账号切换）。",
+      "version": "0.4.0",
       "category": "content",
-      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload", "wechat", "wechat-mp", "draft", "weixin"]
+      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload", "wechat", "wechat-mp", "draft", "weixin", "writing", "tech-article", "audit", "cover", "playwright", "pillow"]
     },
     {
       "name": "playground",
