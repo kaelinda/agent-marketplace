@@ -1,0 +1,16 @@
+# 依赖
+node_modules/
+
+# Python 构建产物
+__pycache__/
+*.pyc
+
+# 凭证（用户本机私有，切勿提交）
+.env
+wechat.env
+wechat-parenting.env
+*.local.env
+
+# macOS / 编辑器
+.DS_Store
+*.swp

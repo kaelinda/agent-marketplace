@@ -55,3 +55,32 @@ python3 scripts/ali_oss.py upload ./cover.png --prefix blog/2026
 ```
 
 详情请见 [ali-oss 技能文档](skills/ali-oss/SKILL.md)。
+
+### wechat-publisher
+
+将 Markdown / HTML 文章一键发布到**微信公众号草稿箱**。支持 4 套排版主题（reader / codefine /
+ocean / chatex）、封面图与正文图片自动上传到微信 CDN、多账号切换（`--account tech|parenting`）。
+只创建草稿，不会自动群发，需登录公众号后台预览后发布。
+
+常与同插件的 `md-to-html` 配合：先用 `md-to-html` 渲染出公众号样式 HTML，再用本 skill 投递。
+
+**快速开始：**
+
+```bash
+cd plugins/content-generate/skills/wechat-publisher
+npm install
+cp .env.example .env   # 填入你自己的 WECHAT_APP_ID / WECHAT_APP_SECRET，并配置公众号 IP 白名单
+
+# 测试连接
+node src/cli.js test
+
+# 发布 Markdown 到草稿箱
+node src/cli.js publish --title "文章标题" --markdown ./article.md --cover ./cover.jpg --theme reader
+
+# 或直接发布手写 HTML
+python3 scripts/publish_html.py --file ./article.html --title "文章标题" --cover ./cover.jpg
+```
+
+**依赖：** Node.js ≥ 18（ESM），可选 Python 3 + `requests`（HTML 发布方式）。
+
+详情请见 [wechat-publisher 技能文档](skills/wechat-publisher/SKILL.md)。
