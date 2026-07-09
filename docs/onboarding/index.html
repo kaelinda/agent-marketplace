@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>manji 蛮吉 · 新手上手文档</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f7f8fa; --panel:#ffffff; --text:#1f2430; --muted:#6b7280;
+  --border:#e5e7eb; --accent:#4f6ef7; --accent-soft:#eef1fe;
+  --code-bg:#f3f4f6; --hero1:#4f6ef7; --hero2:#7c4ff7; --shadow:0 1px 3px rgba(16,24,40,.08);
+}
+[data-theme="dark"]{
+  --bg:#0f1117; --panel:#171a23; --text:#e5e7ef; --muted:#9aa1b2;
+  --border:#262b38; --accent:#7b93ff; --accent-soft:#1d2440;
+  --code-bg:#11141c; --hero1:#3b4fd8; --hero2:#6b3bd8; --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--hero1),var(--hero2));z-index:99}
+.layout{display:flex;min-height:100vh}
+/* sidebar */
+#sidebar{width:280px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px;transition:transform .2s}
+#sidebar .brand{font-weight:700;font-size:16px;margin:0 6px 14px;display:flex;align-items:center;gap:8px}
+#search{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);
+  color:var(--text);font-size:13px;outline:none;margin-bottom:6px}
+#search:focus{border-color:var(--accent)}
+#search-results{list-style:none;margin:0 0 8px;padding:0;max-height:260px;overflow-y:auto}
+#search-results li a{display:block;padding:6px 10px;border-radius:6px;font-size:13px;color:var(--text)}
+#search-results li a:hover{background:var(--accent-soft);text-decoration:none}
+#search-results .sr-doc{color:var(--muted);font-size:11px;display:block}
+nav.toc{margin-top:8px}
+nav.toc a{display:block;padding:6px 10px;border-radius:6px;color:var(--text);font-size:14px}
+nav.toc a.h2{padding-left:26px;font-size:13px;color:var(--muted)}
+nav.toc a:hover{background:var(--accent-soft);text-decoration:none}
+nav.toc a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+/* main */
+main{flex:1;min-width:0;padding:32px 48px 96px}
+.inner{max-width:880px;margin:0 auto}
+.hero{border-radius:16px;padding:40px 44px;color:#fff;background:linear-gradient(120deg,var(--hero1),var(--hero2));
+  box-shadow:var(--shadow);margin-bottom:28px}
+.hero h1{margin:0 0 6px;font-size:30px}
+.hero p{margin:0 0 14px;opacity:.92}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:999px;
+  padding:3px 12px;font-size:12.5px;backdrop-filter:blur(2px)}
+.gen{font-size:12px;opacity:.75;margin-top:14px}
+/* reading map cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:36px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+  box-shadow:var(--shadow);transition:transform .12s,border-color .12s;display:block;color:var(--text)}
+.card:hover{transform:translateY(-2px);border-color:var(--accent);text-decoration:none}
+.card .ic{font-size:22px}
+.card h3{margin:6px 0 4px;font-size:15px}
+.card p{margin:0;font-size:13px;color:var(--muted)}
+.card .idx{float:right;color:var(--muted);font-size:12px;font-weight:600}
+/* doc sections */
+section.doc{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:8px 40px 28px;margin-bottom:28px;box-shadow:var(--shadow)}
+section.doc>h1{font-size:24px;border-bottom:1px solid var(--border);padding-bottom:12px}
+h1,h2,h3,h4{line-height:1.4;scroll-margin-top:24px}
+h2{font-size:20px;margin-top:36px;padding-left:12px;border-left:4px solid var(--accent)}
+h3{font-size:16.5px}
+code{background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:1.5px 6px;
+  font:12.5px/1.6 "SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;
+  overflow-x:auto;position:relative}
+pre code{background:none;border:none;padding:0;font-size:13px}
+pre .copy{position:absolute;top:8px;right:8px;border:1px solid var(--border);background:var(--panel);
+  color:var(--muted);border-radius:6px;font-size:11px;padding:3px 9px;cursor:pointer;opacity:0;transition:opacity .15s}
+pre:hover .copy{opacity:1}
+blockquote{margin:16px 0;padding:10px 18px;border-left:4px solid var(--accent);
+  background:var(--accent-soft);border-radius:0 8px 8px 0;color:var(--muted)}
+blockquote p{margin:4px 0}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:8px 12px}
+th{background:var(--code-bg)}
+img{max-width:100%;border-radius:8px}
+hr{border:none;border-top:1px solid var(--border);margin:28px 0}
+/* mermaid */
+.mermaid-wrap{background:var(--panel);border:1px dashed var(--border);border-radius:10px;
+  padding:14px;margin:18px 0;text-align:center;overflow-x:auto}
+pre.mermaid{background:none;border:none;text-align:left}
+html.mermaid-offline pre.mermaid::before{content:"⚠ 离线且无缓存，无法渲染图表 —— 以下为 mermaid 源码";
+  display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+/* floating buttons */
+.fab{position:fixed;right:22px;border:1px solid var(--border);background:var(--panel);color:var(--text);
+  border-radius:50%;width:40px;height:40px;font-size:17px;cursor:pointer;box-shadow:var(--shadow);z-index:60}
+#theme-btn{bottom:76px}
+#top-btn{bottom:24px;display:none}
+#menu-btn{display:none;position:fixed;left:16px;top:14px;z-index:70}
+footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
+@media (max-width:900px){
+  #sidebar{position:fixed;z-index:65;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #menu-btn{display:block}
+  main{padding:64px 18px 80px}
+  section.doc{padding:4px 20px 20px}
+  .hero{padding:28px 24px}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button class="fab" id="menu-btn" title="目录">☰</button>
+<div class="layout">
+<aside id="sidebar">
+  <div class="brand">📖 <span>manji 蛮吉</span></div>
+  <input id="search" type="search" placeholder="搜索文档… (标题/正文)">
+  <ul id="search-results"></ul>
+  <nav class="toc"><a href="#doc-readme">📖 导读</a>
+<a class="h2" href="#这套文档怎么读">这套文档怎么读</a>
+<a class="h2" href="#5-分钟速览">5 分钟速览</a>
+<a href="#doc-01-overview">🧭 项目概览</a>
+<a class="h2" href="#这是什么项目">这是什么项目</a>
+<a class="h2" href="#核心能力">核心能力</a>
+<a class="h2" href="#技术栈">技术栈</a>
+<a class="h2" href="#项目现状">项目现状</a>
+<a href="#doc-02-architecture">🏗️ 架构总览</a>
+<a class="h2" href="#系统架构">系统架构</a>
+<a class="h2" href="#模块划分">模块划分</a>
+<a class="h2" href="#数据流">数据流</a>
+<a class="h2" href="#关键设计决策">关键设计决策</a>
+<a href="#doc-03-directory-guide">🗂️ 目录导览</a>
+<a class="h2" href="#目录树">目录树</a>
+<a class="h2" href="#改-x-去哪儿">改 X 去哪儿</a>
+<a class="h2" href="#别碰-谨慎碰">别碰 / 谨慎碰</a>
+<a href="#doc-04-core-flows">🔀 核心业务流程</a>
+<a class="h2" href="#流程一用户安装并使用插件">流程一：用户安装并使用插件</a>
+<a class="h2" href="#流程二skill-的触发与执行">流程二：skill 的触发与执行</a>
+<a class="h2" href="#流程三贡献一个新插件">流程三：贡献一个新插件</a>
+<a class="h2" href="#流程四市场版本检测与更新">流程四：市场版本检测与更新</a>
+<a href="#doc-05-getting-started">🚀 快速上手</a>
+<a class="h2" href="#环境要求">环境要求</a>
+<a class="h2" href="#跑起来">跑起来</a>
+<a class="h2" href="#跑测试">跑测试</a>
+<a class="h2" href="#常用命令速查">常用命令速查</a>
+<a class="h2" href="#第一个练手任务">第一个练手任务</a>
+<a class="h2" href="#卡住了怎么办">卡住了怎么办</a>
+<a href="#doc-06-glossary">📚 术语表</a>
+<a class="h2" href="#业务术语">业务术语</a>
+<a class="h2" href="#内部黑话缩写">内部黑话/缩写</a></nav>
+</aside>
+<main>
+<div class="inner">
+  <div class="hero">
+    <h1>manji 蛮吉</h1>
+    <p>开源 Claude Code 插件市场 · 新手接手指南</p>
+    <div class="badges"><span class="badge">插件 · 7</span><span class="badge">skill · 18</span><span class="badge">语言 · Markdown / Python / Shell</span><span class="badge">版本 · 0.5.0</span><span class="badge">最近提交 · 2026-07-09</span></div>
+    <div class="gen">🕒 生成于 2026-07-10 01:23 · 由 manji · project-docs skill 生成</div>
+  </div>
+  <div class="cards"><a class="card" href="#doc-readme"><span class="idx">01</span><span class="ic">📖</span><h3>导读</h3><p>5 分钟速览 + 按角色的阅读路线图</p></a>
+<a class="card" href="#doc-01-overview"><span class="idx">02</span><span class="ic">🧭</span><h3>项目概览</h3><p>一句话定位、业务背景与技术栈速览</p></a>
+<a class="card" href="#doc-02-architecture"><span class="idx">03</span><span class="ic">🏗️</span><h3>架构总览</h3><p>系统架构、模块职责与数据流向</p></a>
+<a class="card" href="#doc-03-directory-guide"><span class="idx">04</span><span class="ic">🗂️</span><h3>目录导览</h3><p>带注释的目录树 + 改哪儿速查表</p></a>
+<a class="card" href="#doc-04-core-flows"><span class="idx">05</span><span class="ic">🔀</span><h3>核心业务流程</h3><p>4 条最重要链路的图解：安装、触发、贡献、版本更新</p></a>
+<a class="card" href="#doc-05-getting-started"><span class="idx">06</span><span class="ic">🚀</span><h3>快速上手</h3><p>环境、启动、测试与第一个练手任务</p></a>
+<a class="card" href="#doc-06-glossary"><span class="idx">07</span><span class="ic">📚</span><h3>术语表</h3><p>业务与领域词汇 ↔ 代码命名对照</p></a></div>
+  <section class="doc" id="doc-readme"><h1>📖 导读</h1><h2 id="这套文档怎么读">这套文档怎么读</h2>
+<blockquote><p>一句话：<strong>manji（蛮吉）是一个开源的 Claude Code 插件市场</strong> —— 收录 agent / skill / command / hook / MCP 等可复用扩展，按 Anthropic 官方 Marketplace 标准组织。第一天先读 01 和 05，能把插件装起来再看 02/04。</p></blockquote>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">你是谁</th><th style="text-align:left">建议路线</th></tr></thead><tbody><tr><td style="text-align:left">第一天接手仓库的新人</td><td style="text-align:left">01 概览 → 05 快速上手 → 03 目录导览</td></tr><tr><td style="text-align:left">想贡献一个新插件</td><td style="text-align:left">04 核心流程（贡献流程）→ 03 速查表 → CONTRIBUTING.md</td></tr><tr><td style="text-align:left">想改某个现有 skill</td><td style="text-align:left">03 目录导览 → 对应插件 README → 06 术语表</td></tr><tr><td style="text-align:left">做整体设计/评审</td><td style="text-align:left">02 架构总览 → 04 核心流程</td></tr></tbody></table></div>
+<h2 id="5-分钟速览">5 分钟速览</h2>
+<ul>
+<li>这是一个<strong>纯配置 + 脚本</strong>的仓库：没有构建产物、没有服务端，核心是 JSON 清单和一堆 Markdown/Python/Shell。
+</li>
+<li>一切从 <code>.claude-plugin/marketplace.json</code> 开始 —— 它注册了全部 7 个插件，Claude Code 靠它发现插件。
+</li>
+<li>每个插件是 <code>plugins/&lt;name&gt;/</code> 下的独立目录，核心资产是 <strong>skill</strong>（<code>skills/&lt;skill&gt;/SKILL.md</code> + 可选 <code>scripts/</code>、<code>references/</code>、<code>tests/</code>）。
+</li>
+<li>目前 7 个插件、18 个 skill：core（版本检测）、agents（外部 AI 调度）、memory（跨会话记忆）、content-generate（公众号内容全流程）、playground（趣味实验）、old-bird（私房工作流）、project-docs（新手接手文档）。
+</li>
+<li>日常两类改动：<strong>新增/升级插件</strong>（动 <code>plugins/</code> + <code>marketplace.json</code> + <code>README.md</code>）和<strong>修 skill 本体</strong>（只动对应 skill 目录）。
+</li>
+<li>脚本零第三方依赖是硬约定：Python 只用 stdlib，Shell 用 bash/zsh 兼容写法。
+</li>
+<li>有问题先看根 <code>README.md</code> 和 <code>CONTRIBUTING.md</code>，再看对应插件自己的 README。
+</li>
+</ul></section>
+<section class="doc" id="doc-01-overview"><h1>🧭 项目概览</h1><h2 id="这是什么项目">这是什么项目</h2>
+<p><strong>manji（蛮吉）</strong> 是一个开源的 Claude Code 插件市场（plugin marketplace）。它解决的问题很朴素：资深开发者手里攒了很多好用的 AI 工作流（写公众号、跨会话记忆、调度 Cursor/Codex、生成文档……），但这些"私房工具"散落在各自机器的配置里，别人用不上。manji 把它们按 <a href="https://docs.claude.com/en/docs/claude-code/plugins" target="_blank" rel="noopener">Anthropic 官方 Marketplace 标准</a> 打包成插件，任何人一条命令就能安装复用：</p>
+<pre><code>/plugin marketplace add kaelinda/agent-marketplace
+/plugin install content-generate@manji</code></pre>
+<p>名字来自国产动画《魁拔》的主角蛮吉 —— 朴实、能打、越战越强。这也是插件的选品标准。</p>
+<p>它<strong>不做</strong>的事：不是通用软件包管理器（只服务 Claude Code 生态）、不托管运行时服务（纯静态清单 + 本地脚本）、不收录未经打磨的一次性脚本。</p>
+<h2 id="核心能力">核心能力</h2>
+<ul>
+<li><strong>插件分发</strong> — <code>.claude-plugin/marketplace.json</code> 注册 7 个插件，Claude Code 原生 <code>/plugin</code> 命令即可浏览、安装、更新（对应 <code>.claude-plugin/</code>）
+</li>
+<li><strong>内容创作全流程</strong> — 技术公众号从写作、审核、封面图到草稿箱发布的 7 个 skill（对应 <code>plugins/content-generate/</code>）
+</li>
+<li><strong>跨会话长期记忆</strong> — recall/capture/commit/doctor/admin 5 个 skill，支持三种后端（对应 <code>plugins/memory/</code>）
+</li>
+<li><strong>外部 AI Agent 调度</strong> — 把 review/任务派发给 Cursor CLI 等外部工具（对应 <code>plugins/agents/</code>）
+</li>
+<li><strong>版本检测与自动更新</strong> — 使用任意 skill 时自动检查市场新版本，频率控制 + 推迟递增（对应 <code>plugins/core/</code> 与 <code>scripts/</code>）
+</li>
+<li><strong>新手接手文档生成</strong> — 一键为任意仓库生成 md + HTML 双格式 onboarding 文档（对应 <code>plugins/project-docs/</code>）
+</li>
+</ul>
+<h2 id="技术栈">技术栈</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">层</th><th style="text-align:left">技术</th><th style="text-align:left">在仓库里的位置</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">JSON（官方 schema）</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">插件清单</td><td style="text-align:left">JSON</td><td style="text-align:left"><code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code></td></tr><tr><td style="text-align:left">Skill 定义</td><td style="text-align:left">Markdown + YAML frontmatter</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">辅助脚本</td><td style="text-align:left">Python 3（纯 stdlib，零 pip 依赖）</td><td style="text-align:left"><code>plugins/*/skills/*/scripts/</code></td></tr><tr><td style="text-align:left">市场级脚本</td><td style="text-align:left">Shell（bash）</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>scripts/manji-upgrade.sh</code></td></tr><tr><td style="text-align:left">测试</td><td style="text-align:left">Python unittest（离线运行）</td><td style="text-align:left"><code>plugins/*/skills/*/tests/</code></td></tr></tbody></table></div>
+<h2 id="项目现状">项目现状</h2>
+<ul>
+<li>市场版本 <strong>0.5.0</strong>（<code>VERSION</code> 与 <code>marketplace.json</code> 同步维护）
+</li>
+<li>30 次提交，218 个跟踪文件，最近提交 2026-07-09（数据日期：2026-07-10）
+</li>
+<li>近期方向：content-generate 公众号流程整合完毕（v0.4.0）；新增 project-docs 插件（本文档即其产物）；根 README 路线图提到后续会孵化更多主题型插件
+</li>
+</ul></section>
+<section class="doc" id="doc-02-architecture"><h1>🏗️ 架构总览</h1><h2 id="系统架构">系统架构</h2>
+<p>manji 没有服务端 —— 它是一个被 Claude Code 消费的<strong>静态插件仓库</strong>。三方关系如下：</p>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart LR
+  U[用户] --&gt;|/plugin 命令| CC[Claude Code]
+  CC --&gt;|git clone / pull| M[manji 仓库]
+  M --&gt; MJ[marketplace.json 市场清单]
+  MJ --&gt; P1[plugins/core]
+  MJ --&gt; P2[plugins/agents]
+  MJ --&gt; P3[plugins/memory]
+  MJ --&gt; P4[plugins/content-generate]
+  MJ --&gt; P5[plugins/playground]
+  MJ --&gt; P6[plugins/old-bird]
+  MJ --&gt; P7[plugins/project-docs]
+  CC --&gt;|对话触发| SK[skill: SKILL.md]
+  SK --&gt;|python3 / bash| SC[scripts 辅助脚本]</pre></div>
+<ul>
+<li><strong>marketplace.json</strong>（<code>.claude-plugin/marketplace.json</code>）— 唯一的市场入口。owner、metadata.version、<code>plugins[]</code> 数组；Claude Code 添加市场后读它发现插件。
+</li>
+<li><strong>plugins/&lt;name&gt;/</strong>（7 个）— 每个插件自治：自带 <code>plugin.json</code> 清单、README、若干 skill。插件之间<strong>互不依赖</strong>，可独立安装。
+</li>
+<li><strong>skill</strong>（18 个）— 真正干活的单元。<code>SKILL.md</code> 的 frontmatter <code>description</code> 决定 Claude 何时自动触发；正文是给 Claude 的执行手册。
+</li>
+<li><strong>scripts/</strong>（市场级）— <code>version-check.sh</code> 检查市场新版本（结果缓存于 <code>~/.manji/</code>），<code>manji-upgrade.sh</code> 执行更新。由 <code>plugins/core</code> 的 version-update skill 调用。
+</li>
+</ul>
+<h2 id="模块划分">模块划分</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">模块</th><th style="text-align:left">职责</th><th style="text-align:left">位置</th><th style="text-align:left">依赖</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">注册插件、市场元信息</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">core</td><td style="text-align:left">版本检测、自动更新、频率控制</td><td style="text-align:left"><code>plugins/core/</code></td><td style="text-align:left"><code>scripts/*.sh</code></td></tr><tr><td style="text-align:left">agents</td><td style="text-align:left">调度 Cursor 等外部 AI CLI</td><td style="text-align:left"><code>plugins/agents/</code></td><td style="text-align:left">本机 cursor CLI</td></tr><tr><td style="text-align:left">memory</td><td style="text-align:left">跨会话记忆（5 skill、3 后端）</td><td style="text-align:left"><code>plugins/memory/</code></td><td style="text-align:left">OpenViking/MCP/mem0 任一</td></tr><tr><td style="text-align:left">content-generate</td><td style="text-align:left">公众号写作→审核→封面→发布（7 skill）</td><td style="text-align:left"><code>plugins/content-generate/</code></td><td style="text-align:left">部分 skill 需 OSS/微信配置</td></tr><tr><td style="text-align:left">playground</td><td style="text-align:left">趣味实验（mbti-test）</td><td style="text-align:left"><code>plugins/playground/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">old-bird</td><td style="text-align:left">私房工作流蒸馏（local-distill-me）</td><td style="text-align:left"><code>plugins/old-bird/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">project-docs</td><td style="text-align:left">新手接手文档生成（md + HTML）</td><td style="text-align:left"><code>plugins/project-docs/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">顶层 agents</td><td style="text-align:left">独立 agent 人设（content-publisher Soul.md）</td><td style="text-align:left"><code>agents/</code></td><td style="text-align:left">content-generate</td></tr></tbody></table></div>
+<h2 id="数据流">数据流</h2>
+<p>一次典型的「用户使用 skill」的数据流：</p>
+<div class="mermaid-wrap"><pre class="mermaid">sequenceDiagram
+  participant U as 用户
+  participant CC as Claude Code
+  participant SK as SKILL.md
+  participant SC as scripts
+
+  U-&gt;&gt;CC: 自然语言请求 如 生成项目文档
+  CC-&gt;&gt;CC: 匹配已装插件的 skill description
+  CC-&gt;&gt;SK: 读取 SKILL.md 执行手册
+  SK-&gt;&gt;SC: 按手册调用 python3 / bash 脚本
+  SC--&gt;&gt;CC: 脚本输出 文件或 stdout
+  CC--&gt;&gt;U: 汇报结果</pre></div>
+<h2 id="关键设计决策">关键设计决策</h2>
+<ul>
+<li><strong>零第三方依赖</strong>：所有 Python 脚本只用 stdlib —— 用户装插件不应被迫 pip install。这是贡献时最常被 review 卡住的点。
+</li>
+<li><strong>插件按主题聚合而非按 skill 拆散</strong>：一个插件收多个相关 skill（如 content-generate 收 7 个），安装粒度对用户更友好。
+</li>
+<li><strong>双清单同步</strong>：新插件必须同时改 <code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code> 和根 <code>marketplace.json</code>，并给市场 <code>metadata.version</code> 升版 —— 这两个文件是 git 热点（各改过 10 次），漏一个就是最常见的 PR 问题。
+</li>
+<li><strong>SKILL.md 即产品</strong>：frontmatter description 写得好不好直接决定 skill 会不会被 Claude 触发；正文按"给 Claude 的操作手册"写，不是给人看的教程。
+</li>
+</ul></section>
+<section class="doc" id="doc-03-directory-guide"><h1>🗂️ 目录导览</h1><h2 id="目录树">目录树</h2>
+<pre><code class="language-text">agent-marketplace/
+├── .claude-plugin/
+│   └── marketplace.json     # 市场清单：owner / metadata.version / plugins[] 注册表
+├── plugins/                 # 全部插件（每个目录 = 一个可独立安装的插件）
+│   ├── core/                # 版本检测与自动更新
+│   ├── agents/              # 外部 AI Agent 调度（cursor-cli）
+│   ├── memory/              # 跨会话记忆（5 skill + schema + docs）
+│   ├── content-generate/    # 公众号内容全流程（7 skill）
+│   ├── playground/          # 趣味实验（mbti-test）
+│   ├── old-bird/            # 私房工作流蒸馏（local-distill-me）
+│   └── project-docs/        # 新手接手文档生成（本文档的生产者）
+├── agents/
+│   └── content-publisher/   # 顶层 agent 人设（Soul.md，纯执行型发布 agent）
+├── scripts/
+│   ├── version-check.sh     # 市场版本检查（缓存 ~/.manji/）
+│   └── manji-upgrade.sh     # 市场更新执行
+├── docs/
+│   └── onboarding/          # 本套新手文档（project-docs skill 生成）
+├── data/                    # 预留数据目录（当前为空）
+├── CLAUDE.md                # 本仓库的 Claude 指令（skill 路由规则）
+├── CONTRIBUTING.md          # 贡献指南：插件布局 / manifest 规范 / PR checklist
+├── README.md                # 市场门面：快速上手 + 插件目录表
+└── VERSION                  # 市场版本号（与 marketplace.json 同步）</code></pre>
+<p>插件内部的标准布局（以 project-docs 为例）：</p>
+<pre><code class="language-text">plugins/project-docs/
+├── .claude-plugin/plugin.json   # 插件清单（name/version/description/keywords）
+├── README.md                    # 插件级说明
+└── skills/project-docs/
+    ├── SKILL.md                 # skill 定义：frontmatter 触发词 + 执行手册
+    ├── scripts/build_html.py    # 辅助脚本（纯 stdlib）
+    ├── references/              # 给 Claude 按需读取的参考资料
+    └── tests/                   # 离线单测</code></pre>
+<h2 id="改-x-去哪儿">改 X 去哪儿</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">我想…</th><th style="text-align:left">去这里</th><th style="text-align:left">提示</th></tr></thead><tbody><tr><td style="text-align:left">新增一个插件</td><td style="text-align:left"><code>plugins/&lt;新名字&gt;/</code></td><td style="text-align:left">照抄 <code>plugins/playground/</code> 的骨架；别忘了下面两行</td></tr><tr><td style="text-align:left">注册插件到市场</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left"><code>plugins[]</code> 加一条 + <code>metadata.version</code> 升版</td></tr><tr><td style="text-align:left">让新插件出现在门面</td><td style="text-align:left"><code>README.md</code> 插件目录表</td><td style="text-align:left">状态列标 🆕</td></tr><tr><td style="text-align:left">给现有插件加 skill</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td><td style="text-align:left">frontmatter <code>name</code>+<code>description</code> 必填</td></tr><tr><td style="text-align:left">改 skill 触发条件</td><td style="text-align:left">对应 <code>SKILL.md</code> 的 frontmatter <code>description</code></td><td style="text-align:left">触发词写具体场景 + 中英文示例</td></tr><tr><td style="text-align:left">改版本检测逻辑</td><td style="text-align:left"><code>scripts/version-check.sh</code> + <code>plugins/core/</code></td><td style="text-align:left">缓存与配置在 <code>~/.manji/</code></td></tr><tr><td style="text-align:left">更新公众号发布流程</td><td style="text-align:left"><code>plugins/content-generate/skills/wechat-publisher/</code></td><td style="text-align:left">顶层 <code>agents/content-publisher/Soul.md</code> 也可能要同步</td></tr><tr><td style="text-align:left">升级市场版本号</td><td style="text-align:left"><code>VERSION</code> + <code>marketplace.json</code> 的 <code>metadata.version</code></td><td style="text-align:left">两处必须一致</td></tr><tr><td style="text-align:left">看贡献规范 / PR checklist</td><td style="text-align:left"><code>CONTRIBUTING.md</code></td><td style="text-align:left">提 PR 前过一遍</td></tr></tbody></table></div>
+<h2 id="别碰-谨慎碰">别碰 / 谨慎碰</h2>
+<ul>
+<li><code>plugins/old-bird/skills/local-distill-me/assets/</code> — 成套的模板资产，内部结构被 skill 脚本按路径引用，重命名/挪动会静默破坏移植流程。
+</li>
+<li><code>plugins/memory/schema/</code> — JSON Schema 被 memory skill 运行时校验引用，改字段要连带改 skill 与测试。
+</li>
+<li><code>data/</code> — 当前为空的预留目录，别顺手删（git 里以占位存在）。
+</li>
+<li>各 skill 的 <code>references/</code> — 是给 Claude 运行时按需读取的"知识库"，内容与 SKILL.md 的指引强耦合，改动要两边对照。
+</li>
+</ul></section>
+<section class="doc" id="doc-04-core-flows"><h1>🔀 核心业务流程</h1><h2 id="流程一用户安装并使用插件">流程一：用户安装并使用插件</h2>
+<p>用户视角的主链路 —— 从添加市场到 skill 干活。</p>
+<div class="mermaid-wrap"><pre class="mermaid">sequenceDiagram
+  participant U as 用户
+  participant CC as Claude Code
+  participant R as manji 仓库
+
+  U-&gt;&gt;CC: /plugin marketplace add kaelinda/agent-marketplace
+  CC-&gt;&gt;R: clone 仓库并读 marketplace.json
+  U-&gt;&gt;CC: /plugin install content-generate@manji
+  CC-&gt;&gt;R: 拉取 plugins/content-generate
+  U-&gt;&gt;CC: 帮我把这篇文章发到公众号草稿箱
+  CC-&gt;&gt;CC: 匹配 wechat-publisher 的 description
+  CC-&gt;&gt;R: 读 SKILL.md 并按手册执行 scripts
+  CC--&gt;&gt;U: 返回草稿 media_id</pre></div>
+<ol>
+<li>添加市场：Claude Code 读 <code>.claude-plugin/marketplace.json</code> 拿到 <code>plugins[]</code>（<code>.claude-plugin/marketplace.json</code>）
+</li>
+<li>安装插件：按 <code>source</code> 字段定位 <code>plugins/&lt;name&gt;/</code>，读 <code>plugin.json</code>
+</li>
+<li>对话触发：Claude 用各 skill frontmatter 的 <code>description</code> 做语义匹配
+</li>
+<li>执行：按 SKILL.md 正文的手册跑 <code>scripts/</code> 下的脚本
+</li>
+</ol>
+<p><strong>关键文件</strong>：<code>.claude-plugin/marketplace.json</code>、<code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code>、<code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></p>
+<h2 id="流程二skill-的触发与执行">流程二：skill 的触发与执行</h2>
+<p>理解这条链路才能写好 SKILL.md —— 它是本仓库最核心的"业务逻辑"。</p>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart TB
+  A[用户一句话请求] --&gt; B{Claude 扫描已装 skill 的 description}
+  B --&gt;|命中| C[加载 SKILL.md 正文进上下文]
+  B --&gt;|未命中| Z[普通对话处理]
+  C --&gt; D[按手册执行: 探索 / 提问 / 跑脚本]
+  D --&gt; E{需要辅助材料?}
+  E --&gt;|是| F[按需读 references/ 下的文档]
+  E --&gt;|否| G[产出结果]
+  F --&gt; G</pre></div>
+<p>要点：<code>description</code> 是<strong>触发器</strong>（写场景与触发词），正文是<strong>执行手册</strong>（写步骤与硬性要求），<code>references/</code> 是<strong>按需知识</strong>（大而全的细节别塞进 SKILL.md，会浪费上下文）。</p>
+<p><strong>关键文件</strong>：任意 <code>plugins/*/skills/*/SKILL.md</code>（好例子：<code>plugins/playground/skills/mbti-test/SKILL.md</code>）</p>
+<h2 id="流程三贡献一个新插件">流程三：贡献一个新插件</h2>
+<p>维护者/贡献者视角的写路径，也是本仓库最频繁的变更类型。</p>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart LR
+  A[创建 plugins/name 目录骨架] --&gt; B[写 plugin.json 清单]
+  B --&gt; C[写 skills/*/SKILL.md + scripts + tests]
+  C --&gt; D[根 marketplace.json 注册 plugins 条目]
+  D --&gt; E[README.md 插件目录表加一行]
+  E --&gt; F[VERSION 与 metadata.version 同步升版]
+  F --&gt; G[本地联调 + 跑离线测试]
+  G --&gt; H[按 CONTRIBUTING 的 checklist 提 PR]</pre></div>
+<ol>
+<li>目录骨架照抄现有插件（<code>plugins/playground/</code> 最小）
+</li>
+<li><strong>双清单 + 门面</strong>三处同步是最易漏的：<code>marketplace.json</code>、<code>README.md</code>、<code>VERSION</code>
+</li>
+<li>脚本零第三方依赖、测试可离线跑，是 review 的硬门槛
+</li>
+</ol>
+<p><strong>关键文件</strong>：<code>CONTRIBUTING.md</code>、<code>.claude-plugin/marketplace.json</code>、<code>README.md</code>、<code>VERSION</code></p>
+<h2 id="流程四市场版本检测与更新">流程四：市场版本检测与更新</h2>
+<p>core 插件让所有已装用户能感知市场更新。</p>
+<div class="mermaid-wrap"><pre class="mermaid">sequenceDiagram
+  participant SK as 任意 skill 运行时
+  participant VC as version-check.sh
+  participant CFG as ~/.manji/
+  participant R as 远端仓库
+
+  SK-&gt;&gt;VC: 使用 skill 时顺带检查
+  VC-&gt;&gt;CFG: 读缓存 last-update-check
+  alt 缓存未过期
+    VC--&gt;&gt;SK: 跳过
+  else 需要检查
+    VC-&gt;&gt;R: 比对远端 VERSION
+    VC--&gt;&gt;SK: 有新版本 → 4 选项交互
+    SK-&gt;&gt;CFG: 记录选择 config.json 推迟递增 24h→48h→7d
+  end</pre></div>
+<p><strong>关键文件</strong>：<code>scripts/version-check.sh</code>、<code>scripts/manji-upgrade.sh</code>、<code>plugins/core/skills/version-update/</code></p></section>
+<section class="doc" id="doc-05-getting-started"><h1>🚀 快速上手</h1><h2 id="环境要求">环境要求</h2>
+<ul>
+<li><strong>Python 3.8+</strong>（macOS/Linux 自带即可 —— 所有脚本零 pip 依赖）
+</li>
+<li><strong>git</strong> 与 <strong>Claude Code CLI</strong>（体验插件安装链路时需要）
+</li>
+<li>无数据库、无 Node、无构建步骤 —— clone 下来就是全部
+</li>
+</ul>
+<h2 id="跑起来">跑起来</h2>
+<p>这个仓库没有"启动服务"的概念，跑起来 = 把市场装进本地 Claude Code：</p>
+<pre><code class="language-bash">git clone git@github.com:kaelinda/agent-marketplace.git
+cd agent-marketplace</code></pre>
+<p>在 Claude Code 对话里执行（用本地路径便于边改边试）：</p>
+<pre><code class="language-text">/plugin marketplace add /path/to/agent-marketplace
+/plugin install playground@manji</code></pre>
+<p>然后说一句"测一下我的 MBTI"验证 skill 能被触发。</p>
+<h2 id="跑测试">跑测试</h2>
+<p>各 skill 的测试都离线可跑，逐个执行即可：</p>
+<pre><code class="language-bash">python3 plugins/project-docs/skills/project-docs/tests/test_build_html.py
+python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py</code></pre>
+<p>预期输出末尾均为 <code>OK</code>。改动 <code>marketplace.json</code> 后校验 JSON：</p>
+<pre><code class="language-bash">python3 -m json.tool .claude-plugin/marketplace.json &gt; /dev/null &amp;&amp; echo "json ok"</code></pre>
+<h2 id="常用命令速查">常用命令速查</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">命令</th><th style="text-align:left">作用</th></tr></thead><tbody><tr><td style="text-align:left"><code>/plugin marketplace add &lt;路径或 owner/repo&gt;</code></td><td style="text-align:left">添加市场</td></tr><tr><td style="text-align:left"><code>/plugin install &lt;name&gt;@manji</code></td><td style="text-align:left">安装某插件</td></tr><tr><td style="text-align:left"><code>/plugin marketplace update manji</code></td><td style="text-align:left">拉取市场最新内容</td></tr><tr><td style="text-align:left"><code>python3 plugins/*/skills/*/tests/test_*.py</code></td><td style="text-align:left">跑某个 skill 的离线测试</td></tr><tr><td style="text-align:left"><code>bash scripts/version-check.sh</code></td><td style="text-align:left">手动跑一次市场版本检查</td></tr><tr><td style="text-align:left">`git log --format= --name-only \</td><td style="text-align:left">sort \</td><td style="text-align:left">uniq -c \</td><td style="text-align:left">sort -rn \</td><td style="text-align:left">head`</td><td style="text-align:left">看热点文件</td></tr></tbody></table></div>
+<h2 id="第一个练手任务">第一个练手任务</h2>
+<p>二选一，都能在 30 分钟内完成：</p>
+<ol>
+<li><strong>给本套文档重建 HTML</strong>：随便改一处 <code>docs/onboarding/*.md</code>（比如给术语表加一个词条），然后运行
+</li>
+</ol>
+<p><code>python3 plugins/project-docs/skills/project-docs/scripts/build_html.py docs/onboarding</code>， 打开 <code>docs/onboarding/index.html</code> 确认改动出现在页面里。你会顺路理解 frontmatter → 侧边栏/卡片的映射。</p>
+<ol>
+<li><strong>本地装一个插件跑通闭环</strong>：用上面"跑起来"的本地路径方式安装 <code>playground</code>，触发 mbti-test，
+</li>
+</ol>
+<p>再读一遍它的 <code>SKILL.md</code>，对照理解"description 触发 → 手册执行"这条主链路（见 04 流程二）。</p>
+<h2 id="卡住了怎么办">卡住了怎么办</h2>
+<ul>
+<li>插件装了但 skill 不触发 → 十有八九是 <code>SKILL.md</code> frontmatter 的 <code>description</code> 触发词不够具体，对照 <code>plugins/playground/skills/mbti-test/SKILL.md</code> 的写法。
+</li>
+<li><code>marketplace.json</code> 改完 Claude Code 不生效 → 跑 <code>/plugin marketplace update manji</code>（本地路径市场也要 update 才重读）。
+</li>
+<li>mermaid 图不渲染 → 首次构建需联网下载 mermaid.js（之后缓存于 <code>~/.cache/manji-project-docs/</code>）；节点文字里的 <code>(</code> <code>)</code> <code>"</code> 会导致解析失败。
+</li>
+<li>规范类问题 → <code>CONTRIBUTING.md</code> 有完整的目录布局、manifest 规范和 PR checklist。
+</li>
+</ul></section>
+<section class="doc" id="doc-06-glossary"><h1>📚 术语表</h1><h2 id="业务术语">业务术语</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">术语</th><th style="text-align:left">含义</th><th style="text-align:left">代码中的对应</th></tr></thead><tbody><tr><td style="text-align:left">Marketplace（市场）</td><td style="text-align:left">一份可被 Claude Code 添加的插件注册表仓库</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">Plugin（插件）</td><td style="text-align:left">按主题聚合的一组扩展能力，安装/卸载的最小单位</td><td style="text-align:left"><code>plugins/&lt;name&gt;/</code> + <code>plugin.json</code></td></tr><tr><td style="text-align:left">Skill</td><td style="text-align:left">教 Claude 完成一类任务的"执行手册"，对话中自动触发</td><td style="text-align:left"><code>plugins/*/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">Frontmatter</td><td style="text-align:left">SKILL.md 顶部的 YAML 元数据，<code>description</code> 决定触发</td><td style="text-align:left">每个 <code>SKILL.md</code> 头部 <code>---</code> 块</td></tr><tr><td style="text-align:left">Slash command</td><td style="text-align:left">用户显式敲 <code>/xxx</code> 调用的命令，可与 skill 同名共存</td><td style="text-align:left"><code>plugins/*/commands/*.md</code></td></tr><tr><td style="text-align:left">Agent / Subagent</td><td style="text-align:left">有独立人设与职责边界的执行体</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">Soul.md</td><td style="text-align:left">顶层 agent 的人设文件：我是谁/我做什么/我不做什么</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">References</td><td style="text-align:left">skill 的按需知识库，运行时才读，不占默认上下文</td><td style="text-align:left"><code>plugins/*/skills/*/references/</code></td></tr><tr><td style="text-align:left">双清单同步</td><td style="text-align:left">新插件要同时改插件清单和市场清单</td><td style="text-align:left"><code>plugin.json</code> + <code>marketplace.json</code></td></tr><tr><td style="text-align:left">版本检测</td><td style="text-align:left">用 skill 时顺带检查市场是否有新版本</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>~/.manji/</code></td></tr><tr><td style="text-align:left">Onboarding 文档</td><td style="text-align:left">本套"新手接手"文档，md + HTML 双格式</td><td style="text-align:left"><code>docs/onboarding/</code>（project-docs 生成）</td></tr></tbody></table></div>
+<h2 id="内部黑话缩写">内部黑话/缩写</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">缩写/黑话</th><th style="text-align:left">全称/出处</th><th style="text-align:left">场景</th></tr></thead><tbody><tr><td style="text-align:left">manji / 蛮吉</td><td style="text-align:left">《魁拔》主角，本市场代号</td><td style="text-align:left">市场名、<code>~/.manji/</code> 配置目录</td></tr><tr><td style="text-align:left">魁拔</td><td style="text-align:left">国产动画，蛮吉的出处</td><td style="text-align:left">README 里的命名彩蛋</td></tr><tr><td style="text-align:left">old-bird / 老鸟</td><td style="text-align:left">资深开发者私房实践</td><td style="text-align:left"><code>plugins/old-bird/</code></td></tr><tr><td style="text-align:left">蒸馏（distill）</td><td style="text-align:left">把本机私有配置提炼成可移植模板</td><td style="text-align:left"><code>local-distill-me</code> skill</td></tr><tr><td style="text-align:left">零依赖</td><td style="text-align:left">Python 只用 stdlib、不 pip install</td><td style="text-align:left">全部 <code>scripts/</code>，CONTRIBUTING 硬约定</td></tr><tr><td style="text-align:left">MCP</td><td style="text-align:left">Model Context Protocol，Claude 的外部工具协议</td><td style="text-align:left"><code>plugins/*/mcps/</code>（预留）</td></tr><tr><td style="text-align:left">OSS</td><td style="text-align:left">阿里云对象存储</td><td style="text-align:left"><code>content-generate:ali-oss</code> skill</td></tr><tr><td style="text-align:left">media_id</td><td style="text-align:left">微信公众号素材/草稿的唯一 ID</td><td style="text-align:left"><code>wechat-publisher</code> 返回值</td></tr></tbody></table></div></section>
+  <footer>本页面为自包含离线文档 · 亮/暗主题自动跟随系统，可点右下角切换 · manji project-docs</footer>
+</div>
+</main>
+</div>
+<button class="fab" id="theme-btn" title="切换主题">🌓</button>
+<button class="fab" id="top-btn" title="回到顶部">↑</button>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" onerror="window.__mermaidFailed=true;document.documentElement.classList.add('mermaid-offline')"></script>
+<script>
+(function(){
+  var root=document.documentElement;
+  var saved=localStorage.getItem('pd-theme');
+  if(saved){root.setAttribute('data-theme',saved)}
+  else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){root.setAttribute('data-theme','dark')}
+
+  function currentTheme(){return root.getAttribute('data-theme')==='dark'?'dark':'light'}
+
+  // mermaid
+  var mermaidSrc=[];
+  function renderMermaid(){
+    if(!window.mermaid){root.classList.add('mermaid-offline');return}
+    var nodes=document.querySelectorAll('pre.mermaid');
+    nodes.forEach(function(n,i){
+      if(mermaidSrc[i]===undefined){mermaidSrc[i]=n.textContent}
+      n.removeAttribute('data-processed');n.innerHTML='';n.textContent=mermaidSrc[i];
+    });
+    try{
+      mermaid.initialize({startOnLoad:false,securityLevel:'loose',
+        theme:currentTheme()==='dark'?'dark':'default'});
+      mermaid.run({querySelector:'pre.mermaid'});
+    }catch(e){console.warn('mermaid render failed',e)}
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',renderMermaid)}
+  else{renderMermaid()}
+
+  // theme toggle
+  document.getElementById('theme-btn').addEventListener('click',function(){
+    var next=currentTheme()==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);localStorage.setItem('pd-theme',next);
+    renderMermaid();
+  });
+
+  // progress + back-to-top
+  var topBtn=document.getElementById('top-btn');
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement;
+    var p=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+    document.getElementById('progress').style.width=p+'%';
+    topBtn.style.display=h.scrollTop>600?'block':'none';
+  },{passive:true});
+  topBtn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+
+  // mobile sidebar
+  var sb=document.getElementById('sidebar');
+  document.getElementById('menu-btn').addEventListener('click',function(e){
+    e.stopPropagation();sb.classList.toggle('open');
+  });
+  document.addEventListener('click',function(e){
+    if(window.innerWidth<=900&&!sb.contains(e.target)){sb.classList.remove('open')}
+  });
+  sb.addEventListener('click',function(e){
+    if(e.target.tagName==='A'&&window.innerWidth<=900){sb.classList.remove('open')}
+  });
+
+  // copy buttons
+  document.querySelectorAll('pre').forEach(function(pre){
+    if(pre.classList.contains('mermaid'))return;
+    var btn=document.createElement('button');btn.className='copy';btn.textContent='复制';
+    btn.addEventListener('click',function(){
+      var code=pre.querySelector('code');
+      navigator.clipboard.writeText(code?code.textContent:pre.textContent).then(function(){
+        btn.textContent='已复制 ✓';setTimeout(function(){btn.textContent='复制'},1500);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  // scroll spy
+  var tocLinks=Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var targets=tocLinks.map(function(a){return document.getElementById(a.getAttribute('href').slice(1))}).filter(Boolean);
+  var spy=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        tocLinks.forEach(function(a){a.classList.remove('active')});
+        var link=document.querySelector('nav.toc a[href="#'+en.target.id+'"]');
+        if(link){link.classList.add('active')}
+      }
+    });
+  },{rootMargin:'-10% 0px -70% 0px'});
+  targets.forEach(function(t){spy.observe(t)});
+
+  // search
+  var index=[];
+  document.querySelectorAll('section.doc').forEach(function(sec){
+    var docTitle=(sec.querySelector('h1')||{}).textContent||'';
+    sec.querySelectorAll('h1,h2,h3,p,li').forEach(function(el){
+      var anchor=el.closest('[id]')||sec;
+      index.push({doc:docTitle,text:el.textContent||'',id:anchor.id,
+        heading:/^H[1-3]$/.test(el.tagName)});
+    });
+  });
+  var input=document.getElementById('search'),results=document.getElementById('search-results');
+  input.addEventListener('input',function(){
+    var q=input.value.trim().toLowerCase();results.innerHTML='';
+    if(q.length<1)return;
+    var seen={},count=0;
+    for(var i=0;i<index.length&&count<12;i++){
+      var it=index[i];
+      if(it.text.toLowerCase().indexOf(q)===-1)continue;
+      var key=it.id+'|'+(it.heading?it.text:it.doc);
+      if(seen[key])continue;seen[key]=1;count++;
+      var li=document.createElement('li'),a=document.createElement('a');
+      a.href='#'+it.id;
+      var snippet=it.text.length>42?it.text.slice(0,42)+'…':it.text;
+      a.innerHTML='<span class="sr-doc">'+it.doc+'</span>'+snippet.replace(/</g,'&lt;');
+      a.addEventListener('click',function(){results.innerHTML='';input.value=''});
+      li.appendChild(a);results.appendChild(li);
+    }
+  });
+})();
+</script>
+</body>
+</html>

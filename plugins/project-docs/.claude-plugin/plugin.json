@@ -1,0 +1,22 @@
+{
+  "name": "project-docs",
+  "version": "0.1.0",
+  "description": "新手接手文档生成器：一键为任意仓库产出 docs/onboarding/ 下 7 份结构化 Markdown（概览/架构/目录导览/核心流程/上手指南/术语表/导读），并渲染成自包含单页 HTML 站点 —— 侧边栏导航 + mermaid 架构图/时序图 + 亮暗主题 + 站内搜索 + 阅读进度条，离线可用、零第三方依赖。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "docs",
+    "onboarding",
+    "documentation",
+    "markdown",
+    "html",
+    "mermaid",
+    "architecture",
+    "visualization",
+    "newcomer",
+    "handover"
+  ]
+}
