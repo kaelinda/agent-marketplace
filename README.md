@@ -3,7 +3,7 @@
 > 一个开源的 Claude Code 插件市场，按 [Anthropic 官方 Marketplace 标准](https://docs.claude.com/en/docs/claude-code/plugins) 组织，收录 **agent / skill / command / hook / MCP** 等可复用的扩展能力。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-6-blue.svg)](#-插件目录)
+[![Plugins](https://img.shields.io/badge/plugins-7-blue.svg)](#-插件目录)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 
 > **蛮吉** 是国产动画《魁拔》的主角——一个憨直、热血、不知疲倦的小纹耀，从一根小铁棍打到能扛魁拔。希望每个插件都像蛮吉一样：朴实、能打、越战越强。
@@ -59,8 +59,9 @@
 | [`content-generate`](./plugins/content-generate) | 内容创作与发布 | 技术公众号全流程 7 skill：`tech-content-writer`（文章写作）、`tech-content-audit`（发布前审核）、`wechat-cover-html` / `wechat-cover-image`（20:9 封面图）、`md-to-html`（Markdown → 可发布 HTML）、`ali-oss`（阿里云 OSS 上传）、`wechat-publisher`（公众号草稿箱发布，多主题 + 多账号） | ✅ v0.4.0 |
 | [`playground`](./plugins/playground) | 趣味/实验 | `mbti-test`（根据本机 Claude Code / Codex 会话历史推断 MBTI，纯本地、不上传、娱乐向） | 🧪 v0.1.0 (experimental) |
 | [`old-bird`](./plugins/old-bird) | 配置 / 工作流治理 | `local-distill-me`（把 `CLAUDE.local.md` 私有规则体系**纯本地**蒸馏并移植到项目，多 worktree 零漂移；引导式向导） | 🆕 v0.1.0 |
+| [`project-docs`](./plugins/project-docs) | 文档生成 | `project-docs`（一键为任意仓库生成新手接手文档：7 份结构化 md + 自包含单页 HTML，mermaid 架构图/时序图 + 亮暗主题 + 站内搜索 + 阅读进度条，离线可用、零第三方依赖；[本仓库的示例产物](./docs/onboarding/)） | 🆕 v0.1.0 |
 
-> 计划中：`docs`（文档生成相关）等主题型插件，每个插件聚合多个相关 skill。
+> 计划中：更多主题型插件，每个插件聚合多个相关 skill。
 >
 > 想看到自己的插件出现在这里？ → 跳转 [贡献指南](./CONTRIBUTING.md)
 
