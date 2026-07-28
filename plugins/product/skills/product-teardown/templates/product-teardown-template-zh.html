@@ -90,6 +90,11 @@
   section { margin-bottom: 64px; scroll-margin-top: 24px; }
   .section-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 24px; border-bottom: 1px solid var(--ink); padding-bottom: 12px; }
   .section-head .num { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--muted); min-width: 30px; }
+  .section-head .layer { font-family: var(--display); font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; border: 1px solid var(--line); background: var(--paper-2); color: var(--muted); white-space: nowrap; }
+  .section-head .layer.product { background: #eef4ff; border-color: #c9dbff; color: #2b5bb8; }
+  .section-head .layer.business { background: var(--go-soft); border-color: #b6e3c6; color: #14713c; }
+  .section-head .layer.tech { background: #f1ecff; border-color: #d7c9ff; color: #5b3fb8; }
+  .section-head .layer.strategy { background: var(--warn-soft); border-color: #f2d69c; color: #9a5300; }
   .section-head h3 { font-family: var(--display); font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.015em; flex: 1; }
   .section-head .pill { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: var(--paper-2); padding: 4px 10px; border-radius: 999px; }
   .section-intro { font-size: 14px; color: var(--muted); max-width: 720px; margin-bottom: 24px; line-height: 1.6; }
@@ -211,13 +216,6 @@
   .brand-block .brand-mark .dot-yellow { color: var(--accent); -webkit-text-stroke: 1px var(--ink); }
   .brand-block .brand-sub { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--muted); margin-top: 10px; letter-spacing: 0.02em; }
   .brand-block .brand-sub strong { font-style: normal; font-family: var(--display); font-weight: 700; color: var(--ink); letter-spacing: 0; }
-  .socials { display: flex; gap: 12px; align-items: center; }
-  .socials a { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--paper); color: var(--ink); border-bottom: 1.5px solid var(--ink); transition: all 0.18s ease; }
-  .socials a:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
-  .socials a svg { width: 20px; height: 20px; display: block; }
-  .socials a.xhs { width: 46px; height: 46px; padding: 0; border-radius: 11px; background: #ff2442; border: 1.5px solid #ff2442; color: white; font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-weight: 900; font-size: 11px; font-style: italic; letter-spacing: -0.02em; line-height: 1; }
-  .socials a.xhs span { display: inline-block; transform: skewX(-6deg); white-space: nowrap; }
-  .socials a.xhs:hover { background: #d11838; border-color: #d11838; transform: translateY(-2px); }
 
   /* Header brand chip (yellow highlighted, one per skill family) */
   .brand-chip {
@@ -321,7 +319,6 @@
     .stars .row, .stars .label { text-align: left; }
     .brand-block { grid-template-columns: 1fr; gap: 18px; }
     .brand-block .brand-mark { font-size: 64px; }
-    .socials { justify-content: flex-start; }
   }
 </style>
 </head>
@@ -431,7 +428,7 @@
 <!-- §1 SNAPSHOT -->
 <section id="s1">
   <div class="section-head">
-    <span class="num">01</span>
+    <span class="num">01</span><span class="layer product">① 产品</span>
     <h3>产品快照</h3>
     <span class="pill">它到底是什么</span>
   </div>
@@ -475,7 +472,7 @@
 <!-- §2 USERS & JTBD -->
 <section id="s2">
   <div class="section-head">
-    <span class="num">02</span>
+    <span class="num">02</span><span class="layer product">① 产品</span>
     <h3>目标用户 & Jobs-to-be-Done</h3>
     <span class="pill">谁 + 为什么</span>
   </div>
@@ -515,7 +512,7 @@
 <!-- §3 CORE LOOP -->
 <section id="s3">
   <div class="section-head">
-    <span class="num">03</span>
+    <span class="num">03</span><span class="layer product">① 产品</span>
     <h3>核心产品循环</h3>
     <span class="pill">系统动力学</span>
   </div>
@@ -575,7 +572,7 @@
 <!-- §4 ARCHITECTURE -->
 <section id="s4">
   <div class="section-head">
-    <span class="num">04</span>
+    <span class="num">04</span><span class="layer tech">③ 技术</span>
     <h3>产品架构 & 交互体系</h3>
     <span class="pill">界面 + 实体</span>
   </div>
@@ -608,13 +605,29 @@
       <h4>导航 & 交互模型</h4>
       <p>{{NAV_INTERACTION_PARAGRAPH}}</p>
     </div>
+    <div class="info-card">
+      <h4>数据与后端</h4>
+      <p>{{DATA_BACKEND_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>搜索与检索</h4>
+      <p>{{SEARCH_RETRIEVAL_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>集成面（API / Webhook / 插件）</h4>
+      <p>{{INTEGRATION_SURFACE_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>可扩展性与瓶颈</h4>
+      <p>{{SCALABILITY_LIMITS_PARAGRAPH}}</p>
+    </div>
   </div>
 </section>
 
 <!-- §5 CRAFT SIGNALS -->
 <section id="s5">
   <div class="section-head">
-    <span class="num">05</span>
+    <span class="num">05</span><span class="layer product">① 产品</span>
     <h3>设计语言 & 手艺细节</h3>
     <span class="pill">「品味」到底体现在哪</span>
   </div>
@@ -631,7 +644,7 @@
 <!-- §6 UX QUALITY -->
 <section id="s6">
   <div class="section-head">
-    <span class="num">06</span>
+    <span class="num">06</span><span class="layer product">① 产品</span>
     <h3>价值交付 & 体验质感</h3>
     <span class="pill">产品的手感</span>
   </div>
@@ -665,7 +678,7 @@
 <!-- §7 BUSINESS MODEL -->
 <section id="s7">
   <div class="section-head">
-    <span class="num">07</span>
+    <span class="num">07</span><span class="layer business">② 商业</span>
     <h3>商业模式 & 变现</h3>
     <span class="pill">怎么赚钱</span>
   </div>
@@ -675,12 +688,22 @@
     <div class="biz-card"><span class="tag">变现入口</span><h5>{{MON_ENTRY_HEADLINE}}</h5><p>{{MON_ENTRY_DETAIL}}</p></div>
     <div class="biz-card"><span class="tag">体验 ↔ 变现 是否同向</span><h5>{{UX_MON_HEADLINE}}</h5><p>{{UX_MON_DETAIL_ARE_THEY_ALIGNED_OR_IN_TENSION}}</p></div>
   </div>
+
+  <h4 style="font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:24px 0 10px;">单位经济模型链条</h4>
+  <div class="growth-cols">
+    <div class="growth-col"><h5>收入</h5><ul><li>{{UNIT_ECON_REVENUE}}</li></ul></div>
+    <div class="growth-col"><h5>成本</h5><ul><li>{{UNIT_ECON_COST}}</li></ul></div>
+    <div class="growth-col"><h5>毛利</h5><ul><li>{{UNIT_ECON_MARGIN}}</li></ul></div>
+    <div class="growth-col"><h5>获客成本 CAC</h5><ul><li>{{UNIT_ECON_CAC}}</li></ul></div>
+    <div class="growth-col"><h5>客户终身价值 LTV</h5><ul><li>{{UNIT_ECON_LTV}}</li></ul></div>
+    <div class="growth-col"><h5>扩张打法</h5><ul><li>{{UNIT_ECON_EXPANSION}}</li></ul></div>
+  </div>
 </section>
 
 <!-- §8 COMPETITOR LANDSCAPE -->
 <section id="s8">
   <div class="section-head">
-    <span class="num">08</span>
+    <span class="num">08</span><span class="layer business">② 商业</span>
     <h3>竞品全景 & 定位对比</h3>
     <span class="pill">定位矩阵</span>
   </div>
@@ -705,6 +728,13 @@
       </tbody>
     </table>
   </div>
+  <div class="info-card" style="margin-top:14px;">
+    <h4>二维定位</h4>
+    <p><strong>坐标轴：</strong>横轴 — {{POSITION_AXIS_X}} · 纵轴 — {{POSITION_AXIS_Y}}</p>
+    <p>{{POSITION_READ}}</p>
+    <p><strong>图上离得最近的对手：</strong>{{POSITION_NEAREST_RIVAL}}</p>
+  </div>
+
   <div class="comp-verdict"><strong>本产品的赢面:</strong> {{COMP_WHERE_OWN_WINS}}</div>
   <div class="comp-verdict warn"><strong>竞品正在追平的地方:</strong> {{COMP_WHERE_RIVALS_CATCH}}</div>
 </section>
@@ -712,7 +742,7 @@
 <!-- §9 GROWTH -->
 <section id="s9">
   <div class="section-head">
-    <span class="num">09</span>
+    <span class="num">09</span><span class="layer business">② 商业</span>
     <h3>增长策略</h3>
     <span class="pill">明牌或推断</span>
   </div>
@@ -745,7 +775,7 @@
 <!-- §10 AI READINESS -->
 <section id="s10">
   <div class="section-head">
-    <span class="num">10</span>
+    <span class="num">10</span><span class="layer tech">③ 技术</span>
     <h3>AI · 未来就绪度</h3>
     <span class="pill">人 ↔ AI 任务分工</span>
   </div>
@@ -755,6 +785,17 @@
     <div class="ai-stage {{ACTIVE_IF_ASSISTIVE}}"><div class="lvl">Level 1</div><div class="name">辅助 · Assistive</div></div>
     <div class="ai-stage {{ACTIVE_IF_EMBEDDED}}"><div class="lvl">Level 2</div><div class="name">嵌入 · Embedded</div></div>
     <div class="ai-stage {{ACTIVE_IF_AUTONOMOUS}}"><div class="lvl">Level 3</div><div class="name">自主 · Agentic</div></div>
+  </div>
+
+  <h4 style="font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:20px 0 10px;">AI 技术栈 · 功能底下到底是什么</h4>
+  <div class="craft-list">
+    <div class="craft-item"><div class="idx">01</div><div><span class="name">模型（Model）</span><div class="body">{{AI_STACK_MODEL}}</div></div></div>
+    <div class="craft-item"><div class="idx">02</div><div><span class="name">工具调用（Tool）</span><div class="body">{{AI_STACK_TOOL}}</div></div></div>
+    <div class="craft-item"><div class="idx">03</div><div><span class="name">记忆与上下文（Memory）</span><div class="body">{{AI_STACK_MEMORY}}</div></div></div>
+    <div class="craft-item"><div class="idx">04</div><div><span class="name">规划（Planning）</span><div class="body">{{AI_STACK_PLANNING}}</div></div></div>
+    <div class="craft-item"><div class="idx">05</div><div><span class="name">自主度与影响半径（Agent）</span><div class="body">{{AI_STACK_AGENT}}</div></div></div>
+    <div class="craft-item"><div class="idx">06</div><div><span class="name">如何嵌入核心循环（Workflow）</span><div class="body">{{AI_STACK_WORKFLOW}}</div></div></div>
+    <div class="craft-item"><div class="idx">07</div><div><span class="name">效果评估（Evaluation）</span><div class="body">{{AI_STACK_EVALUATION}}</div></div></div>
   </div>
 
   <div class="info-grid">
@@ -787,7 +828,7 @@
 <!-- §11 METRICS -->
 <section id="s11">
   <div class="section-head">
-    <span class="num">11</span>
+    <span class="num">11</span><span class="layer strategy">④ 战略</span>
     <h3>他们真正在优化什么指标</h3>
     <span class="pill">[推断] 北极星 + 护栏</span>
   </div>
@@ -829,7 +870,7 @@
 <!-- §12 FRICTION & WEAKNESSES -->
 <section id="s12">
   <div class="section-head">
-    <span class="num">12</span>
+    <span class="num">12</span><span class="layer strategy">④ 战略</span>
     <h3>摩擦 & 短板</h3>
     <span class="pill">批判性 PM 视角</span>
   </div>
@@ -857,7 +898,7 @@
 <!-- §13 RISK MATRIX -->
 <section id="s13">
   <div class="section-head">
-    <span class="num">13</span>
+    <span class="num">13</span><span class="layer strategy">④ 战略</span>
     <h3>风险矩阵</h3>
     <span class="pill">严重程度 × 发生概率</span>
   </div>
@@ -878,7 +919,7 @@
 <!-- §14 OPPORTUNITIES -->
 <section id="s14">
   <div class="section-head">
-    <span class="num">14</span>
+    <span class="num">14</span><span class="layer strategy">④ 战略</span>
     <h3>机会 & 重设计</h3>
     <span class="pill">可落地的 PM 思考</span>
   </div>
@@ -915,7 +956,7 @@
 <!-- §15 FINAL VERDICT -->
 <section id="s15">
   <div class="section-head">
-    <span class="num">15</span>
+    <span class="num">15</span><span class="layer strategy">④ 战略</span>
     <h3>终局判断</h3>
     <span class="pill">综合判定</span>
   </div>

@@ -32,6 +32,38 @@ TMPL_ZH = SKILL_DIR / "templates" / "product-teardown-template-zh.html"
 
 PLACEHOLDER_RE = re.compile(r"\{\{([A-Za-z0-9_★☆]+)\}\}")
 
+AI_METER_KEYS = ("ACTIVE_IF_ASSISTIVE", "ACTIVE_IF_EMBEDDED", "ACTIVE_IF_AUTONOMOUS")
+BAR_KEYS = ("TTV_BAR", "COG_BAR", "DELIGHT_BAR", "TRUST_BAR", "STRUGGLE_BAR")
+
+
+def validate(values: dict, lang: str) -> list:
+    """Check the invariants SKILL.md documents but the templates can't enforce.
+
+    Returns a list of human-readable problems (empty == valid).
+    """
+    problems = []
+
+    active = [k for k in AI_METER_KEYS if str(values.get(k, "")).strip() == "active"]
+    if len(active) != 1:
+        problems.append(
+            f'[{lang}] exactly one of {"/".join(AI_METER_KEYS)} must be the string "active"; '
+            f"got {len(active)} ({', '.join(active) or 'none'})"
+        )
+
+    for key in BAR_KEYS:
+        raw = values.get(key)
+        if raw is None:
+            continue  # absence is already caught by the unresolved-placeholder check
+        try:
+            val = int(str(raw).strip())
+        except ValueError:
+            problems.append(f"[{lang}] {key} must be an integer 0-100, got {raw!r}")
+            continue
+        if not 0 <= val <= 100:
+            problems.append(f"[{lang}] {key} must be within 0-100, got {val}")
+
+    return problems
+
 
 def render(template_path: Path, values: dict, shots: dict, lang_hrefs: dict, active_lang: str) -> str:
     html = template_path.read_text(encoding="utf-8")
@@ -62,31 +94,40 @@ def main():
     shots = data.get("shots", {})
 
     out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
     out_en = out_dir / f"product-teardown-{slug}-en-{ym}.html"
     out_zh = out_dir / f"product-teardown-{slug}-zh-{ym}.html"
     lang_hrefs = {"en": out_en.name, "zh": out_zh.name}
 
-    had_error = False
+    # Render and validate both languages BEFORE writing anything — a half-written pair
+    # (or a report with visible {{...}} in it) is worse than no output at all.
+    rendered = {}
+    problems = []
     for target, tmpl, key, lang in [
         (out_en, TMPL_EN, "en", "en"),
         (out_zh, TMPL_ZH, "zh", "zh"),
     ]:
         if key not in data:
-            print(f"ERROR: data file is missing the \"{key}\" object", file=sys.stderr)
-            had_error = True
+            problems.append(f'data file is missing the "{key}" object')
             continue
+        problems.extend(validate(data[key], lang))
         html, remaining = render(tmpl, data[key], shots, lang_hrefs, lang)
         if remaining:
-            print(f"UNRESOLVED placeholders in {target.name}:", file=sys.stderr)
-            for r in remaining:
-                print(f"  {{{{{r}}}}}", file=sys.stderr)
-            had_error = True
+            problems.append(
+                f"[{lang}] unresolved placeholders in {target.name}: "
+                + ", ".join("{{" + r + "}}" for r in remaining)
+            )
+        rendered[target] = html
+
+    if problems:
+        print("Refusing to write — fix the data file and re-run:", file=sys.stderr)
+        for p in problems:
+            print(f"  - {p}", file=sys.stderr)
+        sys.exit(1)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for target, html in rendered.items():
         target.write_text(html, encoding="utf-8")
         print(f"Wrote: {target}")
-
-    if had_error:
-        sys.exit(1)
 
 
 if __name__ == "__main__":

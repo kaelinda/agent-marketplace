@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "plugins": [
     {
@@ -16,7 +16,12 @@
       "description": "manji 市场核心功能：版本检测、自动更新、频率控制",
       "version": "0.1.0",
       "category": "core",
-      "tags": ["core", "version", "update", "auto-update"]
+      "tags": [
+        "core",
+        "version",
+        "update",
+        "auto-update"
+      ]
     },
     {
       "name": "agents",
@@ -24,7 +29,14 @@
       "description": "外部 AI Agent 调度工具集（Cursor / Codex 等），目前包含 cursor-cli 子 skill。",
       "version": "0.1.0",
       "category": "agents",
-      "tags": ["agents", "cursor", "code-review", "delegation", "multi-agent", "agent-dispatch"]
+      "tags": [
+        "agents",
+        "cursor",
+        "code-review",
+        "delegation",
+        "multi-agent",
+        "agent-dispatch"
+      ]
     },
     {
       "name": "memory",
@@ -32,7 +44,15 @@
       "description": "跨会话长期记忆工具集 — 5 个核心 skill (recall/capture/commit/doctor/admin)，支持 OpenViking / MCP / mem0 三后端，identity 默认 fail-closed。",
       "version": "0.2.0",
       "category": "memory",
-      "tags": ["memory", "context", "long-term-memory", "agent", "recall", "session", "persistence"]
+      "tags": [
+        "memory",
+        "context",
+        "long-term-memory",
+        "agent",
+        "recall",
+        "session",
+        "persistence"
+      ]
     },
     {
       "name": "content-generate",
@@ -40,15 +60,46 @@
       "description": "内容创作与发布工具集，覆盖技术公众号全流程：tech-content-writer（技术文章写作，无 AI 味 + 禁用词扫描）、tech-content-audit（发布前五大维度内容审核）、wechat-cover-html（20:9 封面图，HTML + Playwright，代码密集型首选）、wechat-cover-image（封面图 Pillow 备选方案）、md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）、wechat-publisher（将 Markdown/HTML 文章发布到微信公众号草稿箱，多主题排版 + 封面图与正文图片自动上传 + 多账号切换）。",
       "version": "0.6.0",
       "category": "content",
-      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload", "wechat", "wechat-mp", "draft", "weixin", "writing", "tech-article", "audit", "cover", "playwright", "pillow"]
+      "tags": [
+        "content",
+        "markdown",
+        "html",
+        "publish",
+        "mdnice",
+        "oss",
+        "aliyun",
+        "upload",
+        "wechat",
+        "wechat-mp",
+        "draft",
+        "weixin",
+        "writing",
+        "tech-article",
+        "audit",
+        "cover",
+        "playwright",
+        "pillow"
+      ]
     },
     {
       "name": "product",
       "source": "./plugins/product",
       "description": "产品/商业/技术分析工具集：product-teardown（Principal-PM 级产品拆解，Product / Business / Technology / Strategy 四层框架，Core Loop 为权重最高的一节，双语 EN+ZH 可打印 HTML 报告）、competitor-landscape（竞品二维定位矩阵）、ai-architecture-review（AI/Agent 产品的技术架构深挖：Model / Tool / Memory / Planning / Agent / Workflow / Evaluation）。",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "product",
-      "tags": ["product", "teardown", "pm", "strategy", "business-model", "competitor", "architecture", "ai-architecture", "agent-architecture", "html", "report"]
+      "tags": [
+        "product",
+        "teardown",
+        "pm",
+        "strategy",
+        "business-model",
+        "competitor",
+        "architecture",
+        "ai-architecture",
+        "agent-architecture",
+        "html",
+        "report"
+      ]
     },
     {
       "name": "playground",
@@ -56,7 +107,16 @@
       "description": "趣味/实验性工具集：mbti-test（根据本机 Claude Code / Codex 会话历史推断你的 MBTI 类型，含诙谐锐评与数据梗，可 --html 导出精美离线报告；纯本地、不上传、娱乐向）。",
       "version": "0.1.0",
       "category": "playground",
-      "tags": ["playground", "fun", "mbti", "personality", "claude-code", "codex", "session-history", "local"]
+      "tags": [
+        "playground",
+        "fun",
+        "mbti",
+        "personality",
+        "claude-code",
+        "codex",
+        "session-history",
+        "local"
+      ]
     },
     {
       "name": "project-docs",
@@ -64,7 +124,18 @@
       "description": "新手接手文档生成器：一键为任意仓库产出 docs/onboarding/ 下 7 份结构化 Markdown（概览/架构/目录导览/核心业务流程/上手指南/术语表/导读），并渲染成自包含单页 HTML 站点 —— 侧边栏导航 + mermaid 架构图/时序图 + 亮暗主题切换 + 站内搜索 + 阅读进度条，离线可用；构建脚本纯 Python stdlib 零依赖，md 为唯一事实来源可增量维护。",
       "version": "0.1.0",
       "category": "docs",
-      "tags": ["docs", "onboarding", "documentation", "markdown", "html", "mermaid", "architecture", "visualization", "newcomer", "handover"]
+      "tags": [
+        "docs",
+        "onboarding",
+        "documentation",
+        "markdown",
+        "html",
+        "mermaid",
+        "architecture",
+        "visualization",
+        "newcomer",
+        "handover"
+      ]
     },
     {
       "name": "old-bird",
@@ -72,7 +143,16 @@
       "description": "老鸟工具集：把资深开发者打磨过的私房实践，纯本地、安全（不联网、不入库）地蒸馏成可复用机制。local-distill-me（在本机把『CLAUDE.local.md 索引 + ~/.claude/shared 共享规则』私有指令体系蒸馏并一键移植到项目，为多 git worktree 配置不漂移的统一私有规则；三层 + 软链架构，引导式向导）。",
       "version": "0.1.0",
       "category": "workflow",
-      "tags": ["old-bird", "workflow", "claude-config", "claude-local-md", "worktree", "private-rules", "scaffold", "dev-workflow"]
+      "tags": [
+        "old-bird",
+        "workflow",
+        "claude-config",
+        "claude-local-md",
+        "worktree",
+        "private-rules",
+        "scaffold",
+        "dev-workflow"
+      ]
     }
   ]
 }

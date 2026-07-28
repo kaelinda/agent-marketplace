@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -90,6 +90,11 @@
   section { margin-bottom: 64px; scroll-margin-top: 24px; }
   .section-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 24px; border-bottom: 1px solid var(--ink); padding-bottom: 12px; }
   .section-head .num { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--muted); min-width: 30px; }
+  .section-head .layer { font-family: var(--display); font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; border: 1px solid var(--line); background: var(--paper-2); color: var(--muted); white-space: nowrap; }
+  .section-head .layer.product { background: #eef4ff; border-color: #c9dbff; color: #2b5bb8; }
+  .section-head .layer.business { background: var(--go-soft); border-color: #b6e3c6; color: #14713c; }
+  .section-head .layer.tech { background: #f1ecff; border-color: #d7c9ff; color: #5b3fb8; }
+  .section-head .layer.strategy { background: var(--warn-soft); border-color: #f2d69c; color: #9a5300; }
   .section-head h3 { font-family: var(--display); font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.015em; flex: 1; }
   .section-head .pill { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: var(--paper-2); padding: 4px 10px; border-radius: 999px; }
   .section-intro { font-size: 14px; color: var(--muted); max-width: 720px; margin-bottom: 24px; line-height: 1.6; }
@@ -211,13 +216,6 @@
   .brand-block .brand-mark .dot-yellow { color: var(--accent); -webkit-text-stroke: 1px var(--ink); }
   .brand-block .brand-sub { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--muted); margin-top: 10px; letter-spacing: 0.02em; }
   .brand-block .brand-sub strong { font-style: normal; font-family: var(--display); font-weight: 700; color: var(--ink); letter-spacing: 0; }
-  .socials { display: flex; gap: 12px; align-items: center; }
-  .socials a { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--paper); color: var(--ink); border-bottom: 1.5px solid var(--ink); transition: all 0.18s ease; }
-  .socials a:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
-  .socials a svg { width: 20px; height: 20px; display: block; }
-  .socials a.xhs { width: 46px; height: 46px; padding: 0; border-radius: 11px; background: #ff2442; border: 1.5px solid #ff2442; color: white; font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-weight: 900; font-size: 11px; font-style: italic; letter-spacing: -0.02em; line-height: 1; }
-  .socials a.xhs span { display: inline-block; transform: skewX(-6deg); white-space: nowrap; }
-  .socials a.xhs:hover { background: #d11838; border-color: #d11838; transform: translateY(-2px); }
 
   /* Header brand chip (yellow highlighted, one per skill family) */
   .brand-chip {
@@ -321,7 +319,6 @@
     .stars .row, .stars .label { text-align: left; }
     .brand-block { grid-template-columns: 1fr; gap: 18px; }
     .brand-block .brand-mark { font-size: 64px; }
-    .socials { justify-content: flex-start; }
   }
 </style>
 </head>
@@ -431,7 +428,7 @@
 <!-- §1 SNAPSHOT -->
 <section id="s1">
   <div class="section-head">
-    <span class="num">01</span>
+    <span class="num">01</span><span class="layer product">① Product</span>
     <h3>Product Snapshot</h3>
     <span class="pill">What it really is</span>
   </div>
@@ -475,7 +472,7 @@
 <!-- §2 USERS & JTBD -->
 <section id="s2">
   <div class="section-head">
-    <span class="num">02</span>
+    <span class="num">02</span><span class="layer product">① Product</span>
     <h3>Target Users & Jobs-to-be-Done</h3>
     <span class="pill">Who + why</span>
   </div>
@@ -515,7 +512,7 @@
 <!-- §3 CORE LOOP -->
 <section id="s3">
   <div class="section-head">
-    <span class="num">03</span>
+    <span class="num">03</span><span class="layer product">① Product</span>
     <h3>Core Product Loop</h3>
     <span class="pill">System dynamics</span>
   </div>
@@ -575,7 +572,7 @@
 <!-- §4 ARCHITECTURE -->
 <section id="s4">
   <div class="section-head">
-    <span class="num">04</span>
+    <span class="num">04</span><span class="layer tech">③ Technology</span>
     <h3>Product Architecture & UX System</h3>
     <span class="pill">Surfaces + entities</span>
   </div>
@@ -608,13 +605,29 @@
       <h4>Navigation & interaction model</h4>
       <p>{{NAV_INTERACTION_PARAGRAPH}}</p>
     </div>
+    <div class="info-card">
+      <h4>Data & backend</h4>
+      <p>{{DATA_BACKEND_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>Search & retrieval</h4>
+      <p>{{SEARCH_RETRIEVAL_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>Integration surface</h4>
+      <p>{{INTEGRATION_SURFACE_PARAGRAPH}}</p>
+    </div>
+    <div class="info-card">
+      <h4>Scalability & limits</h4>
+      <p>{{SCALABILITY_LIMITS_PARAGRAPH}}</p>
+    </div>
   </div>
 </section>
 
 <!-- §5 CRAFT SIGNALS -->
 <section id="s5">
   <div class="section-head">
-    <span class="num">05</span>
+    <span class="num">05</span><span class="layer product">① Product</span>
     <h3>Design Language & Craft Signals</h3>
     <span class="pill">What craft actually means</span>
   </div>
@@ -631,7 +644,7 @@
 <!-- §6 UX QUALITY -->
 <section id="s6">
   <div class="section-head">
-    <span class="num">06</span>
+    <span class="num">06</span><span class="layer product">① Product</span>
     <h3>Value Delivery & UX Quality</h3>
     <span class="pill">Feel of the product</span>
   </div>
@@ -665,7 +678,7 @@
 <!-- §7 BUSINESS MODEL -->
 <section id="s7">
   <div class="section-head">
-    <span class="num">07</span>
+    <span class="num">07</span><span class="layer business">② Business</span>
     <h3>Business Model & Monetization</h3>
     <span class="pill">How it makes money</span>
   </div>
@@ -675,12 +688,22 @@
     <div class="biz-card"><span class="tag">Monetization entry points</span><h5>{{MON_ENTRY_HEADLINE}}</h5><p>{{MON_ENTRY_DETAIL}}</p></div>
     <div class="biz-card"><span class="tag">UX ↔ Monetization alignment</span><h5>{{UX_MON_HEADLINE}}</h5><p>{{UX_MON_DETAIL_ARE_THEY_ALIGNED_OR_IN_TENSION}}</p></div>
   </div>
+
+  <h4 style="font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:24px 0 10px;">Unit economics chain</h4>
+  <div class="growth-cols">
+    <div class="growth-col"><h5>Revenue</h5><ul><li>{{UNIT_ECON_REVENUE}}</li></ul></div>
+    <div class="growth-col"><h5>Cost</h5><ul><li>{{UNIT_ECON_COST}}</li></ul></div>
+    <div class="growth-col"><h5>Margin</h5><ul><li>{{UNIT_ECON_MARGIN}}</li></ul></div>
+    <div class="growth-col"><h5>CAC</h5><ul><li>{{UNIT_ECON_CAC}}</li></ul></div>
+    <div class="growth-col"><h5>LTV</h5><ul><li>{{UNIT_ECON_LTV}}</li></ul></div>
+    <div class="growth-col"><h5>Expansion motion</h5><ul><li>{{UNIT_ECON_EXPANSION}}</li></ul></div>
+  </div>
 </section>
 
 <!-- §8 COMPETITOR LANDSCAPE -->
 <section id="s8">
   <div class="section-head">
-    <span class="num">08</span>
+    <span class="num">08</span><span class="layer business">② Business</span>
     <h3>Competitor Landscape</h3>
     <span class="pill">Positioning matrix</span>
   </div>
@@ -705,6 +728,13 @@
       </tbody>
     </table>
   </div>
+  <div class="info-card" style="margin-top:14px;">
+    <h4>2D positioning read</h4>
+    <p><strong>Axes:</strong> horizontal — {{POSITION_AXIS_X}} · vertical — {{POSITION_AXIS_Y}}</p>
+    <p>{{POSITION_READ}}</p>
+    <p><strong>Closest rival on the map:</strong> {{POSITION_NEAREST_RIVAL}}</p>
+  </div>
+
   <div class="comp-verdict"><strong>Where the product wins:</strong> {{COMP_WHERE_OWN_WINS}}</div>
   <div class="comp-verdict warn"><strong>Where rivals are catching up:</strong> {{COMP_WHERE_RIVALS_CATCH}}</div>
 </section>
@@ -712,7 +742,7 @@
 <!-- §9 GROWTH -->
 <section id="s9">
   <div class="section-head">
-    <span class="num">09</span>
+    <span class="num">09</span><span class="layer business">② Business</span>
     <h3>Growth Strategy</h3>
     <span class="pill">Explicit or inferred</span>
   </div>
@@ -745,7 +775,7 @@
 <!-- §10 AI READINESS -->
 <section id="s10">
   <div class="section-head">
-    <span class="num">10</span>
+    <span class="num">10</span><span class="layer tech">③ Technology</span>
     <h3>AI / Future Readiness</h3>
     <span class="pill">Human ↔ AI task split</span>
   </div>
@@ -755,6 +785,17 @@
     <div class="ai-stage {{ACTIVE_IF_ASSISTIVE}}"><div class="lvl">Level 1</div><div class="name">Assistive</div></div>
     <div class="ai-stage {{ACTIVE_IF_EMBEDDED}}"><div class="lvl">Level 2</div><div class="name">Embedded</div></div>
     <div class="ai-stage {{ACTIVE_IF_AUTONOMOUS}}"><div class="lvl">Level 3</div><div class="name">Autonomous / Agentic</div></div>
+  </div>
+
+  <h4 style="font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:20px 0 10px;">AI stack · what's actually under the feature</h4>
+  <div class="craft-list">
+    <div class="craft-item"><div class="idx">01</div><div><span class="name">Model</span><div class="body">{{AI_STACK_MODEL}}</div></div></div>
+    <div class="craft-item"><div class="idx">02</div><div><span class="name">Tool</span><div class="body">{{AI_STACK_TOOL}}</div></div></div>
+    <div class="craft-item"><div class="idx">03</div><div><span class="name">Memory</span><div class="body">{{AI_STACK_MEMORY}}</div></div></div>
+    <div class="craft-item"><div class="idx">04</div><div><span class="name">Planning</span><div class="body">{{AI_STACK_PLANNING}}</div></div></div>
+    <div class="craft-item"><div class="idx">05</div><div><span class="name">Agent · autonomy & blast radius</span><div class="body">{{AI_STACK_AGENT}}</div></div></div>
+    <div class="craft-item"><div class="idx">06</div><div><span class="name">Workflow · how it composes into the core loop</span><div class="body">{{AI_STACK_WORKFLOW}}</div></div></div>
+    <div class="craft-item"><div class="idx">07</div><div><span class="name">Evaluation</span><div class="body">{{AI_STACK_EVALUATION}}</div></div></div>
   </div>
 
   <div class="info-grid">
@@ -787,7 +828,7 @@
 <!-- §11 METRICS -->
 <section id="s11">
   <div class="section-head">
-    <span class="num">11</span>
+    <span class="num">11</span><span class="layer strategy">④ Strategy</span>
     <h3>What Metrics They Actually Optimize For</h3>
     <span class="pill">[Inferred] north-star + guardrails</span>
   </div>
@@ -829,7 +870,7 @@
 <!-- §12 FRICTION & WEAKNESSES -->
 <section id="s12">
   <div class="section-head">
-    <span class="num">12</span>
+    <span class="num">12</span><span class="layer strategy">④ Strategy</span>
     <h3>Friction & Weaknesses</h3>
     <span class="pill">Critical PM lens</span>
   </div>
@@ -857,7 +898,7 @@
 <!-- §13 RISK MATRIX -->
 <section id="s13">
   <div class="section-head">
-    <span class="num">13</span>
+    <span class="num">13</span><span class="layer strategy">④ Strategy</span>
     <h3>Risk Matrix</h3>
     <span class="pill">Severity × Likelihood</span>
   </div>
@@ -878,7 +919,7 @@
 <!-- §14 OPPORTUNITIES -->
 <section id="s14">
   <div class="section-head">
-    <span class="num">14</span>
+    <span class="num">14</span><span class="layer strategy">④ Strategy</span>
     <h3>Opportunities & Redesign Ideas</h3>
     <span class="pill">Actionable PM thinking</span>
   </div>
@@ -915,7 +956,7 @@
 <!-- §15 FINAL VERDICT -->
 <section id="s15">
   <div class="section-head">
-    <span class="num">15</span>
+    <span class="num">15</span><span class="layer strategy">④ Strategy</span>
     <h3>Final PM Verdict</h3>
     <span class="pill">Synthesis</span>
   </div>

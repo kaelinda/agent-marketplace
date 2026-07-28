@@ -1,7 +1,7 @@
 ---
 name: product-teardown
 description: "Use when the user asks to 'teardown', 'break down', 'reverse-engineer', or do a deep PM/strategy analysis of any product (Linear, Notion, Cursor, a competitor, an internal product, ...). Reverse-engineers the product across four layers — Product, Business, Technology, Strategy — through a fixed, MECE framework where every section answers one specific question, weighted toward Core Loop as the section that explains everything else. Renders a bilingual (EN + ZH) print-ready HTML report with a product-screenshot gallery. Triggers: 拆解某产品, 产品分析, product teardown, reverse-engineer this product, PM breakdown, competitor deep dive."
-version: 2.0.0
+version: 2.1.0
 license: MIT
 metadata:
   hermes:
@@ -126,11 +126,16 @@ The original framework's "Architecture" section is easy to shrink into "here are
 tabs in the left nav" (information architecture). That's necessary but not sufficient —
 cover the technical substrate too, at whatever depth is publicly inferable:
 
-- **Core surfaces + entities** (information architecture — keep this, it's still useful).
+- **Core surfaces + entities** (information architecture — keep this, it's still useful)
+  → `SURFACE_*`, `ENTITY_*`, `IA_LOGIC_PARAGRAPH`, `NAV_INTERACTION_PARAGRAPH`
 - **Data & backend**: what's the system of record, how is it structured, what's cached
-  vs. computed on demand.
-- **Search / retrieval**: full-text, vector, hybrid — and what it's indexing.
-- **Integration surface**: public API, webhooks, plugin/extension model.
+  vs. computed on demand → `DATA_BACKEND_PARAGRAPH`
+- **Search / retrieval**: full-text, vector, hybrid — and what it's indexing
+  → `SEARCH_RETRIEVAL_PARAGRAPH`
+- **Integration surface**: public API, webhooks, plugin/extension model
+  → `INTEGRATION_SURFACE_PARAGRAPH`
+- **Scalability & limits**: what breaks first as the product grows
+  → `SCALABILITY_LIMITS_PARAGRAPH`
 - **For AI-native products**, treat this as its own sub-question — see §10 below and
   reach for the `ai-architecture-review` sibling skill if the user wants that depth
   standalone.
@@ -145,14 +150,19 @@ Revenue → Cost → Margin → CAC → LTV → Expansion (PLG / Enterprise / Hy
 
 State each link even when [inferred] — "PLG-led, CAC near-zero for the bottom-up motion,
 LTV expansion via seat growth + tier upgrades" is a sentence, not a research project.
+One line per link → `UNIT_ECON_REVENUE` / `_COST` / `_MARGIN` / `_CAC` / `_LTV` /
+`_EXPANSION`.
 
 ### §8 Competitor Landscape — matrix *and* a 2D positioning read
 
-Keep the existing dimension-by-dimension matrix (already in the template), but also state
-where the product sits on a 2D map in prose — pick the two axes that matter most for this
-category (e.g. Enterprise ↔ Personal on one axis, Opinionated ↔ Configurable on the
-other) and place each named rival on it. For a deeper, standalone competitive session
-(more rivals, more axes, a dedicated write-up), use the `competitor-landscape` skill.
+Keep the existing dimension-by-dimension matrix (`COMP_*`), but also state where the
+product sits on a 2D map — pick the two axes that matter most for this category (e.g.
+Enterprise ↔ Personal on one axis, Opinionated ↔ Configurable on the other) and place
+each named rival on it → `POSITION_AXIS_X`, `POSITION_AXIS_Y`, `POSITION_READ`,
+`POSITION_NEAREST_RIVAL`. The nearest rival on the map is usually the real competitive
+threat, not the market leader — say so explicitly. For a deeper, standalone competitive
+session (more rivals, more axes, a dedicated write-up), use the `competitor-landscape`
+skill.
 
 ### §10 AI / Future Readiness — go past Assistive/Embedded/Autonomous
 
@@ -162,6 +172,11 @@ products, analyze the actual AI architecture underneath, not just the UI-level l
 ```
 Model → Tool → Memory → Planning → Agent → Workflow → Evaluation
 ```
+
+One line per stage → `AI_STACK_MODEL` / `_TOOL` / `_MEMORY` / `_PLANNING` / `_AGENT` /
+`_WORKFLOW` / `_EVALUATION`. If a stage genuinely doesn't apply (a single-shot chat
+feature has no Planning or Agent stage), say so in that field rather than inventing one —
+`Evaluation: no visible signal` is itself a finding.
 
 E.g. Cursor's real AI architecture is `Prompt → Context → Repo Index → Retrieval →
 Planning → Edit → Apply → Feedback` — that's the analysis that matters, not "it has AI
@@ -206,9 +221,10 @@ After the chat response, without asking permission:
      `grep -oE '\{\{[A-Za-z0-9_★☆]+\}\}' templates/*.html | sort -u`).
    - AI meter: set exactly one of `ACTIVE_IF_ASSISTIVE` / `ACTIVE_IF_EMBEDDED` /
      `ACTIVE_IF_AUTONOMOUS` to the literal string `active`, the other two to `""`.
+     (Enforced by the render script.)
    - Star row: use `★` / `☆` characters.
    - UX bars (`TTV_BAR`, `COG_BAR`, `DELIGHT_BAR`, `TRUST_BAR`, `STRUGGLE_BAR`): integers
-     0–100.
+     0–100. (Enforced by the render script.)
    - Never write real content into `zh` by machine-translating `en` after the fact —
      write both in the same pass so the Chinese reads naturally, not translated.
 3. **Render both reports:**
@@ -217,9 +233,10 @@ After the chat response, without asking permission:
      --data ./teardown-<slug>.json \
      --out-dir ./output
    ```
-   The script fails loudly (non-zero exit, listing every unresolved key) if any
-   placeholder in either template wasn't supplied — fix the JSON and re-run rather than
-   shipping a report with visible `{{...}}` text.
+   The script validates first and **writes nothing** unless both languages are clean — it
+   exits non-zero listing every unresolved placeholder and every invariant violation, so
+   you can never accidentally ship a half-rendered pair or a report with visible
+   `{{...}}` text. Fix the JSON and re-run.
 4. Output filenames are `product-teardown-<slug>-{en,zh}-<YYYYMM>.html`, cross-linked via
    the bottom-right language switcher (same-directory relative links — keep both files
    together).
@@ -266,8 +283,10 @@ product-teardown/
 │   └── product-teardown-template-zh.html   # Chinese report template (identical placeholders)
 ├── scripts/
 │   └── render_teardown.py                  # Fills both templates from one JSON data file
-└── references/
-    └── example-data.json                   # Schema-valid stub covering every placeholder key
+├── references/
+│   └── example-data.json                   # Schema-valid stub covering every placeholder key
+└── tests/
+    └── test_render_teardown.py             # Smoke tests — run after editing any template
 ```
 
 - **Placeholders:** `{{ALL_CAPS_KEYS}}`. `render_teardown.py` fills them via `str.replace`
@@ -275,9 +294,21 @@ product-teardown/
   `SHOT_1`).
 - **Templates are single-file, dependency-free HTML** (one Google Fonts link for CJK PDF
   embedding). Print-optimized (`Cmd+P` → clean PDF) and include a client-side
-  "Export MD" button.
+  "Export MD" button. Each section head carries a colored layer chip (① Product /
+  ② Business / ③ Technology / ④ Strategy) so the 4-layer framework is visible in the
+  deliverable, not just in this file.
 - **Aesthetic:** cream paper + serif display + yellow accent, matching the rest of this
   marketplace's report templates.
+
+**After editing a template, re-run the tests** — they catch the failure mode that is
+otherwise silent (a placeholder added to one language but not the other):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/product-teardown/tests/test_render_teardown.py
+```
+
+Adding a new field is a 3-file change: both templates (same key, both languages) **and**
+`references/example-data.json`, or the tests will fail.
 
 ## Pitfalls
 

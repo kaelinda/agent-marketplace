@@ -40,6 +40,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/product-teardown/scripts/render_teardown.py
 
 **依赖：** 纯 Python 标准库，无需安装第三方包。
 
+渲染脚本会先校验再落盘：EN / ZH 任一份有未填充占位符、或 AI 三档没有恰好一档为 `active`、
+或体验条不是 0–100 的整数，都会非零退出且**一个文件都不写**，避免出半份或带 `{{...}}` 的报告。
+改过模板后跑一下测试（会检查两份模板的占位符集合是否仍然一致）：
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/product-teardown/tests/test_render_teardown.py
+```
+
 详情请见 [product-teardown 技能文档](skills/product-teardown/SKILL.md)。
 
 ### competitor-landscape
@@ -72,8 +80,9 @@ code-review、observability……各一个）。这里刻意没有这么做：Cl
 
 1. **占位符缺失会显式失败**：`render_teardown.py` 非零退出并列出所有未填充的 `{{KEY}}`，
    不要手工改渲染后的 HTML 掩盖遗漏 —— 改 JSON 重新渲染。
-2. **EN / ZH 占位符集合必须完全一致**：改了任一模板的结构后，重新 diff 一下两份模板的
-   占位符列表。
+2. **EN / ZH 占位符集合必须完全一致**：只给一种语言加占位符是"静默失败"的典型场景——
+   改了任一模板的结构后跑 `tests/test_render_teardown.py`，它会直接把差集打出来。
+   新增一个字段是**三处**改动：两份模板 + `references/example-data.json`。
 3. **不要编造硬数字**：任何非直接可观察的数字都要标 `[inferred]` / `[推断]`，或者标
    `[需用户补充]`。
 4. **截图必须能被热链接**：需要登录或禁止跨站引用的图片会在画廊里显示为坏图。
