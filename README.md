@@ -3,7 +3,7 @@
 > 一个开源的 AI 编码插件市场，按 [Anthropic Marketplace 标准](https://docs.claude.com/en/docs/claude-code/plugins) 组织，收录 **agent / skill / command / hook / MCP** 等可复用能力。Claude Code 可原生使用，Codex CLI 可通过兼容模式安装。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-8-blue.svg)](#-插件目录)
+[![Plugins](https://img.shields.io/badge/plugins-9-blue.svg)](#-插件目录)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 [![Codex](https://img.shields.io/badge/Codex-compatibility%20mode-111111.svg)](https://developers.openai.com/codex/)
 
@@ -67,6 +67,7 @@ codex plugin add playground@manji
 | [`core`](./plugins/core) | 市场核心功能 | 版本检测、自动更新、频率控制，每次使用 skill 时自动检查更新 | ✅ stable |
 | [`memory`](./plugins/memory) | 跨会话记忆 | 长期记忆持久化 + 召回 + 治理；6 个 skill（recall/capture/commit/doctor/admin/share），支持 OpenViking / MCP / mem0 三后端 | 🟡 v0.2.0 (Phase 2 完成) |
 | [`content-generate`](./plugins/content-generate) | 内容创作与发布 | 技术公众号全流程 7 skill：`tech-content-writer`（文章写作）、`tech-content-audit`（发布前审核）、`wechat-cover-html` / `wechat-cover-image`（20:9 封面图）、`md-to-html`（Markdown → 可发布 HTML）、`ali-oss`（阿里云 OSS 上传）、`wechat-publisher`（公众号草稿箱发布，多主题 + 多账号） | ✅ v0.4.0 |
+| [`design`](./plugins/design) | 设计 | `apple-icon-studio`（Apple 级 App 图标设计工作流：品牌内核 → 隐喻生成 10 淘 7 → 形态 → 材质 → 构图 → 色彩 → 对抗式评审（11 条否决 + 6 维加权评分，< 85 不发）→ 出图 Prompt → Icon Composer 参数 → 2026 时效校验；含 10 个行业 Icon DNA 库、5 个完整案例、双语 HTML 简报，以及 1024 母版一键出 iOS/macOS/Web 图标集） | 🆕 v0.1.0 |
 | [`playground`](./plugins/playground) | 趣味/实验 | `mbti-test`（根据本机 Claude Code / Codex 会话历史推断 MBTI，纯本地、不上传、娱乐向） | 🧪 v0.1.0 (experimental) |
 | [`old-bird`](./plugins/old-bird) | 配置 / 工作流治理 | `local-distill-me`（把 `CLAUDE.local.md` 私有规则体系**纯本地**蒸馏并移植到项目，多 worktree 零漂移；引导式向导） | 🆕 v0.1.0 |
 | [`product`](./plugins/product) | 产品 / 商业 / 设计分析 | 4 个 skill：`product-teardown`（4 层 15 问产品拆解 + 双语可打印 HTML 报告）、`competitor-landscape`（竞品矩阵 + 2D 定位）、`ai-architecture-review`（AI/Agent 技术栈拆解）、`copy-ui-style`（从截图/URL/代码仓库逆向 UI 设计系统，产出 tokens + AI 编码规则） | 🆕 v0.3.0 |
@@ -137,6 +138,8 @@ agent-marketplace/
 │   ├── core/                         # 市场版本检测与更新
 │   ├── memory/                       # 跨会话长期记忆
 │   ├── content-generate/             # 内容创作与发布
+│   ├── product/                      # 产品 / 商业 / 技术分析
+│   ├── design/                       # 设计（App 图标工作流）
 │   ├── playground/                   # 实验性工具
 │   ├── project-docs/                 # 新手接手文档生成
 │   └── old-bird/                     # 本地工作流治理

@@ -1,0 +1,199 @@
+{
+  "slug": "continuum",
+  "date": "2026-07-29",
+
+  "shared": {
+    "SCORE_APPLE": 92,
+    "SCORE_RECOGNITION": 94,
+    "SCORE_MATERIAL": 93,
+    "SCORE_MEMORABILITY": 90,
+    "SCORE_SCALABILITY": 91,
+    "SCORE_EMOTION": 92,
+    "SCORE_FINAL": 92.1,
+    "COMPOSER_GLASS": "30%",
+    "COMPOSER_BLUR": "16%",
+    "COMPOSER_REFRACTION": "42%",
+    "COMPOSER_SPECULAR": "58%",
+    "COMPOSER_SHADOW": "soft",
+    "COMPOSER_DEPTH": "medium",
+    "COMPOSER_GLOW": "weak"
+  },
+
+  "en": {
+    "PRODUCT": "Continuum",
+    "TAGLINE": "A general-purpose AI assistant that remembers the project.",
+    "CATEGORY": "AI assistant",
+    "PLATFORM": "iOS 26 · macOS 26",
+    "DESIGNER": "apple-icon-studio",
+
+    "BRAND_ESSENCE": "Continuity of thought.",
+    "PRODUCT_MECHANIC": "A general assistant whose distinguishing property is memory that persists across conversations — it accumulates context about a project rather than starting over each session.",
+    "WHY_DOWNLOAD": "\"I want one that remembers me.\"",
+    "WHY_OPEN": "A question, a draft, or a decision that needs thinking through.",
+    "WHY_DAILY": "It has accumulated context — it knows the project, so returning is cheaper than re-explaining.",
+    "WHY_REMEMBER": "Continuity. It does not start over.",
+    "FRAMING": "Collaborator, leaning Assistant. Not Oracle — the product does not promise superiority, it promises persistence.",
+
+    "METAPHOR_SUMMARY": "The AI DNA file eliminated four candidates before scoring (sparkle, brain, chat bubble, glowing orb). Ten were generated across the five axes from the remaining space; seven were killed.",
+    "METAPHORS": [
+      {"ROW_CLASS": "", "N": 1, "AXIS": "Functional", "METAPHOR": "An open lens", "DIST": 6, "SMALL": 8, "FIT": 5, "LONG": 8, "TOTAL": 27, "VERDICT": "killed — reads as camera", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 2, "AXIS": "Functional", "METAPHOR": "A prism", "DIST": 5, "SMALL": 8, "FIT": 5, "LONG": 8, "TOTAL": 26, "VERDICT": "killed — fits transformation, not continuity", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 3, "AXIS": "Emotional", "METAPHOR": "A hand offered", "DIST": 7, "SMALL": 4, "FIT": 7, "LONG": 7, "TOTAL": 25, "VERDICT": "killed — human figures fail at 40px", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 4, "AXIS": "Emotional", "METAPHOR": "A steady flame", "DIST": 6, "SMALL": 8, "FIT": 8, "LONG": 8, "TOTAL": 30, "VERDICT": "killed — flame reads as streak / gamification", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "kept", "N": 5, "AXIS": "Physical", "METAPHOR": "A thread continuing through a knot", "DIST": 9, "SMALL": 6, "FIT": 9, "LONG": 9, "TOTAL": 33, "VERDICT": "kept", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "kept", "N": 6, "AXIS": "Physical", "METAPHOR": "A tuning fork in resonance", "DIST": 9, "SMALL": 7, "FIT": 7, "LONG": 8, "TOTAL": 31, "VERDICT": "kept", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "", "N": 7, "AXIS": "Abstract", "METAPHOR": "A spiral", "DIST": 4, "SMALL": 5, "FIT": 8, "LONG": 8, "TOTAL": 25, "VERDICT": "killed — inner turns merge below 60px", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "kept", "N": 8, "AXIS": "Abstract", "METAPHOR": "An unbroken line entering and leaving a form", "DIST": 8, "SMALL": 8, "FIT": 9, "LONG": 9, "TOTAL": 34, "VERDICT": "kept — selected", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "", "N": 9, "AXIS": "Brand", "METAPHOR": "A bookmark that is also a path", "DIST": 6, "SMALL": 6, "FIT": 8, "LONG": 7, "TOTAL": 27, "VERDICT": "killed — two ideas, violates single subject", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 10, "AXIS": "Brand", "METAPHOR": "A vessel that fills over time", "DIST": 7, "SMALL": 8, "FIT": 8, "LONG": 8, "TOTAL": 31, "VERDICT": "killed — filling implies a limit nobody intended", "VERDICT_CLASS": "killed"}
+    ],
+    "CHOSEN_METAPHOR": "An unbroken line entering and leaving a ring.",
+    "METAPHOR_RATIONALE": "A ring with one continuous line passing through it — entering at the lower-left and leaving at the upper-right. Deliberately not a closed loop: both ends of the line are visible, because continuity means ongoing, not complete. The ring is the persistent thing; the line is the thought passing through it.",
+    "METAPHOR_RISK": "The ring is a common form and could read as a generic progress indicator. Mitigated by the through-line, which no competitor in the set uses, and by the warm ceramic material, which none of them use either.",
+
+    "SHAPE": "Ring with a through-line at 32°",
+    "SHAPE_RATIONALE": "The ring gives the strongest available negative space (its hole) and reads instantly at small sizes; the diagonal line supplies the asymmetry that stops it reading as a loading spinner. The line passes behind the ring at one crossing and in front at the other — that single depth inversion is what makes it read as passing through rather than as an overlay.",
+    "SILHOUETTE_TEST": "Passes at 40px; the crossing survives to 32px. Reads as a ring with a stroke through it — legible, and unlike anything in the competitive set.",
+
+    "PRIMARY_MATERIAL": "Glazed ceramic, warm bone white (the ring)",
+    "SECONDARY_MATERIAL": "Liquid glass, deep amber (the line)",
+    "REFLECTION": "Medium, on the glass line only",
+    "TRANSPARENCY": "18% (line only; ring is opaque)",
+    "EDGE": "Soft chamfer",
+    "SURFACE_FINISH": "Semi-gloss glaze",
+    "MATERIAL_RATIONALE": "The category's five leaders all render in cold liquid glass, so warm ceramic is the differentiating move recommended by references/icon-dna/ai.md. It also carries the metaphor rather than merely decorating it: the permanent element is the solid one, the transient element is the transparent one.",
+
+    "COMPOSITION_PATTERN": "Centered, floating",
+    "VISUAL_WEIGHT": "Balanced — the line's diagonal is counterweighted by the ring's mass",
+    "NEGATIVE_SPACE": "The ring's hole; the strongest available negative space, and a describable shape in its own right",
+    "BALANCE": "Asymmetric (the diagonal) over a symmetric base (the ring)",
+    "FOCUS_POINT": "The upper-right crossing, where the line passes in front of the ring",
+    "PERSPECTIVE": "Flat orthographic — no vanishing point",
+    "SUBJECT_SIZE": "64% of canvas; line at 32°, well clear of the 3–8° accident zone",
+
+    "PALETTE": [
+      {"HEX": "#0F172A", "NAME": "Deep slate", "SHARE": "60%", "ROLE": "Field — near-neutral, lets the warm subject carry"},
+      {"HEX": "#F7F2E9", "NAME": "Bone", "SHARE": "30%", "ROLE": "Ceramic ring — warm white, distinct from OpenAI's cool monochrome"},
+      {"HEX": "#D97706", "NAME": "Amber", "SHARE": "10%", "ROLE": "Glass line — the warm counter-move against a uniformly cool category"}
+    ],
+    "COLOR_RATIONALE": "Amber was chosen over terracotta specifically because terracotta is now Anthropic's. The warm move is right for this positioning; the exact hue had to dodge the collision map.",
+    "GRAYSCALE_CHECK": "Bone L* 95 vs slate L* 18 — 77% delta, comfortable. The amber line was originally #F59E0B (L* 74), giving only 21% against the bone ring — under the 25% guideline. Darkened to #D97706 (L* 62) for a 33% delta.",
+    "DARKMODE_NOTE": "Author a separate #0A0A0F field rather than accepting auto-darkening; raise the amber +8% luminance. In clear mode the line's 18% transparency holds against both light and dark wallpapers.",
+
+    "REJECTIONS": [
+      {"CODE": "R1", "LABEL": "Too close to a market leader", "DETAIL": "Checked against ChatGPT, Claude, Gemini, Perplexity, Copilot. None uses a ring-with-through-line; none uses warm ceramic.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R2", "LABEL": "Too complex", "DETAIL": "One subject (the ring), one modifier (the line).", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R3", "LABEL": "Dirty on the home screen", "DETAIL": "Two hues plus a highlight; low saturation; no high-frequency detail.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R4", "LABEL": "Illegible at 40px", "DETAIL": "Downsampled and checked; the crossing survives to 32px.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R5", "LABEL": "No colour hierarchy", "DETAIL": "Clear 60/30/10 after the amber correction.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R6", "LABEL": "Muddled materials", "DETAIL": "Exactly two: ceramic body, glass line.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R7", "LABEL": "Doesn't feel Apple", "DETAIL": "No outline stroke, no long shadow, no perspective, no pre-applied corner radius.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R8", "LABEL": "Edges too sharp", "DETAIL": "Soft chamfer on the ring; rounded transition on the line.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R9", "LABEL": "Light direction wrong", "DETAIL": "Single key light above at 12°; every highlight and the contact shadow agree.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R10", "LABEL": "Will date within 18 months", "DETAIL": "No sparkle, no iridescence, no gradient-as-idea. Remove the glass treatment and the metaphor still stands.", "STATUS": "pass", "STATUS_LABEL": "PASS"},
+      {"CODE": "R11", "LABEL": "Fails in tinted / dark mode", "DETAIL": "77% grayscale delta after the amber correction; dark variant authored separately.", "STATUS": "pass", "STATUS_LABEL": "PASS"}
+    ],
+    "CRITIQUE_VERDICT": "Ship. The first pass scored 91.7 with Emotion the weakest axis at 88 — \"steady\" was landing as \"static.\" One targeted iteration extended the line's exit-side length by 15% so it reads as continuing beyond the frame; Emotion 88 → 92.",
+
+    "IMAGE_PROMPT": "App icon. A thick ring in warm bone-white glazed ceramic, with a single continuous amber liquid-glass line passing through it at 32 degrees — passing behind the ring at the lower-left crossing and in front of it at the upper-right crossing, both ends of the line visible and extending toward the frame edges.\nCentered, floating, subject occupies 64% of frame, generous even margin.\nMaterial: glazed warm bone-white ceramic ring with soft subsurface scattering; the line is liquid glass in deep amber with true internal refraction.\nLighting: single large soft key light from above at 12 degrees, gentle ambient fill from below, thin rim highlight along the ring's top edge.\nColor: deep slate #0F172A field, bone-white #F7F2E9 ceramic, deep amber #D97706 glass line.\nBackground: flat deep slate field with a subtle top-lighter two-stop vertical gradient.\nMedium reflection on the glass line only, ceramic is semi-gloss, no visible environment, neutral studio.\nShallow layered depth, clear separation between the line, the ring, and the field.\nStraight-on orthographic view, no perspective distortion, no vanishing point.\nSurface: fine glaze micro-variation on the ceramic, high optical clarity in the glass.\nShadow: short soft contact shadow directly beneath the ring, 15% opacity, no cast shadow.\nSquare 1:1, full bleed, 1024x1024, product icon render, Apple design language, premium industrial design, extremely clean, minimal, single subject.",
+    "NEGATIVE_PROMPT": "text, letters, words, numbers, watermark, signature, logo type, UI mockup, screenshot, phone mockup, rounded corner mask, drop shadow border, multiple objects, cluttered, busy, small details, badge, photorealistic scene, room, desk, ground plane, environment reflection, two light sources, conflicting highlights, harsh shadow, long shadow, hard outline stroke, rainbow, neon glow, lens flare, 3d perspective, vanishing point, low resolution, blurry, oversaturated,\nbrain, neural network, node graph, chat bubble, sparkle, sparkles, stars, robot, glowing orb, infinity symbol, circuit board, hologram, iridescent chrome, indigo, violet, purple gradient",
+    "MODEL_NOTES": "The negative prompt explicitly excludes indigo and violet. Image models carry a strong learned prior that \"AI app icon\" means purple, and it reasserts itself without this. Generate 4–8 variations and judge them at 40px before judging at full size — judging at 1024 first biases toward the most detailed candidate, which is usually the one that dies smallest.",
+
+    "COMPOSER_LAYERS": "Background = slate two-stop gradient · mid = ceramic ring · foreground = amber glass line. Three layers is correct here because the depth inversion at the crossings is real geometry, not a drawn effect — Icon Composer can render it with actual parallax.",
+    "VARIANT_NOTES": "Dark — separate #0A0A0F field, amber +8% luminance. Clear — line transparency reduced 25% → 18% so it holds against light wallpapers; retain the contact shadow. Tinted — passes; 77% luminance delta between ring and field.",
+
+    "EVOLUTION_DEAD": "None present. Checked specifically for heavy skeuomorphism, literal texture, long shadows, outline strokes, flat-vector-with-no-material, angular gradients, and bevel-and-emboss.",
+    "EVOLUTION_EMERGING": "Liquid glass present as an accent rather than as the whole idea; layered depth used meaningfully; restrained two-hue palette; monochrome-first luminance structure.",
+    "EVOLUTION_2026": "Simplify further — considered and rejected, since the crossing is the metaphor and removing it removes the idea. Warm the ceramic — accepted. Reduce the line's transparency so it holds in clear mode — accepted.",
+    "EVOLUTION_APPLIED": "Ceramic warmed #F5F0E8 → #F7F2E9; line transparency 25% → 18%. Re-scored after the diff; final 92.1. Ship."
+  },
+
+  "zh": {
+    "PRODUCT": "Continuum",
+    "TAGLINE": "一个记得住项目上下文的通用 AI 助手。",
+    "CATEGORY": "AI 助手",
+    "PLATFORM": "iOS 26 · macOS 26",
+    "DESIGNER": "apple-icon-studio",
+
+    "BRAND_ESSENCE": "思考的连续性。",
+    "PRODUCT_MECHANIC": "一个通用助手，真正的区别在于跨会话的记忆：它会持续累积某个项目的上下文，而不是每次从头开始。",
+    "WHY_DOWNLOAD": "「我想要一个记得住我的。」",
+    "WHY_OPEN": "有一个问题、一份草稿，或者一个需要想清楚的决定。",
+    "WHY_DAILY": "它已经攒下了上下文——它知道这个项目，所以回来比重新解释一遍更省力。",
+    "WHY_REMEMBER": "连续性。它不会从头开始。",
+    "FRAMING": "协作者，偏向助手。不是先知——这个产品承诺的不是更聪明，而是不中断。",
+
+    "METAPHOR_SUMMARY": "AI DNA 文件在评分前就淘汰了四个候选（闪光、大脑、对话气泡、发光球体）。在剩下的空间里沿五个维度生成 10 个隐喻，淘汰 7 个。",
+    "METAPHORS": [
+      {"ROW_CLASS": "", "N": 1, "AXIS": "功能", "METAPHOR": "张开的镜头", "DIST": 6, "SMALL": 8, "FIT": 5, "LONG": 8, "TOTAL": 27, "VERDICT": "淘汰——会被读成相机", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 2, "AXIS": "功能", "METAPHOR": "棱镜", "DIST": 5, "SMALL": 8, "FIT": 5, "LONG": 8, "TOTAL": 26, "VERDICT": "淘汰——契合的是「转换」而不是「连续」", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 3, "AXIS": "情绪", "METAPHOR": "伸出的手", "DIST": 7, "SMALL": 4, "FIT": 7, "LONG": 7, "TOTAL": 25, "VERDICT": "淘汰——人形在 40px 下必挂", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 4, "AXIS": "情绪", "METAPHOR": "稳定的火苗", "DIST": 6, "SMALL": 8, "FIT": 8, "LONG": 8, "TOTAL": 30, "VERDICT": "淘汰——火苗会被读成打卡连续天数", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "kept", "N": 5, "AXIS": "物理", "METAPHOR": "穿过绳结继续延伸的线", "DIST": 9, "SMALL": 6, "FIT": 9, "LONG": 9, "TOTAL": 33, "VERDICT": "保留", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "kept", "N": 6, "AXIS": "物理", "METAPHOR": "共振中的音叉", "DIST": 9, "SMALL": 7, "FIT": 7, "LONG": 8, "TOTAL": 31, "VERDICT": "保留", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "", "N": 7, "AXIS": "抽象", "METAPHOR": "螺旋", "DIST": 4, "SMALL": 5, "FIT": 8, "LONG": 8, "TOTAL": 25, "VERDICT": "淘汰——60px 以下内圈会糊在一起", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "kept", "N": 8, "AXIS": "抽象", "METAPHOR": "穿过一个形体进出的连续线条", "DIST": 8, "SMALL": 8, "FIT": 9, "LONG": 9, "TOTAL": 34, "VERDICT": "保留——最终选定", "VERDICT_CLASS": "kept"},
+      {"ROW_CLASS": "", "N": 9, "AXIS": "品牌", "METAPHOR": "既是书签也是路径", "DIST": 6, "SMALL": 6, "FIT": 8, "LONG": 7, "TOTAL": 27, "VERDICT": "淘汰——两个想法，违反单一主体", "VERDICT_CLASS": "killed"},
+      {"ROW_CLASS": "", "N": 10, "AXIS": "品牌", "METAPHOR": "随时间被填满的容器", "DIST": 7, "SMALL": 8, "FIT": 8, "LONG": 8, "TOTAL": 31, "VERDICT": "淘汰——「填满」暗示有上限，这不是我们想说的", "VERDICT_CLASS": "killed"}
+    ],
+    "CHOSEN_METAPHOR": "一条不间断的线，穿过一个圆环进出。",
+    "METAPHOR_RATIONALE": "一个圆环，一条连续的线从左下进入、右上穿出。刻意不做成闭环：线的两端都可见，因为「连续」意味着仍在进行，而不是已经完成。圆环是那个持续存在的东西，线是穿过它的思考。",
+    "METAPHOR_RISK": "圆环是常见形态，可能被读成通用的进度指示器。缓解手段：穿过的线是竞品集里没有的；温暖的陶瓷材质也是它们没有的。",
+
+    "SHAPE": "圆环 + 32° 穿过的线",
+    "SHAPE_RATIONALE": "圆环提供了最强的负空间（中间那个洞），且在小尺寸下第一眼就能读出来；斜线提供的不对称性让它不至于被看成加载转圈。线在左下交叉处走圆环后面、右上交叉处走前面——这一次深度反转，正是「穿过」而不是「叠加」的关键。",
+    "SILHOUETTE_TEST": "40px 通过；交叉关系能撑到 32px。读作「一个被线穿过的圆环」，清晰，且与竞品集中的任何一个都不像。",
+
+    "PRIMARY_MATERIAL": "上釉陶瓷，暖骨白（圆环）",
+    "SECONDARY_MATERIAL": "液态玻璃，深琥珀（线）",
+    "REFLECTION": "中等，仅玻璃线部分",
+    "TRANSPARENCY": "18%（仅线；圆环不透明）",
+    "EDGE": "柔和倒角",
+    "SURFACE_FINISH": "半光釉面",
+    "MATERIAL_RATIONALE": "这个品类的五个头部产品全都用冷色液态玻璃，所以暖陶瓷是 references/icon-dna/ai.md 明确推荐的差异化打法。它同时也在承载隐喻而不只是装饰：持久的那个元素是实心的，短暂的那个元素是透明的。",
+
+    "COMPOSITION_PATTERN": "居中、悬浮",
+    "VISUAL_WEIGHT": "平衡——斜线的方向感被圆环的体量抵消",
+    "NEGATIVE_SPACE": "圆环中间的洞；可用负空间里最强的一种，本身就是一个可被描述的形状",
+    "BALANCE": "在对称基底（圆环）之上的不对称（斜线）",
+    "FOCUS_POINT": "右上交叉处，线走到圆环前面的那一点",
+    "PERSPECTIVE": "正交平视——无灭点",
+    "SUBJECT_SIZE": "占画布 64%；线倾斜 32°，远离 3–8° 的「像画歪了」区间",
+
+    "PALETTE": [
+      {"HEX": "#0F172A", "NAME": "深石板", "SHARE": "60%", "ROLE": "背景场——接近中性，把暖色主体让出来"},
+      {"HEX": "#F7F2E9", "NAME": "骨白", "SHARE": "30%", "ROLE": "陶瓷圆环——暖白，区别于 OpenAI 的冷单色"},
+      {"HEX": "#D97706", "NAME": "琥珀", "SHARE": "10%", "ROLE": "玻璃线——在一片冷色的品类里做的暖色反向操作"}
+    ],
+    "COLOR_RATIONALE": "选琥珀而不是赤陶，是因为赤陶现在属于 Anthropic。「往暖走」这个方向是对的，但具体色相必须避开撞车表。",
+    "GRAYSCALE_CHECK": "骨白 L* 95 对石板 L* 18——77% 差值，很宽裕。琥珀线原本是 #F59E0B（L* 74），对骨白只有 21% 差值，低于 25% 的下限。改深到 #D97706（L* 62）后为 33%。",
+    "DARKMODE_NOTE": "深色变体单独做一张 #0A0A0F 背景，不要用系统自动压暗；琥珀提亮 8%。Clear 模式下线的 18% 透明度在浅色和深色壁纸上都能站住。",
+
+    "REJECTIONS": [
+      {"CODE": "R1", "LABEL": "太像某个头部产品", "DETAIL": "逐个比对了 ChatGPT、Claude、Gemini、Perplexity、Copilot。没有一个用「圆环 + 穿过的线」，也没有一个用暖陶瓷。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R2", "LABEL": "太复杂", "DETAIL": "一个主体（圆环）+ 一个修饰（线）。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R3", "LABEL": "放桌面上很脏", "DETAIL": "两个色相加一个高光；低饱和；没有高频细节。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R4", "LABEL": "40px 看不清", "DETAIL": "实际缩过图；交叉关系撑到 32px。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R5", "LABEL": "颜色没有层级", "DETAIL": "琥珀改深之后，60/30/10 层级清晰。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R6", "LABEL": "材质混乱", "DETAIL": "严格两种：陶瓷本体、玻璃线。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R7", "LABEL": "不像 Apple", "DETAIL": "没有描边、没有长阴影、没有透视、没有自己先画圆角。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R8", "LABEL": "边缘太锐", "DETAIL": "圆环柔和倒角；线是圆滑过渡。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R9", "LABEL": "光照方向错误", "DETAIL": "单一主光源，上方 12°；所有高光和接触阴影方向一致。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R10", "LABEL": "18 个月内会过时", "DETAIL": "没有闪光、没有虹彩、没有「渐变即创意」。把玻璃质感拿掉，隐喻依然成立。", "STATUS": "pass", "STATUS_LABEL": "通过"},
+      {"CODE": "R11", "LABEL": "深色 / 单色模式下失效", "DETAIL": "琥珀改深后灰度差值 77%；深色变体单独出图。", "STATUS": "pass", "STATUS_LABEL": "通过"}
+    ],
+    "CRITIQUE_VERDICT": "可以出。第一轮 91.7，最弱是情绪 88——「稳定」被读成了「静止」。做了一次定向迭代：把线穿出侧延长 15%，让它读起来是「继续延伸出画面」而不是「到此为止」；情绪 88 → 92。",
+
+    "IMAGE_PROMPT": "App icon. A thick ring in warm bone-white glazed ceramic, with a single continuous amber liquid-glass line passing through it at 32 degrees — passing behind the ring at the lower-left crossing and in front of it at the upper-right crossing, both ends of the line visible and extending toward the frame edges.\nCentered, floating, subject occupies 64% of frame, generous even margin.\nMaterial: glazed warm bone-white ceramic ring with soft subsurface scattering; the line is liquid glass in deep amber with true internal refraction.\nLighting: single large soft key light from above at 12 degrees, gentle ambient fill from below, thin rim highlight along the ring's top edge.\nColor: deep slate #0F172A field, bone-white #F7F2E9 ceramic, deep amber #D97706 glass line.\nBackground: flat deep slate field with a subtle top-lighter two-stop vertical gradient.\nMedium reflection on the glass line only, ceramic is semi-gloss, no visible environment, neutral studio.\nShallow layered depth, clear separation between the line, the ring, and the field.\nStraight-on orthographic view, no perspective distortion, no vanishing point.\nSurface: fine glaze micro-variation on the ceramic, high optical clarity in the glass.\nShadow: short soft contact shadow directly beneath the ring, 15% opacity, no cast shadow.\nSquare 1:1, full bleed, 1024x1024, product icon render, Apple design language, premium industrial design, extremely clean, minimal, single subject.",
+    "NEGATIVE_PROMPT": "text, letters, words, numbers, watermark, signature, logo type, UI mockup, screenshot, phone mockup, rounded corner mask, drop shadow border, multiple objects, cluttered, busy, small details, badge, photorealistic scene, room, desk, ground plane, environment reflection, two light sources, conflicting highlights, harsh shadow, long shadow, hard outline stroke, rainbow, neon glow, lens flare, 3d perspective, vanishing point, low resolution, blurry, oversaturated,\nbrain, neural network, node graph, chat bubble, sparkle, sparkles, stars, robot, glowing orb, infinity symbol, circuit board, hologram, iridescent chrome, indigo, violet, purple gradient",
+    "MODEL_NOTES": "负向 prompt 里明确排除了 indigo 和 violet。图像模型对「AI app icon = 紫色」的先验非常强，不写死就会自己冒出来。生成 4–8 张，并且先在 40px 下判断再看原图——先看 1024 会让人偏向细节最多的那张，而那张往往是缩小后死得最快的。",
+
+    "COMPOSER_LAYERS": "背景 = 石板双色渐变 · 中层 = 陶瓷圆环 · 前景 = 琥珀玻璃线。这里三层是对的，因为交叉处的深度反转是真实几何而不是画上去的效果——Icon Composer 能用真正的视差把它渲出来。",
+    "VARIANT_NOTES": "深色——单独做 #0A0A0F 背景，琥珀提亮 8%。Clear——线的透明度从 25% 降到 18%，保证在浅色壁纸上站得住；接触阴影保留。单色——通过；圆环与背景的明度差 77%。",
+
+    "EVOLUTION_DEAD": "没有。专门比对过：重拟物、写实纹理、长阴影、外描边、无材质纯扁平、角度渐变、浮雕斜面。",
+    "EVOLUTION_EMERGING": "液态玻璃作为点缀而不是全部创意；分层深度被真正用上；克制的双色相；以明度结构为先的设计。",
+    "EVOLUTION_2026": "继续简化——考虑过，否决：交叉就是隐喻本身，去掉交叉等于去掉这个想法。陶瓷再暖一点——采纳。降低线的透明度以适配 clear 模式——采纳。",
+    "EVOLUTION_APPLIED": "陶瓷 #F5F0E8 → #F7F2E9；线透明度 25% → 18%。改完重新评分，最终 92.1，可以出。"
+  }
+}

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="{{UI_HTML_LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{PRODUCT}} — {{UI_DOC_TITLE}}</title>
+<style>
+  :root {
+    --bg: #0b0b0f;
+    --surface: #131319;
+    --surface-2: #1b1b23;
+    --line: #2a2a35;
+    --ink: #f4f4f5;
+    --ink-2: #a1a1aa;
+    --ink-3: #71717a;
+    --accent: #f59e0b;
+    --accent-2: #38bdf8;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --radius: 14px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  /* ---------- header ---------- */
+  header { border-bottom: 1px solid var(--line); padding-bottom: 32px; margin-bottom: 8px; }
+  .kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  h1 { font-size: 40px; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 10px; font-weight: 650; }
+  .tagline { color: var(--ink-2); font-size: 17px; margin: 0 0 24px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 13px; color: var(--ink-3); }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+  .langbar { margin-top: 24px; font-size: 13px; }
+  .langbar a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid transparent; }
+  .langbar a:hover { border-bottom-color: var(--accent-2); }
+
+  /* ---------- essence ---------- */
+  .essence {
+    margin: 40px 0; padding: 32px; border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--line); text-align: center;
+  }
+  .essence .label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px;
+  }
+  .essence .value { font-size: 30px; font-weight: 600; letter-spacing: -.01em; }
+
+  /* ---------- sections ---------- */
+  section { margin: 48px 0 0; scroll-margin-top: 24px; }
+  .layer {
+    display: flex; align-items: baseline; gap: 14px;
+    border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 22px;
+  }
+  .layer .n {
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 6px; padding: 2px 8px; flex: none;
+  }
+  .layer h2 { font-size: 21px; margin: 0; font-weight: 600; letter-spacing: -.01em; }
+  .layer .sub { color: var(--ink-3); font-size: 13px; margin-left: auto; }
+
+  h3 {
+    font-size: 13px; font-family: var(--mono); font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin: 26px 0 10px;
+  }
+  p { margin: 0 0 14px; }
+  .lede { color: var(--ink-2); }
+
+  /* ---------- key/value ---------- */
+  .kv { display: grid; grid-template-columns: 190px 1fr; gap: 1px; background: var(--line);
+        border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .kv > div { background: var(--surface); padding: 12px 16px; }
+  .kv > div:nth-child(odd) { color: var(--ink-3); font-size: 13px; }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 4px 0 8px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink-3); font-weight: 500; font-size: 11px; font-family: var(--mono);
+       letter-spacing: .08em; text-transform: uppercase; }
+  td.num { font-family: var(--mono); text-align: right; width: 52px; color: var(--ink-2); }
+  tr.kept td { background: rgba(52, 211, 153, .06); }
+  tr.kept td:first-child { box-shadow: inset 3px 0 0 var(--good); }
+  .verdict-kept { color: var(--good); font-weight: 600; }
+  .verdict-killed { color: var(--ink-3); }
+
+  /* ---------- palette ---------- */
+  .palette { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0 18px; }
+  .sw { flex: 1 1 160px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .sw .chip { height: 72px; }
+  .sw .body { padding: 12px 14px; background: var(--surface); }
+  .sw .name { font-weight: 600; font-size: 14px; }
+  .sw .hex { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .sw .role { font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+
+  /* ---------- rejections ---------- */
+  .rej { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .rej-row { display: grid; grid-template-columns: 56px 1fr 62px; gap: 0;
+             border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .rej-row:last-child { border-bottom: 0; }
+  .rej-row > div { padding: 10px 14px; background: var(--surface); }
+  .rej-code { font-family: var(--mono); color: var(--ink-3); }
+  .rej-status { font-family: var(--mono); font-size: 11px; text-align: right; letter-spacing: .06em; }
+  .st-pass { color: var(--good); }
+  .st-note { color: var(--warn); }
+  .st-fail { color: var(--bad); }
+
+  /* ---------- scores ---------- */
+  .scores { display: grid; gap: 10px; margin: 8px 0 22px; }
+  .score { display: grid; grid-template-columns: 150px 1fr 46px; align-items: center; gap: 14px; }
+  .score .lbl { font-size: 13px; color: var(--ink-2); }
+  .score .track { display: block; height: 8px; background: var(--surface-2);
+                  border-radius: 99px; overflow: hidden; }
+  .score .fill { display: block; height: 100%; border-radius: 99px;
+                 background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+  .score .val { font-family: var(--mono); font-size: 13px; text-align: right; color: var(--ink); }
+  .final {
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    padding: 20px 24px; border-radius: var(--radius);
+    background: var(--surface-2); border: 1px solid var(--line);
+  }
+  .final .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+                text-transform: uppercase; color: var(--ink-3); }
+  .final .val { font-size: 38px; font-weight: 650; letter-spacing: -.02em; }
+  .final .verdict { color: var(--ink-2); font-size: 14px; text-align: right; max-width: 460px; }
+
+  /* ---------- code ---------- */
+  pre {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px;
+    line-height: 1.7; color: var(--ink-2); white-space: pre-wrap; word-break: break-word;
+    margin: 4px 0 18px;
+  }
+  pre.neg { color: var(--ink-3); }
+
+  footer {
+    margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line);
+    color: var(--ink-3); font-size: 12.5px; display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+
+  @media (max-width: 680px) {
+    .wrap { padding: 32px 16px 64px; }
+    h1 { font-size: 30px; }
+    .kv { grid-template-columns: 1fr; }
+    .kv > div:nth-child(odd) { padding-bottom: 0; }
+    .score { grid-template-columns: 110px 1fr 40px; }
+  }
+  @media print {
+    :root { --bg: #fff; --surface: #fff; --surface-2: #fafafa; --line: #ddd;
+            --ink: #111; --ink-2: #444; --ink-3: #777; }
+    body { font-size: 11pt; }
+    .wrap { max-width: none; padding: 0; }
+    section { break-inside: avoid; }
+    .langbar { display: none; }
+    pre { white-space: pre-wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">{{UI_KICKER}}</p>
+  <h1>{{PRODUCT}}</h1>
+  <p class="tagline">{{TAGLINE}}</p>
+  <div class="meta">
+    <span><b>{{UI_META_CATEGORY}}</b> {{CATEGORY}}</span>
+    <span><b>{{UI_META_PLATFORM}}</b> {{PLATFORM}}</span>
+    <span><b>{{UI_META_DESIGNER}}</b> {{DESIGNER}}</span>
+    <span><b>{{UI_META_DATE}}</b> {{DATE}}</span>
+  </div>
+  <p class="langbar">{{UI_LANG_SWITCH}} <a href="{{OTHER_LANG_HREF}}">{{UI_OTHER_LANG}}</a></p>
+</header>
+
+<div class="essence">
+  <div class="label">{{UI_ESSENCE}}</div>
+  <div class="value">{{BRAND_ESSENCE}}</div>
+</div>
+
+<section>
+  <div class="layer"><span class="n">01</span><h2>{{UI_L1}}</h2><span class="sub">{{UI_L1_SUB}}</span></div>
+  <p class="lede">{{PRODUCT_MECHANIC}}</p>
+  <div class="kv">
+    <div>{{UI_Q_DOWNLOAD}}</div><div>{{WHY_DOWNLOAD}}</div>
+    <div>{{UI_Q_OPEN}}</div><div>{{WHY_OPEN}}</div>
+    <div>{{UI_Q_DAILY}}</div><div>{{WHY_DAILY}}</div>
+    <div>{{UI_Q_REMEMBER}}</div><div>{{WHY_REMEMBER}}</div>
+    <div>{{UI_FRAMING}}</div><div>{{FRAMING}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">02</span><h2>{{UI_L2}}</h2><span class="sub">{{UI_L2_SUB}}</span></div>
+  <p class="lede">{{METAPHOR_SUMMARY}}</p>
+  <table>
+    <thead><tr>
+      <th>#</th><th>{{UI_TH_AXIS}}</th><th>{{UI_TH_METAPHOR}}</th>
+      <th>{{UI_TH_DIST}}</th><th>{{UI_TH_SMALL}}</th><th>{{UI_TH_FIT}}</th>
+      <th>{{UI_TH_LONG}}</th><th>{{UI_TH_TOTAL}}</th><th>{{UI_TH_VERDICT}}</th>
+    </tr></thead>
+    <tbody>
+<!--REPEAT:METAPHORS-->
+      <tr class="{{ROW_CLASS}}">
+        <td class="num">{{N}}</td><td>{{AXIS}}</td><td>{{METAPHOR}}</td>
+        <td class="num">{{DIST}}</td><td class="num">{{SMALL}}</td>
+        <td class="num">{{FIT}}</td><td class="num">{{LONG}}</td>
+        <td class="num">{{TOTAL}}</td>
+        <td class="verdict-{{VERDICT_CLASS}}">{{VERDICT}}</td>
+      </tr>
+<!--/REPEAT:METAPHORS-->
+    </tbody>
+  </table>
+  <h3>{{UI_CHOSEN}}</h3>
+  <p><strong>{{CHOSEN_METAPHOR}}</strong></p>
+  <p>{{METAPHOR_RATIONALE}}</p>
+  <h3>{{UI_RISK}}</h3>
+  <p>{{METAPHOR_RISK}}</p>
+</section>
+
+<section>
+  <div class="layer"><span class="n">03</span><h2>{{UI_L3}}</h2><span class="sub">{{UI_L3_SUB}}</span></div>
+  <div class="kv">
+    <div>{{UI_SHAPE}}</div><div>{{SHAPE}}</div>
+    <div>{{UI_SHAPE_WHY}}</div><div>{{SHAPE_RATIONALE}}</div>
+    <div>{{UI_SILHOUETTE}}</div><div>{{SILHOUETTE_TEST}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">04</span><h2>{{UI_L4}}</h2><span class="sub">{{UI_L4_SUB}}</span></div>
+  <div class="kv">
+    <div>{{UI_M_PRIMARY}}</div><div>{{PRIMARY_MATERIAL}}</div>
+    <div>{{UI_M_SECONDARY}}</div><div>{{SECONDARY_MATERIAL}}</div>
+    <div>{{UI_M_REFLECTION}}</div><div>{{REFLECTION}}</div>
+    <div>{{UI_M_TRANSPARENCY}}</div><div>{{TRANSPARENCY}}</div>
+    <div>{{UI_M_EDGE}}</div><div>{{EDGE}}</div>
+    <div>{{UI_M_FINISH}}</div><div>{{SURFACE_FINISH}}</div>
+  </div>
+  <h3>{{UI_WHY}}</h3>
+  <p>{{MATERIAL_RATIONALE}}</p>
+</section>
+
+<section>
+  <div class="layer"><span class="n">05</span><h2>{{UI_L5}}</h2><span class="sub">{{UI_L5_SUB}}</span></div>
+  <div class="kv">
+    <div>{{UI_C_PATTERN}}</div><div>{{COMPOSITION_PATTERN}}</div>
+    <div>{{UI_C_WEIGHT}}</div><div>{{VISUAL_WEIGHT}}</div>
+    <div>{{UI_C_NEGATIVE}}</div><div>{{NEGATIVE_SPACE}}</div>
+    <div>{{UI_C_BALANCE}}</div><div>{{BALANCE}}</div>
+    <div>{{UI_C_FOCUS}}</div><div>{{FOCUS_POINT}}</div>
+    <div>{{UI_C_PERSPECTIVE}}</div><div>{{PERSPECTIVE}}</div>
+    <div>{{UI_C_SIZE}}</div><div>{{SUBJECT_SIZE}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">06</span><h2>{{UI_L6}}</h2><span class="sub">{{UI_L6_SUB}}</span></div>
+  <div class="palette">
+<!--REPEAT:PALETTE-->
+    <div class="sw">
+      <div class="chip" style="background: {{HEX}};"></div>
+      <div class="body">
+        <div class="name">{{NAME}}</div>
+        <div class="hex">{{HEX}} · {{SHARE}}</div>
+        <div class="role">{{ROLE}}</div>
+      </div>
+    </div>
+<!--/REPEAT:PALETTE-->
+  </div>
+  <p>{{COLOR_RATIONALE}}</p>
+  <div class="kv">
+    <div>{{UI_GRAYSCALE}}</div><div>{{GRAYSCALE_CHECK}}</div>
+    <div>{{UI_DARKMODE}}</div><div>{{DARKMODE_NOTE}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">07</span><h2>{{UI_L7}}</h2><span class="sub">{{UI_L7_SUB}}</span></div>
+  <div class="rej">
+<!--REPEAT:REJECTIONS-->
+    <div class="rej-row">
+      <div class="rej-code">{{CODE}}</div>
+      <div>{{LABEL}} — {{DETAIL}}</div>
+      <div class="rej-status st-{{STATUS}}">{{STATUS_LABEL}}</div>
+    </div>
+<!--/REPEAT:REJECTIONS-->
+  </div>
+  <h3>{{UI_SCORECARD}}</h3>
+  <div class="scores">
+    <div class="score"><span class="lbl">{{UI_S_APPLE}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_APPLE}}%;"></span></span>
+      <span class="val">{{SCORE_APPLE}}</span></div>
+    <div class="score"><span class="lbl">{{UI_S_RECOGNITION}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_RECOGNITION}}%;"></span></span>
+      <span class="val">{{SCORE_RECOGNITION}}</span></div>
+    <div class="score"><span class="lbl">{{UI_S_MATERIAL}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_MATERIAL}}%;"></span></span>
+      <span class="val">{{SCORE_MATERIAL}}</span></div>
+    <div class="score"><span class="lbl">{{UI_S_MEMORABILITY}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_MEMORABILITY}}%;"></span></span>
+      <span class="val">{{SCORE_MEMORABILITY}}</span></div>
+    <div class="score"><span class="lbl">{{UI_S_SCALABILITY}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_SCALABILITY}}%;"></span></span>
+      <span class="val">{{SCORE_SCALABILITY}}</span></div>
+    <div class="score"><span class="lbl">{{UI_S_EMOTION}}</span>
+      <span class="track"><span class="fill" style="width: {{SCORE_EMOTION}}%;"></span></span>
+      <span class="val">{{SCORE_EMOTION}}</span></div>
+  </div>
+  <div class="final">
+    <div><div class="lbl">{{UI_FINAL}}</div><div class="val">{{SCORE_FINAL}}</div></div>
+    <div class="verdict">{{CRITIQUE_VERDICT}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">08</span><h2>{{UI_L8}}</h2><span class="sub">{{UI_L8_SUB}}</span></div>
+  <h3>{{UI_PROMPT}}</h3>
+  <pre>{{IMAGE_PROMPT}}</pre>
+  <h3>{{UI_NEGATIVE}}</h3>
+  <pre class="neg">{{NEGATIVE_PROMPT}}</pre>
+  <h3>{{UI_MODEL_NOTES}}</h3>
+  <p>{{MODEL_NOTES}}</p>
+</section>
+
+<section>
+  <div class="layer"><span class="n">09</span><h2>{{UI_L9}}</h2><span class="sub">{{UI_L9_SUB}}</span></div>
+  <div class="kv">
+    <div>Glass</div><div>{{COMPOSER_GLASS}}</div>
+    <div>Blur</div><div>{{COMPOSER_BLUR}}</div>
+    <div>Refraction</div><div>{{COMPOSER_REFRACTION}}</div>
+    <div>Specular</div><div>{{COMPOSER_SPECULAR}}</div>
+    <div>Shadow</div><div>{{COMPOSER_SHADOW}}</div>
+    <div>Depth</div><div>{{COMPOSER_DEPTH}}</div>
+    <div>Glow</div><div>{{COMPOSER_GLOW}}</div>
+    <div>{{UI_LAYERS}}</div><div>{{COMPOSER_LAYERS}}</div>
+    <div>{{UI_VARIANTS}}</div><div>{{VARIANT_NOTES}}</div>
+  </div>
+</section>
+
+<section>
+  <div class="layer"><span class="n">10</span><h2>{{UI_L10}}</h2><span class="sub">{{UI_L10_SUB}}</span></div>
+  <h3>{{UI_E_DEAD}}</h3>
+  <p>{{EVOLUTION_DEAD}}</p>
+  <h3>{{UI_E_EMERGING}}</h3>
+  <p>{{EVOLUTION_EMERGING}}</p>
+  <h3>{{UI_E_2026}}</h3>
+  <p>{{EVOLUTION_2026}}</p>
+  <h3>{{UI_E_APPLIED}}</h3>
+  <p>{{EVOLUTION_APPLIED}}</p>
+</section>
+
+<footer>
+  <span>{{UI_FOOTER}}</span>
+  <span>{{PRODUCT}} · {{DATE}}</span>
+</footer>
+
+</div>
+</body>
+</html>

@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "plugins": [
     {
@@ -101,6 +101,31 @@
         "design-system",
         "design-tokens",
         "style-extraction",
+        "html",
+        "report"
+      ]
+    },
+    {
+      "name": "design",
+      "source": "./plugins/design",
+      "description": "设计工具集：apple-icon-studio（Apple 级 App 图标设计工作流 —— 品牌内核 → 隐喻生成（生成 10 个 / 淘汰 7 个）→ 形态 → 材质 → 构图 → 色彩 → 对抗式评审（11 条否决 + 6 维加权评分，低于 85 不发）→ 出图 Prompt → Icon Composer 参数 → 2026 时效校验；含 10 个行业 Icon DNA 知识库、5 个完整拆解案例、双语可打印 HTML 简报，以及从 1024 母版一键生成 iOS/macOS/Web 图标集的脚本）。",
+      "version": "0.1.0",
+      "category": "design",
+      "tags": [
+        "design",
+        "icon",
+        "app-icon",
+        "appicon",
+        "branding",
+        "brand-mark",
+        "apple",
+        "hig",
+        "ios",
+        "macos",
+        "visual-identity",
+        "image-prompt",
+        "icon-composer",
+        "appiconset",
         "html",
         "report"
       ]
