@@ -37,10 +37,10 @@
     {
       "name": "content-generate",
       "source": "./plugins/content-generate",
-      "description": "内容创作与发布工具集，覆盖技术公众号全流程：tech-content-writer（技术文章写作，无 AI 味 + 禁用词扫描）、tech-content-audit（发布前五大维度内容审核）、wechat-cover-html（20:9 封面图，HTML + Playwright，代码密集型首选）、wechat-cover-image（封面图 Pillow 备选方案）、md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）、wechat-publisher（将 Markdown/HTML 文章发布到微信公众号草稿箱，多主题排版 + 封面图与正文图片自动上传 + 多账号切换）。",
-      "version": "0.4.0",
+      "description": "内容创作与发布工具集，覆盖技术公众号全流程：tech-content-writer（技术文章写作，无 AI 味 + 禁用词扫描）、tech-content-audit（发布前五大维度内容审核）、wechat-cover-html（20:9 封面图，HTML + Playwright，代码密集型首选）、wechat-cover-image（封面图 Pillow 备选方案）、md-to-html（Markdown 渲染为可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎）、ali-oss（上传文件到阿里云 OSS，支持多 bucket 与默认 bucket、region 自动探测、预签名链接）、wechat-publisher（将 Markdown/HTML 文章发布到微信公众号草稿箱，多主题排版 + 封面图与正文图片自动上传 + 多账号切换）、product-teardown（Principal-PM 级产品拆解：15 节框架逆向分析任意产品的系统/JTBD/护城河/增长/AI 就绪度，产出双语 EN+ZH 可打印 HTML 报告）。",
+      "version": "0.5.0",
       "category": "content",
-      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload", "wechat", "wechat-mp", "draft", "weixin", "writing", "tech-article", "audit", "cover", "playwright", "pillow"]
+      "tags": ["content", "markdown", "html", "publish", "mdnice", "oss", "aliyun", "upload", "wechat", "wechat-mp", "draft", "weixin", "writing", "tech-article", "audit", "cover", "playwright", "pillow", "product-teardown", "pm", "strategy"]
     },
     {
       "name": "playground",

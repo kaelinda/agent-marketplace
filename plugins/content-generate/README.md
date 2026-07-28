@@ -1,6 +1,7 @@
 # Content Generate Plugin
 
-内容创作与发布相关的技能集合。7 个 skill 覆盖技术公众号内容生产全流程：
+内容创作与发布相关的技能集合。8 个 skill 覆盖技术公众号内容生产全流程，外加一个独立的
+产品分析工具（product-teardown）：
 
 ```text
 ① 写作                ② 审核               ③ 封面
@@ -139,6 +140,27 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/wechat-cover-html/scripts/render_cover.py \
 **依赖：** `pip install pillow`；中文字体 macOS 自带 PingFang，Linux 需 Noto Sans CJK。
 
 详情请见 [wechat-cover-image 技能文档](skills/wechat-cover-image/SKILL.md)。
+
+### product-teardown
+
+Principal-PM 级产品拆解。把任意产品（Linear、Notion、Cursor、竞品……）当成一个*系统*来逆向
+分析 —— 循环、策略、护城河、机会 —— 而不是"我喜欢这个 App 的 5 个地方"式的评测。固定 15 节
+框架（快照 → JTBD → 核心循环 → 架构 → 手艺信号 → 体验 → 商业模式 → 竞品 → 增长 → AI 就绪度 →
+指标 → 摩擦 → 风险矩阵 → 机会 → 终局判断），先在对话里产出完整分析，再渲染成双语
+（EN + ZH，互相跳转）、可打印的单文件 HTML 报告，带 6 张产品截图画廊。
+
+**快速开始：**
+
+```bash
+# 1. 在对话中按 15 节框架产出完整拆解
+# 2. 把内容整理成一份 JSON（结构见 references/example-data.json），然后渲染双语报告
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/product-teardown/scripts/render_teardown.py \
+  --data ./teardown-<slug>.json --out-dir ./output
+```
+
+**依赖：** 纯 Python 标准库，无需安装第三方包。
+
+详情请见 [product-teardown 技能文档](skills/product-teardown/SKILL.md)。
 
 ## 关键 Pitfalls
 
