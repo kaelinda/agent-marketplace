@@ -1,0 +1,23 @@
+{
+  "name": "product",
+  "version": "0.1.0",
+  "description": "产品/商业/技术分析工具集：product-teardown（Principal-PM 级产品拆解，Product / Business / Technology / Strategy 四层框架，Core Loop 为权重最高的一节，双语 EN+ZH 可打印 HTML 报告）、competitor-landscape（竞品二维定位矩阵）、ai-architecture-review（AI/Agent 产品的技术架构深挖：Model / Tool / Memory / Planning / Agent / Workflow / Evaluation）。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "product",
+    "teardown",
+    "pm",
+    "strategy",
+    "business-model",
+    "competitor",
+    "architecture",
+    "ai-architecture",
+    "agent-architecture",
+    "html",
+    "report"
+  ]
+}
