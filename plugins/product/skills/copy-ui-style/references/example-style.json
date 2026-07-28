@@ -1,0 +1,156 @@
+{
+  "slug": "linear",
+  "source": {
+    "product": "Linear",
+    "date": "2026-07-28",
+    "inputs": [
+      "screenshot: issue list (dark)",
+      "screenshot: issue detail + command menu",
+      "https://linear.app"
+    ]
+  },
+  "style_dna": {
+    "personality": ["minimal", "premium", "developer-focused"],
+    "tone": "professional, quietly confident, zero marketing warmth",
+    "theme": "dark",
+    "density": "compact",
+    "emotion": ["trust", "focus", "speed"],
+    "visual": {
+      "roundness": 0.35,
+      "density": 0.85,
+      "contrast": 0.9,
+      "elevation": 0.2,
+      "motion": 0.3
+    },
+    "signature_moves": [
+      "Near-black canvas with a barely-lighter surface layer; separation comes from a 1px border, not a shadow",
+      "One saturated indigo accent against an otherwise fully neutral palette — color means 'act here'",
+      "Keyboard-first affordances rendered inline: every row shows its shortcut in a muted mono chip",
+      "Row-based lists instead of cards; each row is 32-40px tall with a single-line summary",
+      "Text hierarchy carried by weight and grey level, never by large size jumps"
+    ],
+    "anti_patterns": [
+      "Drop shadows or glassmorphism to separate surfaces",
+      "Multiple accent hues, gradient buttons, or colored section backgrounds",
+      "Generous card grids with 24px+ padding — the density collapses and it stops reading as this system",
+      "Illustrations, emoji, or rounded 'friendly' typography"
+    ]
+  },
+  "tokens": {
+    "color": {
+      "background": "#08090A",
+      "surface": "#101012",
+      "surface_raised": "#17171A",
+      "border": "#23252A",
+      "text_primary": "#F7F8F8",
+      "text_secondary": "#8A8F98",
+      "text_muted": "#62666D",
+      "primary": "#5E6AD2",
+      "primary_hover": "#6E79DB",
+      "success": "#4CB782",
+      "warning": "#F2C94C",
+      "danger": "#EB5757"
+    },
+    "typography": {
+      "font_sans": "'Inter Variable', Inter, -apple-system, system-ui, sans-serif",
+      "font_mono": "'Berkeley Mono', ui-monospace, SFMono-Regular, monospace",
+      "scale": {
+        "xs": "11px",
+        "sm": "12px",
+        "base": "13px",
+        "md": "15px",
+        "lg": "18px",
+        "xl": "22px"
+      },
+      "weights": {
+        "regular": "400",
+        "medium": "510",
+        "semibold": "590"
+      },
+      "line_height": {
+        "tight": "1.3",
+        "base": "1.5"
+      },
+      "letter_spacing": {
+        "tight": "-0.012em",
+        "base": "0"
+      }
+    },
+    "spacing": {
+      "unit": "4px",
+      "scale": {
+        "1": "4px",
+        "2": "8px",
+        "3": "12px",
+        "4": "16px",
+        "6": "24px",
+        "8": "32px"
+      },
+      "container_max": "1024px",
+      "grid": "sidebar 220px + fluid content"
+    },
+    "radius": {
+      "sm": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "full": "9999px"
+    },
+    "shadow": {
+      "overlay": "0 8px 24px rgba(0, 0, 0, 0.55)"
+    },
+    "motion": {
+      "duration": {
+        "fast": "80ms",
+        "base": "150ms"
+      },
+      "easing": {
+        "standard": "cubic-bezier(0.4, 0, 0.2, 1)"
+      }
+    }
+  },
+  "components": {
+    "Button": {
+      "height": "32px",
+      "radius": "6px",
+      "padding_x": "12px",
+      "font": "base / medium",
+      "style": "solid primary; secondary is transparent with a 1px border",
+      "states": "hover lightens the fill one step; focus shows a 2px primary ring at 40% opacity",
+      "notes": "[inferred] Icon-only variant is a 32×32px square with the same radius."
+    },
+    "Card": {
+      "radius": "8px",
+      "padding": "16px",
+      "background": "surface",
+      "border": "1px solid border",
+      "style": "flat — border-separated, no shadow",
+      "notes": "Used sparingly; lists prefer rows over cards."
+    },
+    "Input": {
+      "height": "32px",
+      "radius": "6px",
+      "padding_x": "8px",
+      "background": "surface",
+      "style": "1px border, no inner shadow; placeholder in text_muted",
+      "notes": "Focus swaps the border to primary rather than adding a glow."
+    },
+    "ListRow": {
+      "height": "36px",
+      "padding_x": "12px",
+      "style": "borderless rows separated by a 1px divider; whole row is the hit target",
+      "states": "hover raises the background to surface; selected adds a 2px primary left bar",
+      "notes": "The core surface of the product — density lives or dies here."
+    },
+    "Navigation": {
+      "width": "220px",
+      "style": "fixed left sidebar on background, sections separated by spacing not borders",
+      "notes": "Collapses to an icon rail under 1024px. [inferred]"
+    },
+    "Modal": {
+      "radius": "8px",
+      "width": "560px",
+      "style": "surface_raised panel + overlay shadow over a 60% black scrim",
+      "notes": "The command menu is the same shell at 640px wide."
+    }
+  }
+}

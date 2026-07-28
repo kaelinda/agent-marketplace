@@ -1,12 +1,13 @@
 # Product Plugin
 
-产品 / 商业 / 技术分析工具集。核心是一个可交付咨询报告的产品拆解工作流，加上两个可独立
+产品 / 商业 / 技术 / 设计分析工具集。核心是一个可交付咨询报告的产品拆解工作流，加上三个可独立
 调用的深挖 skill：
 
 ```text
 product-teardown          ← 主 skill：4 层 15 问 MECE 框架 + 双语 HTML 报告
 ├── competitor-landscape  ← 独立可调用：竞品矩阵 + 2D 定位图（§8 的深挖版）
-└── ai-architecture-review ← 独立可调用：AI/Agent 技术栈拆解（§10 的深挖版）
+├── ai-architecture-review ← 独立可调用：AI/Agent 技术栈拆解（§10 的深挖版）
+└── copy-ui-style         ← 独立可调用：UI 风格逆向 → 设计系统 + AI 编码规则（§5 的深挖版）
 ```
 
 ## Skills
@@ -65,6 +66,52 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/product-teardown/tests/test_render_teardown
 
 详情请见 [ai-architecture-review 技能文档](skills/ai-architecture-review/SKILL.md)。
 
+### copy-ui-style
+
+把一个产品的 **视觉语言** 逆向成可复用的设计系统 —— 输入截图 / URL / 前端代码仓库，输出一份
+`ui-style/` 产物包：
+
+```text
+Collect（拿到真实像素与真实取值）
+  → Analyze（先定性格，再谈数值）
+  → Extract（color / typography / spacing / radius / shadow / motion tokens）
+  → Components（Button / Card / Input / ListRow / Nav / Modal）
+  → Generate（一份 JSON → 校验通过才落盘）
+```
+
+产物里真正起作用的是 `AGENTS.md`：聊天记录里的风格分析下个会话就没人看了，
+`ui-style/AGENTS.md` + `ui-style/tokens.css` 会被 Claude Code / Codex 真正读到并遵守。
+
+**快速开始：**
+
+```bash
+# 1. 先在对话里完成风格分析（性格 → 视觉刻度 → signature moves → tokens → 组件）
+# 2. 生成骨架 JSON 并填写（完整示例见 references/example-style.json）
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/copy-ui-style/scripts/generate_ui_style.py \
+  --init ./ui-style-<slug>.json
+
+# 3. 渲染整包产物
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/copy-ui-style/scripts/generate_ui_style.py \
+  --data ./ui-style-<slug>.json --out-dir ./ui-style
+```
+
+输出：`DESIGN.md`（人读）、`AGENTS.md`（AI 编码规则）、`components.md`、`tokens.json`、
+`tokens.css`、`style-dna.json`。
+
+脚本先校验后落盘：缺必需色彩角色、颜色不是合法 hex/rgb、间距少单位、视觉刻度不在 0–1、
+组件缺 `style` 字段，都会非零退出且**一个文件都不写**。同时会按 WCAG 2.1 真实计算
+`text_primary` / `text_secondary` 对 `background` 的对比度，低于 4.5:1 给警告，`--strict`
+下直接失败。改过模板或脚本后跑测试：
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/copy-ui-style/tests/test_generate_ui_style.py
+```
+
+**依赖：** 纯 Python 标准库。浏览器工具（Playwright / chrome-devtools MCP）是可选项，
+只在输入是 URL 时帮忙截图和读 computed style；没有就退回用户提供的截图或 `curl` + CSS grep。
+
+详情请见 [copy-ui-style 技能文档](skills/copy-ui-style/SKILL.md)。
+
 ## 为什么不是 20 个微型 skill
 
 有过一版设计建议把这个能力拆成约 20 个原子 skill（jtbd、core-loop、pricing、moat、
@@ -86,5 +133,8 @@ code-review、observability……各一个）。这里刻意没有这么做：Cl
 3. **不要编造硬数字**：任何非直接可观察的数字都要标 `[inferred]` / `[推断]`，或者标
    `[需用户补充]`。
 4. **截图必须能被热链接**：需要登录或禁止跨站引用的图片会在画廊里显示为坏图。
-5. **Opportunity 不能退化成功能列表**：每条建议都要能说清楚"服务哪个 JTBD / 强化哪个循环
+5. **UI 风格不要凭记忆提取**：“它是 Stripe，所以紫色渐变”产出的是刻板印象，不是这个产品的
+   系统。密度和字号刻度要从密集的产品界面上量，不要从 marketing 页量。
+6. **`ui-style/` 下的文件是生成物**：不要手改，改 JSON 重新渲染，否则下次生成会静默覆盖。
+7. **Opportunity 不能退化成功能列表**：每条建议都要能说清楚"服务哪个 JTBD / 强化哪个循环
    步骤 / 拉动哪个指标"，说不清楚就还没想完。

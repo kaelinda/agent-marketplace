@@ -1,0 +1,102 @@
+{
+  "_howto": "Fill every field, then run: python3 scripts/generate_ui_style.py --data <this file> --out-dir ./ui-style. Delete this _howto key. Mark any value you couldn't measure with [inferred], or [需用户补充] if you need the user to supply it.",
+  "slug": "product-name",
+  "source": {
+    "product": "Product Name",
+    "date": "YYYY-MM-DD",
+    "inputs": [
+      "screenshot: <which screen>",
+      "https://<url analysed>"
+    ]
+  },
+  "style_dna": {
+    "personality": ["", ""],
+    "tone": "",
+    "theme": "dark",
+    "density": "compact",
+    "emotion": ["", ""],
+    "visual": {
+      "roundness": 0.5,
+      "density": 0.5,
+      "contrast": 0.5,
+      "elevation": 0.5,
+      "motion": 0.5
+    },
+    "signature_moves": ["", "", ""],
+    "anti_patterns": ["", ""]
+  },
+  "tokens": {
+    "color": {
+      "background": "#000000",
+      "surface": "#000000",
+      "border": "#000000",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#FFFFFF",
+      "primary": "#000000"
+    },
+    "typography": {
+      "font_sans": "",
+      "font_mono": "",
+      "scale": {
+        "sm": "12px",
+        "base": "14px",
+        "lg": "18px"
+      },
+      "weights": {
+        "regular": "400",
+        "medium": "500"
+      },
+      "line_height": {
+        "base": "1.5"
+      }
+    },
+    "spacing": {
+      "unit": "4px",
+      "scale": {
+        "1": "4px",
+        "2": "8px",
+        "4": "16px"
+      }
+    },
+    "radius": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "12px"
+    },
+    "shadow": {},
+    "motion": {
+      "duration": {
+        "base": "150ms"
+      },
+      "easing": {
+        "standard": "cubic-bezier(0.4, 0, 0.2, 1)"
+      }
+    }
+  },
+  "components": {
+    "Button": {
+      "height": "",
+      "radius": "",
+      "padding_x": "",
+      "style": "",
+      "states": "",
+      "notes": ""
+    },
+    "Card": {
+      "radius": "",
+      "padding": "",
+      "style": "",
+      "notes": ""
+    },
+    "Input": {
+      "height": "",
+      "radius": "",
+      "style": "",
+      "notes": ""
+    },
+    "Navigation": {
+      "style": "",
+      "notes": ""
+    }
+  }
+}
