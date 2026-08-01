@@ -65,7 +65,7 @@ codex plugin add playground@manji
 | [`product`](./plugins/product) | 产品分析 | 产品拆解、竞品定位、AI 架构评审、UI 风格逆向 | 4 | `0.3.0` | beta |
 | [`design`](./plugins/design) | 设计 | Apple 级 App 图标设计工作流 | 1 | `0.1.0` | beta |
 | [`project-docs`](./plugins/project-docs) | 文档生成 | 一键生成新手接手文档（Markdown + 单页 HTML 站点） | 1 | `0.1.0` | beta |
-| [`evolution-log`](./plugins/evolution-log) | 演进记录 | 项目演进日志：记录 / 查询「从什么变成什么、为什么、谁牵头」，含 Stop hook 自动兜底 | 1 | `0.1.0` | beta |
+| [`evolution-log`](./plugins/evolution-log) | 演进记录 | 项目演进日志：记录 / 查询「从什么变成什么、为什么、谁牵头」，含 Stop hook 自动兜底 | 1 | `0.2.0` | beta |
 | [`old-bird`](./plugins/old-bird) | 工作流治理 | 私有指令体系的本地蒸馏与跨 worktree 移植 | 1 | `0.1.0` | beta |
 | [`playground`](./plugins/playground) | 趣味实验 | 从本机会话历史推断 MBTI，纯本地、娱乐向 | 1 | `0.1.0` | experimental |
 

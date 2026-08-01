@@ -10,19 +10,25 @@ description: 记录与查询项目演进史(方案变更、需求变更、架构
 
 ## 脚本路径解析(执行任何脚本前先确定)
 
-本 skill 的脚本在插件目录 `${CLAUDE_PLUGIN_ROOT}/scripts/` 下:
-`evolog-init.py`(初始化)、`evolog-index.py`(索引重建)、`evolog-check.py`(Stop hook 判定,由插件自动调用,不需要你手动跑)。
+脚本就在**本 SKILL.md 同级的 `scripts/` 目录**下,skill 自包含,不依赖项目根下的任何文件:
+`evolog-init.py`(初始化)、`evolog-index.py`(索引重建)、`evolog-check.py`(Stop hook 判定,
+由 hook 自动调用,不需要手动跑)。
 
-调用时优先用 `${CLAUDE_PLUGIN_ROOT}/scripts/<name>.py`。若运行时不提供该变量
-(如 Codex 兼容模式),退回项目内副本 `.claude/hooks/evolog-index.py`;两者都不存在时,
-先走**工作流零**完成初始化。
+按以下顺序确定 `$SCRIPTS`,取第一个存在的:
+
+1. `${CLAUDE_PLUGIN_ROOT}/skills/evolution-log/scripts/`(Claude Code 插件安装)
+2. `.agents/skills/evolution-log/scripts/`(Codex 仓库级安装)
+3. `.claude/hooks/`(项目内副本,只有 `evolog-index.py`)
+
+三者都没有时,先走**工作流零**完成初始化。
 
 ## 存储位置解析(所有记录/查询工作流的第一步)
 
 按以下优先级确定存储目录 `$STORAGE`,任何时候不要硬编码路径:
 
 1. 环境变量 `EVOLOG_DIR`(若非空)
-2. 项目 `.claude/evolution-log.json` 中的 `storage_dir` 字段
+2. 项目 `.claude/evolution-log.json` 中的 `storage_dir` 字段(仅限仓库内路径:
+   指向仓库外时索引脚本会拒绝执行,除非用户显式设置 `EVOLOG_DIR` 或 `EVOLOG_ALLOW_EXTERNAL_STORAGE=1`)
 3. 默认 `docs/evolution/`(相对项目根)
 
 记录位于 `$STORAGE/records/*.md`,索引为 `$STORAGE/INDEX.md` 与 `$STORAGE/.cache/records.json`。
@@ -33,7 +39,7 @@ description: 记录与查询项目演进史(方案变更、需求变更、架构
 `.claude/evolution-log.json` 与 `$STORAGE` 都不存在。
 
 1. 先跑一次预演,把将要发生的写入念给用户听:
-   `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/evolog-init.py" --dry-run`
+   `python3 "$SCRIPTS/evolog-init.py" --dry-run`
 2. 询问两件事:存储目录(默认 `docs/evolution`)、是否需要 `--standalone`
    (团队成员不都装插件时选它:把 hook 脚本落进仓库,clone 即生效;Codex 用户加 `--codex`)。
 3. 用户确认后执行(按需附加 `--storage-dir` / `--standalone` / `--codex`),
@@ -52,7 +58,7 @@ description: 记录与查询项目演进史(方案变更、需求变更、架构
    from、to、变更原因、owner(牵头人)、participants、date(决策发生日,非今天,除非就是今天)。
 2. **追问缺失的必填项**:owner 与变更原因绝不允许留空猜测——提取不到就问用户,
    一次把所有缺失项问完,不要分多轮。可选项(participants、tags、commits)缺失则跳过。
-3. **冲突检查**:读 `$STORAGE/.cache/records.json`(不存在则读 INDEX.md),
+3. **冲突检查**:读 `$STORAGE/.cache/records.json` 的 `records` 数组(不存在则读 INDEX.md),
    检查是否已有语义相近的记录(相似的 from/to)。若有,询问用户:
    更新旧记录,还是新建记录并将旧记录标记为被取代(supersedes)?
 4. **落盘**:复制本 skill 的 `templates/record.md` 为
@@ -61,7 +67,7 @@ description: 记录与查询项目演进史(方案变更、需求变更、架构
    - 用户在对话中确认过内容 → `status: confirmed`、`source: manual`
    - 由 hook 触发的自动补录 → `status: draft`、`source: auto_hook`
    - 若本记录 supersedes 了旧记录:同时把旧记录文件的 `status` 改为 `superseded`
-5. **重建索引**:运行 `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/evolog-index.py"`,
+5. **重建索引**:运行 `python3 "$SCRIPTS/evolog-index.py"`,
    然后向用户展示写入记录的摘要(id、变更、owner、状态)。
 
 正文写作要求:重点写"变更原因"和"被否掉的备选方案"——后者是最容易丢失、
@@ -74,7 +80,7 @@ description: 记录与查询项目演进史(方案变更、需求变更、架构
 按三跳漏斗执行,控制上下文开销:
 
 1. **第一跳(结构化过滤)**:解析问题中的维度(人?时间段?from/to?类型?专题),
-   读 `$STORAGE/.cache/records.json`(不存在则读 INDEX.md,再不存在则告知用户暂无记录),
+   读 `$STORAGE/.cache/records.json` 的 `records` 数组(不存在则读 INDEX.md,再不存在则告知用户暂无记录),
    用宽松的语义匹配筛出候选——宁可多召回,交给下一跳精判。
 2. **第二跳(读正文)**:最多打开 3 个候选记录文件,读"变更原因/被否掉的备选方案/
    决策过程"章节提取答案。候选超过 3 个时先向用户澄清缩小范围。

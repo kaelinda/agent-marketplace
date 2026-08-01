@@ -79,25 +79,62 @@ def has_local_copy(project_dir):
     return os.path.isfile(os.path.join(project_dir, ".claude", "hooks", "evolog-check.py"))
 
 
+def _clean_str_list(value, cache_dir, field):
+    """规范化字符串列表配置项。
+
+    类型写错(最常见:把 keywords 写成字符串)时整项丢弃并回落默认值 —— 若按字符
+    串迭代会退化成逐字符匹配,几乎每轮都误报阻断,比不生效更糟。
+    """
+    if isinstance(value, list):
+        items = [x for x in value if isinstance(x, str) and x.strip()]
+        dropped = len(value) - len(items)
+        if dropped:
+            log_error(cache_dir, "配置 %s 中有 %d 项不是非空字符串,已忽略" % (field, dropped))
+        return items
+    log_error(cache_dir, "配置 %s 应为字符串数组,实际 %s,已忽略该项" % (field, type(value).__name__))
+    return None
+
+
+def _clean_bool(value, default, cache_dir, field):
+    if isinstance(value, bool):
+        return value
+    log_error(cache_dir, "配置 %s 应为 true/false,实际 %r,按默认值 %r 处理"
+              % (field, value, default))
+    return default
+
+
 def load_config(project_dir):
     cfg = {
         "sensitive_paths": [],
-        "keywords": DEFAULT_KEYWORDS,
+        "keywords": list(DEFAULT_KEYWORDS),
         "llm_gate": True,   # true=回注指令中包含"先自评再补录";false=直接请求补录
         "auto_hook": True,  # false=关闭自动兜底,只保留手动记录/查询
     }
+    cache_dir = os.path.join(project_dir, ".claude", "cache", "evolog")
     try:
         path = config_path(project_dir)
-        if os.path.isfile(path):
-            with open(path, "r", encoding="utf-8") as f:
-                user_cfg = json.load(f)
-            for k in ("sensitive_paths", "keywords", "llm_gate", "auto_hook"):
-                if k in user_cfg:
-                    cfg[k] = user_cfg[k]
-            if user_cfg.get("extra_keywords"):
-                cfg["keywords"] = list(cfg["keywords"]) + list(user_cfg["extra_keywords"])
-    except Exception:
-        pass  # 配置损坏按默认值走,不报错
+        if not os.path.isfile(path):
+            return cfg
+        with open(path, "r", encoding="utf-8") as f:
+            user_cfg = json.load(f)
+        if not isinstance(user_cfg, dict):
+            log_error(cache_dir, "配置根节点应为对象,实际 %s,全部按默认值处理"
+                      % type(user_cfg).__name__)
+            return cfg
+        for k in ("sensitive_paths", "keywords"):
+            if k in user_cfg:
+                cleaned = _clean_str_list(user_cfg[k], cache_dir, k)
+                if cleaned is not None:
+                    cfg[k] = cleaned
+        for k in ("llm_gate", "auto_hook"):
+            if k in user_cfg:
+                cfg[k] = _clean_bool(user_cfg[k], cfg[k], cache_dir, k)
+        if "extra_keywords" in user_cfg:
+            extra = _clean_str_list(user_cfg["extra_keywords"], cache_dir, "extra_keywords")
+            if extra:
+                cfg["keywords"] = list(cfg["keywords"]) + extra
+    except Exception as e:
+        log_error(cache_dir, "配置解析失败(%r),按默认值处理" % (e,))
     return cfg
 
 
@@ -118,11 +155,15 @@ def fast_screen(text, cfg):
     if not text:
         return False
     lowered = text.lower()
-    for kw in cfg["keywords"]:
-        if kw.lower() in lowered:
+    keywords = cfg.get("keywords")
+    if not isinstance(keywords, list):       # 兜底:字符串会退化成逐字符匹配
+        keywords = list(DEFAULT_KEYWORDS)
+    for kw in keywords:
+        if isinstance(kw, str) and kw and kw.lower() in lowered:
             return True
-    for p in cfg.get("sensitive_paths") or []:
-        if p and p in text:
+    paths = cfg.get("sensitive_paths")
+    for p in paths if isinstance(paths, list) else []:
+        if isinstance(p, str) and p and p in text:
             return True
     return False
 
