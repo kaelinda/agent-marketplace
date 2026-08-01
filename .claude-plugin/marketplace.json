@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.9.0"
+    "version": "0.10.0"
   },
   "plugins": [
     {
@@ -164,6 +164,25 @@
         "visualization",
         "newcomer",
         "handover"
+      ]
+    },
+    {
+      "name": "evolution-log",
+      "source": "./plugins/evolution-log",
+      "description": "项目演进记录系统：随代码库流转的演进日志，每条记录回答「从什么变成什么、为什么、谁牵头」。evolution-log skill 覆盖初始化 / 记录 / 查询 / 草稿确认四条工作流；Stop hook 在每轮结束前做规则快筛，命中后把「先自评是否真为方案级变更」的指令回注给会话内模型完成二级判定（opt-in、fail-open、单会话至多一次、零外发）；记录以结构化 Markdown 存进 Git，records/ 是唯一事实来源，INDEX.md 与 records.json 可随时全量重建。",
+      "version": "0.1.0",
+      "category": "docs",
+      "tags": [
+        "evolution",
+        "changelog",
+        "adr",
+        "decision-record",
+        "architecture",
+        "migration",
+        "docs",
+        "knowledge-base",
+        "hook",
+        "stop-hook"
       ]
     },
     {

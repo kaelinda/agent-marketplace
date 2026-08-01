@@ -1,0 +1,13 @@
+{
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/evolog-check.py\"",
+          "timeout": 10
+        }
+      ]
+    }
+  ]
+}

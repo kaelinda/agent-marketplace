@@ -1,0 +1,22 @@
+{
+  "name": "evolution-log",
+  "version": "0.1.0",
+  "description": "项目演进记录系统：随代码库流转的演进日志，每条记录回答「从什么变成什么、为什么、谁牵头」。由 evolution-log skill（记录 / 查询 / 草稿确认）、Stop hook 自动兜底（规则快筛 + 模型自评二级判定，零外发）与 Git 内结构化 Markdown 存储三部分组成；索引可随时全量重建，records/ 是唯一事实来源。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "evolution",
+    "changelog",
+    "adr",
+    "decision-record",
+    "architecture",
+    "migration",
+    "docs",
+    "knowledge-base",
+    "hook",
+    "stop-hook"
+  ]
+}
