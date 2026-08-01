@@ -14,6 +14,8 @@ Claude Code 原生支持，Codex CLI 兼容模式可用。
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-native-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 [![Codex](https://img.shields.io/badge/Codex-compatible-111111.svg)](https://developers.openai.com/codex/)
 
+**[→ 在线插件目录 kaelinda.github.io/agent-marketplace](https://kaelinda.github.io/agent-marketplace/)**
+
 </div>
 
 ---
@@ -192,11 +194,40 @@ agent-marketplace/
 ├── docs/
 │   ├── onboarding/               # 本仓库示例接手文档
 │   └── superpowers/specs/        # 设计文档
+├── site/                         # GitHub Pages 首页源文件
+│   ├── template.html             # 页面骨架（{{TOKEN}} 占位）
+│   ├── styles.css / app.js       # 构建时内联进产物
+│   ├── content.json              # 展示文案：分类中文名 / 状态 / 一句话简介
+│   └── favicon.svg
+├── scripts/
+│   └── build-site.py             # 站点构建（纯 stdlib）
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── VERSION
 └── README.md
 ```
+
+---
+
+## 项目主页
+
+线上地址：**<https://kaelinda.github.io/agent-marketplace/>**
+
+页面内容（插件卡片、skill 列表、版本、数量统计）由 `scripts/build-site.py` 从
+`.claude-plugin/marketplace.json`、各 `plugins/*/skills/*/SKILL.md` 与 `VERSION` **自动生成**，
+新增插件时不需要手工改 HTML —— 只需在 `site/content.json` 补一条分类中文名与一句话简介（缺省会回退到清单描述）。
+
+```bash
+python3 scripts/build-site.py            # 产物输出到 _site/（已 gitignore）
+python3 scripts/build-site.py --serve    # 构建并起本地预览 http://localhost:8000
+```
+
+推送到 `main` 时由 [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) 自动构建并部署；
+PR 只构建校验、不部署。
+
+> [!IMPORTANT]
+> 首次上线需在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**，
+> 否则 workflow 会在 deploy 步骤失败。
 
 ---
 

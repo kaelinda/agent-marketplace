@@ -1,0 +1,95 @@
+{
+  "_comment": "站点展示文案。插件/技能的名称、版本、描述以 marketplace.json 与 SKILL.md 为准，此处只补充首页需要的短文案（分类中文名、状态、一句话简介）。缺失项由 scripts/build-site.py 自动回退到清单描述。",
+  "site": {
+    "title": "蛮吉 · manji — 开源 AI 编码插件市场",
+    "description": "蛮吉 (manji) 是一个开源的 AI 编码插件市场，按 Anthropic Marketplace 标准组织，收录 agent / skill / command / hook / MCP 等可复用能力。Claude Code 原生支持，Codex CLI 兼容模式可用。",
+    "url": "https://kaelinda.github.io/agent-marketplace/",
+    "repo": "https://github.com/kaelinda/agent-marketplace",
+    "hero_title": "把打磨过的工程实践，<br>装进你的<span class=\"grad\">编码 Agent</span>",
+    "hero_subtitle": "按 <a href=\"https://docs.claude.com/en/docs/claude-code/plugins\" target=\"_blank\" rel=\"noopener noreferrer\">Anthropic Marketplace 标准</a>组织的开源插件市场，收录 agent / skill / command / hook / MCP 等可复用能力。Claude Code 原生支持，Codex CLI 兼容模式可用。"
+  },
+  "features": [
+    {
+      "icon": "spec",
+      "title": "遵循官方标准",
+      "body": "市场清单与插件清单严格按 Anthropic Marketplace schema 组织，<code>/plugin marketplace add</code> 一行接入，不需要额外运行时。"
+    },
+    {
+      "icon": "sync",
+      "title": "自动版本检测",
+      "body": "<code>core</code> 插件在每次使用 skill 时静默检查新版本，带频率控制与「稍后提醒」递延策略，配置落在 <code>~/.manji/</code>。"
+    },
+    {
+      "icon": "dual",
+      "title": "双运行时兼容",
+      "body": "Claude Code 原生可用；Codex CLI 走兼容模式，不依赖 <code>${CLAUDE_PLUGIN_ROOT}</code> 的插件可直接安装。原生适配正在推进。"
+    }
+  ],
+  "categories": {
+    "core": "市场核心",
+    "agents": "Agent 调度",
+    "memory": "跨会话记忆",
+    "content": "内容创作",
+    "product": "产品分析",
+    "design": "设计",
+    "docs": "文档生成",
+    "workflow": "工作流治理",
+    "playground": "趣味实验"
+  },
+  "plugins": {
+    "core": { "status": "stable", "tagline": "版本检测与自动更新" },
+    "agents": { "status": "stable", "tagline": "把任务派发给 Cursor / Codex 等外部 AI CLI" },
+    "memory": { "status": "beta", "tagline": "长期记忆的持久化、召回与治理" },
+    "content-generate": { "status": "stable", "tagline": "技术公众号全流程：写作 → 审核 → 封面 → 排版 → 发布" },
+    "product": { "status": "beta", "tagline": "产品拆解、竞品定位、AI 架构评审、UI 风格逆向" },
+    "design": { "status": "beta", "tagline": "Apple 级 App 图标设计工作流" },
+    "project-docs": { "status": "beta", "tagline": "一键生成新手接手文档（Markdown + 单页 HTML 站点）" },
+    "evolution-log": { "status": "beta", "tagline": "项目演进日志：记录「从什么变成什么、为什么、谁牵头」，含 Stop hook 兜底" },
+    "old-bird": { "status": "beta", "tagline": "私有指令体系的本地蒸馏与跨 worktree 移植" },
+    "playground": { "status": "experimental", "tagline": "从本机会话历史推断 MBTI，纯本地、娱乐向" }
+  },
+  "skills": {
+    "version-update": "使用 skill 时自动检查市场新版本，含频率控制与交互式更新",
+    "cursor-cli": "调度 Cursor CLI，支持 review / task / ask 三种模式",
+    "memory-recall": "召回历史记忆",
+    "memory-capture": "捕获当前会话中值得留存的信息",
+    "memory-commit": "将记忆写入后端",
+    "memory-doctor": "记忆库体检与修复",
+    "memory-admin": "记忆治理与运维",
+    "memory-share": "跨 agent 记忆共享",
+    "tech-content-writer": "技术文章写作，去 AI 味 + 禁用词扫描",
+    "tech-content-audit": "发布前五大维度内容审核",
+    "wechat-cover-html": "20:9 封面图，HTML + Playwright 渲染（代码密集型首选）",
+    "wechat-cover-image": "20:9 封面图，Pillow 备选方案",
+    "md-to-html": "Markdown → 可发布 HTML，内置 MDNice 与开源 CSS 双主题引擎",
+    "ali-oss": "上传文件到阿里云 OSS，支持多 bucket、region 探测、预签名链接",
+    "wechat-publisher": "发布到公众号草稿箱，多主题排版 + 图片自动上传 + 多账号切换",
+    "product-teardown": "Principal-PM 级产品拆解，四层框架，输出双语可打印 HTML 报告",
+    "competitor-landscape": "竞品矩阵与二维定位图",
+    "ai-architecture-review": "AI/Agent 产品技术架构深挖：Model / Tool / Memory / Planning / Agent / Workflow / Evaluation",
+    "copy-ui-style": "从截图 / URL / 代码仓库逆向 UI 设计系统，产出 tokens + AI 编码规则，含 WCAG 对比度检查",
+    "apple-icon-studio": "品牌内核 → 隐喻生成 → 形态 → 材质 → 构图 → 色彩 → 对抗式评审 → 出图 Prompt 与 Icon Composer 参数",
+    "project-docs": "为任意仓库生成 7 份结构化 Markdown 与自包含单页 HTML 站点，离线可用、零依赖",
+    "evolution-log": "维护随代码库流转的演进日志：初始化 / 记录 / 查询 / 草稿确认，配套 Stop hook 二级判定",
+    "local-distill-me": "把私有指令体系纯本地蒸馏并移植到项目，多 worktree 零漂移；引导式向导",
+    "mbti-test": "根据本机 Claude Code / Codex 会话历史推断 MBTI，支持 --html 导出离线报告"
+  },
+  "commands": [
+    { "action": "添加市场", "claude": "/plugin marketplace add <ref>", "codex": "codex plugin marketplace add <ref>" },
+    { "action": "查看市场", "claude": "/plugin marketplace list", "codex": "codex plugin marketplace list" },
+    { "action": "更新市场", "claude": "/plugin marketplace update manji", "codex": "codex plugin marketplace upgrade manji" },
+    { "action": "移除市场", "claude": "/plugin marketplace remove manji", "codex": "codex plugin marketplace remove manji" },
+    { "action": "安装插件", "claude": "/plugin install <name>@manji", "codex": "codex plugin add <name>@manji" },
+    { "action": "查看插件", "claude": "/plugin list", "codex": "codex plugin list" },
+    { "action": "卸载插件", "claude": "/plugin uninstall <name>", "codex": "codex plugin remove <name>@manji" },
+    { "action": "交互式 UI", "claude": "/plugin", "codex": "—" }
+  ],
+  "roadmap": [
+    { "done": false, "text": "完成 Codex 原生双运行时适配" },
+    { "done": false, "text": "增加 validate.sh，在 CI 中校验 manifest schema 与 SKILL.md frontmatter" },
+    { "done": false, "text": "收录至少一个 command 类插件" },
+    { "done": true, "text": "收录至少一个 hook 类插件（PreToolUse / Stop 等）" },
+    { "done": false, "text": "收录至少一个 MCP 类插件" },
+    { "done": false, "text": "提供英文版 README" }
+  ]
+}

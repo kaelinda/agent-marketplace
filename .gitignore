@@ -3,5 +3,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
+# GitHub Pages — 由 scripts/build-site.py 生成
+_site/
+
 # OS / editor cruft
 .DS_Store

@@ -1,0 +1,72 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/build-site.py'
+      - '.claude-plugin/marketplace.json'
+      - 'plugins/**'
+      - 'docs/onboarding/**'
+      - 'VERSION'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'scripts/build-site.py'
+      - '.claude-plugin/marketplace.json'
+      - 'plugins/**'
+      - 'docs/onboarding/**'
+      - 'VERSION'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 构建站点
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 构建 _site
+        run: python3 scripts/build-site.py
+
+      - name: 校验产物
+        run: |
+          test -f _site/index.html
+          test -f _site/.nojekyll
+          test -f _site/onboarding/index.html
+          grep -q '插件目录' _site/index.html
+
+      - name: 上传 Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: 部署到 GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
