@@ -8,9 +8,9 @@
 Claude Code 原生支持，Codex CLI 兼容模式可用。
 
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.0-brightgreen.svg)](./VERSION)
-[![Plugins](https://img.shields.io/badge/plugins-9-blue.svg)](#插件目录)
-[![Skills](https://img.shields.io/badge/skills-23-blue.svg)](#插件目录)
+[![Version](https://img.shields.io/badge/version-0.10.0-brightgreen.svg)](./VERSION)
+[![Plugins](https://img.shields.io/badge/plugins-10-blue.svg)](#插件目录)
+[![Skills](https://img.shields.io/badge/skills-24-blue.svg)](#插件目录)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-native-8A2BE2.svg)](https://docs.claude.com/en/docs/claude-code)
 [![Codex](https://img.shields.io/badge/Codex-compatible-111111.svg)](https://developers.openai.com/codex/)
 
@@ -65,11 +65,12 @@ codex plugin add playground@manji
 | [`product`](./plugins/product) | 产品分析 | 产品拆解、竞品定位、AI 架构评审、UI 风格逆向 | 4 | `0.3.0` | beta |
 | [`design`](./plugins/design) | 设计 | Apple 级 App 图标设计工作流 | 1 | `0.1.0` | beta |
 | [`project-docs`](./plugins/project-docs) | 文档生成 | 一键生成新手接手文档（Markdown + 单页 HTML 站点） | 1 | `0.1.0` | beta |
+| [`evolution-log`](./plugins/evolution-log) | 演进记录 | 项目演进日志：记录 / 查询「从什么变成什么、为什么、谁牵头」，含 Stop hook 自动兜底 | 1 | `0.2.0` | beta |
 | [`old-bird`](./plugins/old-bird) | 工作流治理 | 私有指令体系的本地蒸馏与跨 worktree 移植 | 1 | `0.1.0` | beta |
 | [`playground`](./plugins/playground) | 趣味实验 | 从本机会话历史推断 MBTI，纯本地、娱乐向 | 1 | `0.1.0` | experimental |
 
 <details>
-<summary><b>展开查看全部 23 个 skill</b></summary>
+<summary><b>展开查看全部 24 个 skill</b></summary>
 
 <br>
 
@@ -128,6 +129,12 @@ codex plugin add playground@manji
 | Skill | 说明 |
 | :--- | :--- |
 | `project-docs` | 为任意仓库生成 7 份结构化 Markdown 与自包含单页 HTML 站点：mermaid 架构图/时序图、亮暗主题、站内搜索、阅读进度条；离线可用，纯 Python stdlib 零依赖（[本仓库示例产物](./docs/onboarding/)） |
+
+**evolution-log** — 演进记录（唯一一个带 hook 的插件）
+
+| Skill | 说明 |
+| :--- | :--- |
+| `evolution-log` | 维护随代码库流转的项目演进日志：初始化（幂等，支持 `--dry-run`）/ 记录（七要素 + 冲突检查 + supersedes 链）/ 查询（三跳漏斗控制上下文开销）/ 草稿确认。配套 Stop hook 在每轮结束前规则快筛，命中后把「先自评是否真为方案级变更」回注给会话内模型做二级判定 —— opt-in、fail-open、单会话至多阻断一次、不发起任何网络请求 |
 
 **old-bird** — 配置 / 工作流治理
 
@@ -210,7 +217,7 @@ agent-marketplace/
 - [ ] 完成 [Codex 原生双运行时适配](./docs/superpowers/specs/2026-07-10-codex-dual-runtime-design.md)（目标 `v0.7.0`）
 - [ ] 增加 `validate.sh`，在 CI 中校验 manifest schema 与 `SKILL.md` frontmatter
 - [ ] 收录至少一个 **command 类**插件
-- [ ] 收录至少一个 **hook 类**插件（PreToolUse / Stop 等）
+- [x] 收录至少一个 **hook 类**插件（PreToolUse / Stop 等）→ [`evolution-log`](./plugins/evolution-log)
 - [ ] 收录至少一个 **MCP 类**插件
 - [ ] 提供英文版 README
 
