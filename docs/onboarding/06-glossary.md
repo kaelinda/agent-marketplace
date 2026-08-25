@@ -20,6 +20,9 @@ summary: 业务与领域词汇 ↔ 代码命名对照
 | 双清单同步 | 新插件要同时改插件清单和市场清单 | `plugin.json` + `marketplace.json` |
 | 版本检测 | 用 skill 时顺带检查市场是否有新版本 | `scripts/version-check.sh`、`~/.manji/` |
 | Onboarding 文档 | 本套"新手接手"文档，md + HTML 双格式 | `docs/onboarding/`（project-docs 生成） |
+| Fireworks ELI5 | 把技术主题压缩为面向零基础读者的 3–5 步解释，并生成离线图解 | `plugins/fireworks-eli5/` |
+| Fireworks Tech Graph | 负责语义节点、箭头路由、SVG 校验和 PNG 导出的图形运行时 | `plugins/fireworks-eli5/skills/fireworks-eli5/` |
+| HTML artifact | CSS 与 SVG/PNG 内嵌、可直接打开的单文件解释页面 | `fireworks-eli5/<topic-slug>/<topic-slug>.html` |
 
 ## 内部黑话/缩写
 
@@ -33,3 +36,5 @@ summary: 业务与领域词汇 ↔ 代码命名对照
 | MCP | Model Context Protocol，Claude 的外部工具协议 | `plugins/*/mcps/`（预留） |
 | OSS | 阿里云对象存储 | `content-generate:ali-oss` skill |
 | media_id | 微信公众号素材/草稿的唯一 ID | `wechat-publisher` 返回值 |
+| ELI5 | Explain Like I'm 5，面向完全不了解主题的读者解释 | `fireworks-eli5` 触发语义 |
+| SVG / PNG | 矢量图源文件 / 位图导出文件 | `fireworks-eli5` 产物 |

@@ -44,6 +44,7 @@
     "product": { "status": "beta", "tagline": "产品拆解、竞品定位、AI 架构评审、UI 风格逆向" },
     "design": { "status": "beta", "tagline": "Apple 级 App 图标设计工作流" },
     "project-docs": { "status": "beta", "tagline": "一键生成新手接手文档（Markdown + 单页 HTML 站点）" },
+    "fireworks-eli5": { "status": "beta", "tagline": "ELI5 语言 + Fireworks SVG/PNG 的离线技术图解" },
     "evolution-log": { "status": "beta", "tagline": "项目演进日志：记录「从什么变成什么、为什么、谁牵头」，含 Stop hook 兜底" },
     "old-bird": { "status": "beta", "tagline": "私有指令体系的本地蒸馏与跨 worktree 移植" },
     "playground": { "status": "experimental", "tagline": "从本机会话历史推断 MBTI，纯本地、娱乐向" }
@@ -70,6 +71,7 @@
     "copy-ui-style": "从截图 / URL / 代码仓库逆向 UI 设计系统，产出 tokens + AI 编码规则，含 WCAG 对比度检查",
     "apple-icon-studio": "品牌内核 → 隐喻生成 → 形态 → 材质 → 构图 → 色彩 → 对抗式评审 → 出图 Prompt 与 Icon Composer 参数",
     "project-docs": "为任意仓库生成 7 份结构化 Markdown 与自包含单页 HTML 站点，离线可用、零依赖",
+    "fireworks-eli5": "用 ELI5 语言解释技术主题，生成可校验的 Fireworks SVG + PNG 与自包含离线 HTML",
     "evolution-log": "维护随代码库流转的演进日志：初始化 / 记录 / 查询 / 草稿确认，配套 Stop hook 二级判定",
     "local-distill-me": "把私有指令体系纯本地蒸馏并移植到项目，多 worktree 零漂移；引导式向导",
     "mbti-test": "根据本机 Claude Code / Codex 会话历史推断 MBTI，支持 --html 导出离线报告"

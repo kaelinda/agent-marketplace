@@ -7,9 +7,9 @@ summary: 环境、启动、测试与第一个练手任务
 
 ## 环境要求
 
-- **Python 3.8+**（macOS/Linux 自带即可 —— 所有脚本零 pip 依赖）
+- **Python 3.8+**（macOS/Linux 自带即可；核心脚本优先使用 stdlib）
 - **git** 与 **Claude Code CLI**（体验插件安装链路时需要）
-- 无数据库、无 Node、无构建步骤 —— clone 下来就是全部
+- `fireworks-eli5` 生成 PNG 时需要 `cairosvg`，也可使用系统 `rsvg-convert` 回退；其余市场检查和 SVG 生成无需额外服务
 
 ## 跑起来
 
@@ -24,10 +24,10 @@ cd agent-marketplace
 
 ```text
 /plugin marketplace add /path/to/agent-marketplace
-/plugin install playground@manji
+/plugin install fireworks-eli5@manji
 ```
 
-然后说一句"测一下我的 MBTI"验证 skill 能被触发。
+然后说一句"用小白能懂的方式解释向量数据库如何找相似文本，并生成图解"验证 skill 能被触发；产物会写入当前目录的 `fireworks-eli5/<topic-slug>/`。
 
 ## 跑测试
 
@@ -36,6 +36,7 @@ cd agent-marketplace
 ```bash
 python3 plugins/project-docs/skills/project-docs/tests/test_build_html.py
 python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py
+python3 plugins/fireworks-eli5/skills/fireworks-eli5/tests/test_fireworks_eli5.py
 ```
 
 预期输出末尾均为 `OK`。改动 `marketplace.json` 后校验 JSON：
@@ -62,12 +63,14 @@ python3 -m json.tool .claude-plugin/marketplace.json > /dev/null && echo "json o
 1. **给本套文档重建 HTML**：随便改一处 `docs/onboarding/*.md`（比如给术语表加一个词条），然后运行
    `python3 plugins/project-docs/skills/project-docs/scripts/build_html.py docs/onboarding`，
    打开 `docs/onboarding/index.html` 确认改动出现在页面里。你会顺路理解 frontmatter → 侧边栏/卡片的映射。
-2. **本地装一个插件跑通闭环**：用上面"跑起来"的本地路径方式安装 `playground`，触发 mbti-test，
-   再读一遍它的 `SKILL.md`，对照理解"description 触发 → 手册执行"这条主链路（见 04 流程二）。
+2. **本地装一个插件跑通闭环**：用上面"跑起来"的本地路径方式安装 `fireworks-eli5`，触发一次技术图解，
+   再读一遍它的 `SKILL.md`，对照理解"description 触发 → 手册执行 → 脚本校验 → HTML artifact"这条主链路（见 04 流程二）。
 
 ## 卡住了怎么办
 
 - 插件装了但 skill 不触发 → 十有八九是 `SKILL.md` frontmatter 的 `description` 触发词不够具体，对照 `plugins/playground/skills/mbti-test/SKILL.md` 的写法。
+- `fireworks-eli5` 只生成 SVG、不生成 PNG → 检查 `cairosvg` 或 `rsvg-convert` 是否可用；缺少渲染器时 Skill 应如实报告依赖，而不是伪造导出成功。
+- 图和 HTML 不在同一目录 → 使用 Skill 约定的 `OUT_DIR=./fireworks-eli5/<topic-slug>`，不要把 SVG/PNG 写到仓库根目录。
 - `marketplace.json` 改完 Claude Code 不生效 → 跑 `/plugin marketplace update manji`（本地路径市场也要 update 才重读）。
 - mermaid 图不渲染 → 首次构建需联网下载 mermaid.js（之后缓存于 `~/.cache/manji-project-docs/`）；节点文字里的 `(` `)` `"` 会导致解析失败。
 - 规范类问题 → `CONTRIBUTING.md` 有完整的目录布局、manifest 规范和 PR checklist。

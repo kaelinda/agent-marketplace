@@ -1,0 +1,18 @@
+{
+  "name": "fireworks-eli5",
+  "version": "0.1.0",
+  "description": "把复杂技术主题变成面向零基础读者的离线 HTML 图解，并用 Fireworks Tech Graph 生成可校验的 SVG + PNG。",
+  "author": {
+    "name": "kael",
+    "email": "1290281526@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "eli5",
+    "visual-explainer",
+    "diagram",
+    "svg",
+    "html",
+    "beginner"
+  ]
+}

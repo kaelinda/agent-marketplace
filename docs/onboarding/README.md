@@ -19,9 +19,9 @@ summary: 5 分钟速览 + 按角色的阅读路线图
 ## 5 分钟速览
 
 - 这是一个**纯配置 + 脚本**的仓库：没有构建产物、没有服务端，核心是 JSON 清单和一堆 Markdown/Python/Shell。
-- 一切从 `.claude-plugin/marketplace.json` 开始 —— 它注册了全部 7 个插件，Claude Code 靠它发现插件。
+- 一切从 `.claude-plugin/marketplace.json` 开始 —— 它注册了全部 11 个插件，Claude Code 靠它发现插件。
 - 每个插件是 `plugins/<name>/` 下的独立目录，核心资产是 **skill**（`skills/<skill>/SKILL.md` + 可选 `scripts/`、`references/`、`tests/`）。
-- 目前 7 个插件、18 个 skill：core（版本检测）、agents（外部 AI 调度）、memory（跨会话记忆）、content-generate（公众号内容全流程）、playground（趣味实验）、old-bird（私房工作流）、project-docs（新手接手文档）。
+- 目前 11 个插件、25 个 skill：core（版本检测）、agents（外部 AI 调度）、memory（跨会话记忆）、content-generate（公众号内容全流程）、product（产品与 AI 架构分析）、design（图标设计）、project-docs（新手接手文档）、fireworks-eli5（零基础技术图解）、evolution-log（演进记录）、old-bird（私房工作流）、playground（趣味实验）。
 - 日常两类改动：**新增/升级插件**（动 `plugins/` + `marketplace.json` + `README.md`）和**修 skill 本体**（只动对应 skill 目录）。
-- 脚本零第三方依赖是硬约定：Python 只用 stdlib，Shell 用 bash/zsh 兼容写法。
+- 核心脚本优先零第三方依赖：Python 只用 stdlib，Shell 用 bash/zsh 兼容写法；需要渲染器的插件必须声明可选依赖和回退方案。
 - 有问题先看根 `README.md` 和 `CONTRIBUTING.md`，再看对应插件自己的 README。

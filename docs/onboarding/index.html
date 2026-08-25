@@ -152,8 +152,8 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
   <div class="hero">
     <h1>manji 蛮吉</h1>
     <p>开源 Claude Code 插件市场 · 新手接手指南</p>
-    <div class="badges"><span class="badge">插件 · 7</span><span class="badge">skill · 18</span><span class="badge">语言 · Markdown / Python / Shell</span><span class="badge">版本 · 0.5.0</span><span class="badge">最近提交 · 2026-07-09</span></div>
-    <div class="gen">🕒 生成于 2026-07-10 01:23 · 由 manji · project-docs skill 生成</div>
+    <div class="badges"><span class="badge">插件 · 11</span><span class="badge">skill · 25</span><span class="badge">语言 · Markdown / Python / Shell</span><span class="badge">版本 · 0.11.0</span><span class="badge">最近提交 · 2026-08-01</span></div>
+    <div class="gen">🕒 生成于 2026-08-25 14:58 · 由 manji · project-docs skill 生成</div>
   </div>
   <div class="cards"><a class="card" href="#doc-readme"><span class="idx">01</span><span class="ic">📖</span><h3>导读</h3><p>5 分钟速览 + 按角色的阅读路线图</p></a>
 <a class="card" href="#doc-01-overview"><span class="idx">02</span><span class="ic">🧭</span><h3>项目概览</h3><p>一句话定位、业务背景与技术栈速览</p></a>
@@ -169,32 +169,32 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 <ul>
 <li>这是一个<strong>纯配置 + 脚本</strong>的仓库：没有构建产物、没有服务端，核心是 JSON 清单和一堆 Markdown/Python/Shell。
 </li>
-<li>一切从 <code>.claude-plugin/marketplace.json</code> 开始 —— 它注册了全部 7 个插件，Claude Code 靠它发现插件。
+<li>一切从 <code>.claude-plugin/marketplace.json</code> 开始 —— 它注册了全部 11 个插件，Claude Code 靠它发现插件。
 </li>
 <li>每个插件是 <code>plugins/&lt;name&gt;/</code> 下的独立目录，核心资产是 <strong>skill</strong>（<code>skills/&lt;skill&gt;/SKILL.md</code> + 可选 <code>scripts/</code>、<code>references/</code>、<code>tests/</code>）。
 </li>
-<li>目前 7 个插件、18 个 skill：core（版本检测）、agents（外部 AI 调度）、memory（跨会话记忆）、content-generate（公众号内容全流程）、playground（趣味实验）、old-bird（私房工作流）、project-docs（新手接手文档）。
+<li>目前 11 个插件、25 个 skill：core（版本检测）、agents（外部 AI 调度）、memory（跨会话记忆）、content-generate（公众号内容全流程）、product（产品与 AI 架构分析）、design（图标设计）、project-docs（新手接手文档）、fireworks-eli5（零基础技术图解）、evolution-log（演进记录）、old-bird（私房工作流）、playground（趣味实验）。
 </li>
 <li>日常两类改动：<strong>新增/升级插件</strong>（动 <code>plugins/</code> + <code>marketplace.json</code> + <code>README.md</code>）和<strong>修 skill 本体</strong>（只动对应 skill 目录）。
 </li>
-<li>脚本零第三方依赖是硬约定：Python 只用 stdlib，Shell 用 bash/zsh 兼容写法。
+<li>核心脚本优先零第三方依赖：Python 只用 stdlib，Shell 用 bash/zsh 兼容写法；需要渲染器的插件必须声明可选依赖和回退方案。
 </li>
 <li>有问题先看根 <code>README.md</code> 和 <code>CONTRIBUTING.md</code>，再看对应插件自己的 README。
 </li>
 </ul></section>
 <section class="doc" id="doc-01-overview"><h1>🧭 项目概览</h1><h2 id="这是什么项目">这是什么项目</h2>
-<p><strong>manji（蛮吉）</strong> 是一个开源的 Claude Code 插件市场（plugin marketplace）。它解决的问题很朴素：资深开发者手里攒了很多好用的 AI 工作流（写公众号、跨会话记忆、调度 Cursor/Codex、生成文档……），但这些"私房工具"散落在各自机器的配置里，别人用不上。manji 把它们按 <a href="https://docs.claude.com/en/docs/claude-code/plugins" target="_blank" rel="noopener">Anthropic 官方 Marketplace 标准</a> 打包成插件，任何人一条命令就能安装复用：</p>
+<p><strong>manji（蛮吉）</strong> 是一个开源的 Claude Code 插件市场（plugin marketplace）。它解决的问题很朴素：资深开发者手里攒了很多好用的 AI 工作流（写公众号、跨会话记忆、调度 Cursor/Codex、生成文档、制作技术图解……），但这些"私房工具"散落在各自机器的配置里，别人用不上。manji 把它们按 <a href="https://docs.claude.com/en/docs/claude-code/plugins" target="_blank" rel="noopener">Anthropic 官方 Marketplace 标准</a> 打包成插件，任何人一条命令就能安装复用：</p>
 <pre><code>/plugin marketplace add kaelinda/agent-marketplace
 /plugin install content-generate@manji</code></pre>
 <p>名字来自国产动画《魁拔》的主角蛮吉 —— 朴实、能打、越战越强。这也是插件的选品标准。</p>
 <p>它<strong>不做</strong>的事：不是通用软件包管理器（只服务 Claude Code 生态）、不托管运行时服务（纯静态清单 + 本地脚本）、不收录未经打磨的一次性脚本。</p>
 <h2 id="核心能力">核心能力</h2>
 <ul>
-<li><strong>插件分发</strong> — <code>.claude-plugin/marketplace.json</code> 注册 7 个插件，Claude Code 原生 <code>/plugin</code> 命令即可浏览、安装、更新（对应 <code>.claude-plugin/</code>）
+<li><strong>插件分发</strong> — <code>.claude-plugin/marketplace.json</code> 注册 11 个插件，Claude Code 原生 <code>/plugin</code> 命令即可浏览、安装、更新（对应 <code>.claude-plugin/</code>）
 </li>
 <li><strong>内容创作全流程</strong> — 技术公众号从写作、审核、封面图到草稿箱发布的 7 个 skill（对应 <code>plugins/content-generate/</code>）
 </li>
-<li><strong>跨会话长期记忆</strong> — recall/capture/commit/doctor/admin 5 个 skill，支持三种后端（对应 <code>plugins/memory/</code>）
+<li><strong>跨会话长期记忆</strong> — recall/capture/commit/doctor/admin/share 6 个 skill，支持三种后端（对应 <code>plugins/memory/</code>）
 </li>
 <li><strong>外部 AI Agent 调度</strong> — 把 review/任务派发给 Cursor CLI 等外部工具（对应 <code>plugins/agents/</code>）
 </li>
@@ -202,16 +202,18 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 </li>
 <li><strong>新手接手文档生成</strong> — 一键为任意仓库生成 md + HTML 双格式 onboarding 文档（对应 <code>plugins/project-docs/</code>）
 </li>
+<li><strong>零基础技术图解</strong> — 把 API、架构、数据流和 Agent 解释成少文字、大图的离线 HTML，并生成可校验的 SVG + PNG（对应 <code>plugins/fireworks-eli5/</code>）
+</li>
 </ul>
 <h2 id="技术栈">技术栈</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:left">层</th><th style="text-align:left">技术</th><th style="text-align:left">在仓库里的位置</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">JSON（官方 schema）</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">插件清单</td><td style="text-align:left">JSON</td><td style="text-align:left"><code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code></td></tr><tr><td style="text-align:left">Skill 定义</td><td style="text-align:left">Markdown + YAML frontmatter</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">辅助脚本</td><td style="text-align:left">Python 3（纯 stdlib，零 pip 依赖）</td><td style="text-align:left"><code>plugins/*/skills/*/scripts/</code></td></tr><tr><td style="text-align:left">市场级脚本</td><td style="text-align:left">Shell（bash）</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>scripts/manji-upgrade.sh</code></td></tr><tr><td style="text-align:left">测试</td><td style="text-align:left">Python unittest（离线运行）</td><td style="text-align:left"><code>plugins/*/skills/*/tests/</code></td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">层</th><th style="text-align:left">技术</th><th style="text-align:left">在仓库里的位置</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">JSON（官方 schema）</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">插件清单</td><td style="text-align:left">JSON</td><td style="text-align:left"><code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code></td></tr><tr><td style="text-align:left">Skill 定义</td><td style="text-align:left">Markdown + YAML frontmatter</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">辅助脚本</td><td style="text-align:left">Python 3（核心脚本纯 stdlib；渲染器按插件声明）</td><td style="text-align:left"><code>plugins/*/skills/*/scripts/</code></td></tr><tr><td style="text-align:left">市场级脚本</td><td style="text-align:left">Shell（bash）</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>scripts/manji-upgrade.sh</code></td></tr><tr><td style="text-align:left">测试</td><td style="text-align:left">Python unittest（离线运行）</td><td style="text-align:left"><code>plugins/*/skills/*/tests/</code></td></tr></tbody></table></div>
 <h2 id="项目现状">项目现状</h2>
 <ul>
-<li>市场版本 <strong>0.5.0</strong>（<code>VERSION</code> 与 <code>marketplace.json</code> 同步维护）
+<li>市场版本 <strong>0.11.0</strong>（<code>VERSION</code> 与 <code>marketplace.json</code> 同步维护）
 </li>
-<li>30 次提交，218 个跟踪文件，最近提交 2026-07-09（数据日期：2026-07-10）
+<li>当前基线 43 次提交，最近提交 2026-08-01（文档数据日期：2026-08-25）
 </li>
-<li>近期方向：content-generate 公众号流程整合完毕（v0.4.0）；新增 project-docs 插件（本文档即其产物）；根 README 路线图提到后续会孵化更多主题型插件
+<li>近期方向：在已有内容、记忆、产品和设计工具之外，新增 <code>fireworks-eli5</code>，把 ELI5 解释流程与 Fireworks Tech Graph 的 SVG/PNG 生成合并为可离线分享的 HTML artifact
 </li>
 </ul></section>
 <section class="doc" id="doc-02-architecture"><h1>🏗️ 架构总览</h1><h2 id="系统架构">系统架构</h2>
@@ -227,20 +229,24 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
   MJ --&gt; P5[plugins/playground]
   MJ --&gt; P6[plugins/old-bird]
   MJ --&gt; P7[plugins/project-docs]
+  MJ --&gt; P8[plugins/fireworks-eli5]
+  MJ --&gt; P9[plugins/evolution-log]
+  MJ --&gt; P10[plugins/product]
+  MJ --&gt; P11[plugins/design]
   CC --&gt;|对话触发| SK[skill: SKILL.md]
   SK --&gt;|python3 / bash| SC[scripts 辅助脚本]</pre></div>
 <ul>
 <li><strong>marketplace.json</strong>（<code>.claude-plugin/marketplace.json</code>）— 唯一的市场入口。owner、metadata.version、<code>plugins[]</code> 数组；Claude Code 添加市场后读它发现插件。
 </li>
-<li><strong>plugins/&lt;name&gt;/</strong>（7 个）— 每个插件自治：自带 <code>plugin.json</code> 清单、README、若干 skill。插件之间<strong>互不依赖</strong>，可独立安装。
+<li><strong>plugins/&lt;name&gt;/</strong>（11 个）— 每个插件自治：自带 <code>plugin.json</code> 清单、README、若干 skill。插件之间<strong>互不依赖</strong>，可独立安装。
 </li>
-<li><strong>skill</strong>（18 个）— 真正干活的单元。<code>SKILL.md</code> 的 frontmatter <code>description</code> 决定 Claude 何时自动触发；正文是给 Claude 的执行手册。
+<li><strong>skill</strong>（25 个）— 真正干活的单元。<code>SKILL.md</code> 的 frontmatter <code>description</code> 决定 Claude 何时自动触发；正文是给 Claude 的执行手册。
 </li>
 <li><strong>scripts/</strong>（市场级）— <code>version-check.sh</code> 检查市场新版本（结果缓存于 <code>~/.manji/</code>），<code>manji-upgrade.sh</code> 执行更新。由 <code>plugins/core</code> 的 version-update skill 调用。
 </li>
 </ul>
 <h2 id="模块划分">模块划分</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:left">模块</th><th style="text-align:left">职责</th><th style="text-align:left">位置</th><th style="text-align:left">依赖</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">注册插件、市场元信息</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">core</td><td style="text-align:left">版本检测、自动更新、频率控制</td><td style="text-align:left"><code>plugins/core/</code></td><td style="text-align:left"><code>scripts/*.sh</code></td></tr><tr><td style="text-align:left">agents</td><td style="text-align:left">调度 Cursor 等外部 AI CLI</td><td style="text-align:left"><code>plugins/agents/</code></td><td style="text-align:left">本机 cursor CLI</td></tr><tr><td style="text-align:left">memory</td><td style="text-align:left">跨会话记忆（5 skill、3 后端）</td><td style="text-align:left"><code>plugins/memory/</code></td><td style="text-align:left">OpenViking/MCP/mem0 任一</td></tr><tr><td style="text-align:left">content-generate</td><td style="text-align:left">公众号写作→审核→封面→发布（7 skill）</td><td style="text-align:left"><code>plugins/content-generate/</code></td><td style="text-align:left">部分 skill 需 OSS/微信配置</td></tr><tr><td style="text-align:left">playground</td><td style="text-align:left">趣味实验（mbti-test）</td><td style="text-align:left"><code>plugins/playground/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">old-bird</td><td style="text-align:left">私房工作流蒸馏（local-distill-me）</td><td style="text-align:left"><code>plugins/old-bird/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">project-docs</td><td style="text-align:left">新手接手文档生成（md + HTML）</td><td style="text-align:left"><code>plugins/project-docs/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">顶层 agents</td><td style="text-align:left">独立 agent 人设（content-publisher Soul.md）</td><td style="text-align:left"><code>agents/</code></td><td style="text-align:left">content-generate</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">模块</th><th style="text-align:left">职责</th><th style="text-align:left">位置</th><th style="text-align:left">依赖</th></tr></thead><tbody><tr><td style="text-align:left">市场清单</td><td style="text-align:left">注册插件、市场元信息</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">core</td><td style="text-align:left">版本检测、自动更新、频率控制</td><td style="text-align:left"><code>plugins/core/</code></td><td style="text-align:left"><code>scripts/*.sh</code></td></tr><tr><td style="text-align:left">agents</td><td style="text-align:left">调度 Cursor 等外部 AI CLI</td><td style="text-align:left"><code>plugins/agents/</code></td><td style="text-align:left">本机 cursor CLI</td></tr><tr><td style="text-align:left">memory</td><td style="text-align:left">跨会话记忆（6 skill、3 后端）</td><td style="text-align:left"><code>plugins/memory/</code></td><td style="text-align:left">OpenViking/MCP/mem0 任一</td></tr><tr><td style="text-align:left">content-generate</td><td style="text-align:left">公众号写作→审核→封面→发布（7 skill）</td><td style="text-align:left"><code>plugins/content-generate/</code></td><td style="text-align:left">部分 skill 需 OSS/微信配置</td></tr><tr><td style="text-align:left">playground</td><td style="text-align:left">趣味实验（mbti-test）</td><td style="text-align:left"><code>plugins/playground/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">old-bird</td><td style="text-align:left">私房工作流蒸馏（local-distill-me）</td><td style="text-align:left"><code>plugins/old-bird/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">project-docs</td><td style="text-align:left">新手接手文档生成（md + HTML）</td><td style="text-align:left"><code>plugins/project-docs/</code></td><td style="text-align:left">无</td></tr><tr><td style="text-align:left">fireworks-eli5</td><td style="text-align:left">ELI5 技术图解（HTML + SVG + PNG）</td><td style="text-align:left"><code>plugins/fireworks-eli5/</code></td><td style="text-align:left">Python 3；PNG 导出需 cairosvg 或 rsvg-convert</td></tr><tr><td style="text-align:left">evolution-log</td><td style="text-align:left">项目演进记录与 Stop hook</td><td style="text-align:left"><code>plugins/evolution-log/</code></td><td style="text-align:left">bash / Python</td></tr><tr><td style="text-align:left">product</td><td style="text-align:left">产品、竞品与 AI 架构分析</td><td style="text-align:left"><code>plugins/product/</code></td><td style="text-align:left">部分报告脚本为 Python stdlib</td></tr><tr><td style="text-align:left">design</td><td style="text-align:left">Apple 风格 App 图标设计</td><td style="text-align:left"><code>plugins/design/</code></td><td style="text-align:left">部分出图流程需外部图像工具</td></tr><tr><td style="text-align:left">顶层 agents</td><td style="text-align:left">独立 agent 人设（content-publisher Soul.md）</td><td style="text-align:left"><code>agents/</code></td><td style="text-align:left">content-generate</td></tr></tbody></table></div>
 <h2 id="数据流">数据流</h2>
 <p>一次典型的「用户使用 skill」的数据流：</p>
 <div class="mermaid-wrap"><pre class="mermaid">sequenceDiagram
@@ -257,7 +263,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
   CC--&gt;&gt;U: 汇报结果</pre></div>
 <h2 id="关键设计决策">关键设计决策</h2>
 <ul>
-<li><strong>零第三方依赖</strong>：所有 Python 脚本只用 stdlib —— 用户装插件不应被迫 pip install。这是贡献时最常被 review 卡住的点。
+<li><strong>运行时依赖透明</strong>：核心 Python 脚本优先使用 stdlib；需要渲染或外部 CLI 的插件必须在 README 和 SKILL.md 中声明，并在缺失时给出明确提示。<code>fireworks-eli5</code> 的 SVG 生成不依赖第三方包，PNG 导出使用 <code>cairosvg</code>，没有时可回退到 <code>rsvg-convert</code>。
 </li>
 <li><strong>插件按主题聚合而非按 skill 拆散</strong>：一个插件收多个相关 skill（如 content-generate 收 7 个），安装粒度对用户更友好。
 </li>
@@ -277,7 +283,11 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 │   ├── content-generate/    # 公众号内容全流程（7 skill）
 │   ├── playground/          # 趣味实验（mbti-test）
 │   ├── old-bird/            # 私房工作流蒸馏（local-distill-me）
-│   └── project-docs/        # 新手接手文档生成（本文档的生产者）
+│   ├── project-docs/        # 新手接手文档生成（本文档的生产者）
+│   ├── fireworks-eli5/      # ELI5 技术图解（HTML + SVG + PNG）
+│   ├── evolution-log/       # 项目演进记录与 Stop hook
+│   ├── product/             # 产品 / 竞品 / AI 架构分析
+│   └── design/              # Apple 风格 App 图标设计
 ├── agents/
 │   └── content-publisher/   # 顶层 agent 人设（Soul.md，纯执行型发布 agent）
 ├── scripts/
@@ -290,7 +300,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 ├── CONTRIBUTING.md          # 贡献指南：插件布局 / manifest 规范 / PR checklist
 ├── README.md                # 市场门面：快速上手 + 插件目录表
 └── VERSION                  # 市场版本号（与 marketplace.json 同步）</code></pre>
-<p>插件内部的标准布局（以 project-docs 为例）：</p>
+<p>插件内部的标准布局（以 project-docs 为例；<code>fireworks-eli5</code> 额外包含模板、参考资料和图形回归 fixture）：</p>
 <pre><code class="language-text">plugins/project-docs/
 ├── .claude-plugin/plugin.json   # 插件清单（name/version/description/keywords）
 ├── README.md                    # 插件级说明
@@ -300,7 +310,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
     ├── references/              # 给 Claude 按需读取的参考资料
     └── tests/                   # 离线单测</code></pre>
 <h2 id="改-x-去哪儿">改 X 去哪儿</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:left">我想…</th><th style="text-align:left">去这里</th><th style="text-align:left">提示</th></tr></thead><tbody><tr><td style="text-align:left">新增一个插件</td><td style="text-align:left"><code>plugins/&lt;新名字&gt;/</code></td><td style="text-align:left">照抄 <code>plugins/playground/</code> 的骨架；别忘了下面两行</td></tr><tr><td style="text-align:left">注册插件到市场</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left"><code>plugins[]</code> 加一条 + <code>metadata.version</code> 升版</td></tr><tr><td style="text-align:left">让新插件出现在门面</td><td style="text-align:left"><code>README.md</code> 插件目录表</td><td style="text-align:left">状态列标 🆕</td></tr><tr><td style="text-align:left">给现有插件加 skill</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td><td style="text-align:left">frontmatter <code>name</code>+<code>description</code> 必填</td></tr><tr><td style="text-align:left">改 skill 触发条件</td><td style="text-align:left">对应 <code>SKILL.md</code> 的 frontmatter <code>description</code></td><td style="text-align:left">触发词写具体场景 + 中英文示例</td></tr><tr><td style="text-align:left">改版本检测逻辑</td><td style="text-align:left"><code>scripts/version-check.sh</code> + <code>plugins/core/</code></td><td style="text-align:left">缓存与配置在 <code>~/.manji/</code></td></tr><tr><td style="text-align:left">更新公众号发布流程</td><td style="text-align:left"><code>plugins/content-generate/skills/wechat-publisher/</code></td><td style="text-align:left">顶层 <code>agents/content-publisher/Soul.md</code> 也可能要同步</td></tr><tr><td style="text-align:left">升级市场版本号</td><td style="text-align:left"><code>VERSION</code> + <code>marketplace.json</code> 的 <code>metadata.version</code></td><td style="text-align:left">两处必须一致</td></tr><tr><td style="text-align:left">看贡献规范 / PR checklist</td><td style="text-align:left"><code>CONTRIBUTING.md</code></td><td style="text-align:left">提 PR 前过一遍</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">我想…</th><th style="text-align:left">去这里</th><th style="text-align:left">提示</th></tr></thead><tbody><tr><td style="text-align:left">新增一个插件</td><td style="text-align:left"><code>plugins/&lt;新名字&gt;/</code></td><td style="text-align:left">照抄 <code>plugins/playground/</code> 的骨架；别忘了下面两行</td></tr><tr><td style="text-align:left">注册插件到市场</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td><td style="text-align:left"><code>plugins[]</code> 加一条 + <code>metadata.version</code> 升版</td></tr><tr><td style="text-align:left">让新插件出现在门面</td><td style="text-align:left"><code>README.md</code> 插件目录表</td><td style="text-align:left">状态列标 🆕</td></tr><tr><td style="text-align:left">给现有插件加 skill</td><td style="text-align:left"><code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></td><td style="text-align:left">frontmatter <code>name</code>+<code>description</code> 必填</td></tr><tr><td style="text-align:left">改 skill 触发条件</td><td style="text-align:left">对应 <code>SKILL.md</code> 的 frontmatter <code>description</code></td><td style="text-align:left">触发词写具体场景 + 中英文示例</td></tr><tr><td style="text-align:left">改版本检测逻辑</td><td style="text-align:left"><code>scripts/version-check.sh</code> + <code>plugins/core/</code></td><td style="text-align:left">缓存与配置在 <code>~/.manji/</code></td></tr><tr><td style="text-align:left">更新公众号发布流程</td><td style="text-align:left"><code>plugins/content-generate/skills/wechat-publisher/</code></td><td style="text-align:left">顶层 <code>agents/content-publisher/Soul.md</code> 也可能要同步</td></tr><tr><td style="text-align:left">升级市场版本号</td><td style="text-align:left"><code>VERSION</code> + <code>marketplace.json</code> 的 <code>metadata.version</code></td><td style="text-align:left">两处必须一致</td></tr><tr><td style="text-align:left">看贡献规范 / PR checklist</td><td style="text-align:left"><code>CONTRIBUTING.md</code></td><td style="text-align:left">提 PR 前过一遍</td></tr><tr><td style="text-align:left">更新技术图解能力</td><td style="text-align:left"><code>plugins/fireworks-eli5/</code></td><td style="text-align:left">同步 <code>SKILL.md</code>、Fireworks 脚本/模板、fixture 和插件 README</td></tr></tbody></table></div>
 <h2 id="别碰-谨慎碰">别碰 / 谨慎碰</h2>
 <ul>
 <li><code>plugins/old-bird/skills/local-distill-me/assets/</code> — 成套的模板资产，内部结构被 skill 脚本按路径引用，重命名/挪动会静默破坏移植流程。
@@ -337,6 +347,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 <li>执行：按 SKILL.md 正文的手册跑 <code>scripts/</code> 下的脚本
 </li>
 </ol>
+<p>以 <code>fireworks-eli5</code> 为例，安装后可以直接输入 <code>/fireworks-eli5 &lt;topic&gt;</code> 或自然语言请求；Skill 会先组织 ELI5 的 3–5 步解释，再调用插件内的 Fireworks 生成器、SVG 校验和 PNG 导出脚本，最后把 HTML、SVG、PNG 放在同一个 <code>fireworks-eli5/&lt;topic-slug&gt;/</code> 目录。</p>
 <p><strong>关键文件</strong>：<code>.claude-plugin/marketplace.json</code>、<code>plugins/&lt;name&gt;/.claude-plugin/plugin.json</code>、<code>plugins/&lt;name&gt;/skills/&lt;skill&gt;/SKILL.md</code></p>
 <h2 id="流程二skill-的触发与执行">流程二：skill 的触发与执行</h2>
 <p>理解这条链路才能写好 SKILL.md —— 它是本仓库最核心的"业务逻辑"。</p>
@@ -350,7 +361,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
   E --&gt;|否| G[产出结果]
   F --&gt; G</pre></div>
 <p>要点：<code>description</code> 是<strong>触发器</strong>（写场景与触发词），正文是<strong>执行手册</strong>（写步骤与硬性要求），<code>references/</code> 是<strong>按需知识</strong>（大而全的细节别塞进 SKILL.md，会浪费上下文）。</p>
-<p><strong>关键文件</strong>：任意 <code>plugins/*/skills/*/SKILL.md</code>（好例子：<code>plugins/playground/skills/mbti-test/SKILL.md</code>）</p>
+<p><strong>关键文件</strong>：任意 <code>plugins/*/skills/*/SKILL.md</code>（基础示例：<code>plugins/playground/skills/mbti-test/SKILL.md</code>；图解示例：<code>plugins/fireworks-eli5/skills/fireworks-eli5/SKILL.md</code>）</p>
 <h2 id="流程三贡献一个新插件">流程三：贡献一个新插件</h2>
 <p>维护者/贡献者视角的写路径，也是本仓库最频繁的变更类型。</p>
 <div class="mermaid-wrap"><pre class="mermaid">flowchart LR
@@ -390,11 +401,11 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 <p><strong>关键文件</strong>：<code>scripts/version-check.sh</code>、<code>scripts/manji-upgrade.sh</code>、<code>plugins/core/skills/version-update/</code></p></section>
 <section class="doc" id="doc-05-getting-started"><h1>🚀 快速上手</h1><h2 id="环境要求">环境要求</h2>
 <ul>
-<li><strong>Python 3.8+</strong>（macOS/Linux 自带即可 —— 所有脚本零 pip 依赖）
+<li><strong>Python 3.8+</strong>（macOS/Linux 自带即可；核心脚本优先使用 stdlib）
 </li>
 <li><strong>git</strong> 与 <strong>Claude Code CLI</strong>（体验插件安装链路时需要）
 </li>
-<li>无数据库、无 Node、无构建步骤 —— clone 下来就是全部
+<li><code>fireworks-eli5</code> 生成 PNG 时需要 <code>cairosvg</code>，也可使用系统 <code>rsvg-convert</code> 回退；其余市场检查和 SVG 生成无需额外服务
 </li>
 </ul>
 <h2 id="跑起来">跑起来</h2>
@@ -403,12 +414,13 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px}
 cd agent-marketplace</code></pre>
 <p>在 Claude Code 对话里执行（用本地路径便于边改边试）：</p>
 <pre><code class="language-text">/plugin marketplace add /path/to/agent-marketplace
-/plugin install playground@manji</code></pre>
-<p>然后说一句"测一下我的 MBTI"验证 skill 能被触发。</p>
+/plugin install fireworks-eli5@manji</code></pre>
+<p>然后说一句"用小白能懂的方式解释向量数据库如何找相似文本，并生成图解"验证 skill 能被触发；产物会写入当前目录的 <code>fireworks-eli5/&lt;topic-slug&gt;/</code>。</p>
 <h2 id="跑测试">跑测试</h2>
 <p>各 skill 的测试都离线可跑，逐个执行即可：</p>
 <pre><code class="language-bash">python3 plugins/project-docs/skills/project-docs/tests/test_build_html.py
-python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py</code></pre>
+python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py
+python3 plugins/fireworks-eli5/skills/fireworks-eli5/tests/test_fireworks_eli5.py</code></pre>
 <p>预期输出末尾均为 <code>OK</code>。改动 <code>marketplace.json</code> 后校验 JSON：</p>
 <pre><code class="language-bash">python3 -m json.tool .claude-plugin/marketplace.json &gt; /dev/null &amp;&amp; echo "json ok"</code></pre>
 <h2 id="常用命令速查">常用命令速查</h2>
@@ -421,13 +433,17 @@ python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py</code></pre>
 </ol>
 <p><code>python3 plugins/project-docs/skills/project-docs/scripts/build_html.py docs/onboarding</code>， 打开 <code>docs/onboarding/index.html</code> 确认改动出现在页面里。你会顺路理解 frontmatter → 侧边栏/卡片的映射。</p>
 <ol>
-<li><strong>本地装一个插件跑通闭环</strong>：用上面"跑起来"的本地路径方式安装 <code>playground</code>，触发 mbti-test，
+<li><strong>本地装一个插件跑通闭环</strong>：用上面"跑起来"的本地路径方式安装 <code>fireworks-eli5</code>，触发一次技术图解，
 </li>
 </ol>
-<p>再读一遍它的 <code>SKILL.md</code>，对照理解"description 触发 → 手册执行"这条主链路（见 04 流程二）。</p>
+<p>再读一遍它的 <code>SKILL.md</code>，对照理解"description 触发 → 手册执行 → 脚本校验 → HTML artifact"这条主链路（见 04 流程二）。</p>
 <h2 id="卡住了怎么办">卡住了怎么办</h2>
 <ul>
 <li>插件装了但 skill 不触发 → 十有八九是 <code>SKILL.md</code> frontmatter 的 <code>description</code> 触发词不够具体，对照 <code>plugins/playground/skills/mbti-test/SKILL.md</code> 的写法。
+</li>
+<li><code>fireworks-eli5</code> 只生成 SVG、不生成 PNG → 检查 <code>cairosvg</code> 或 <code>rsvg-convert</code> 是否可用；缺少渲染器时 Skill 应如实报告依赖，而不是伪造导出成功。
+</li>
+<li>图和 HTML 不在同一目录 → 使用 Skill 约定的 <code>OUT_DIR=./fireworks-eli5/&lt;topic-slug&gt;</code>，不要把 SVG/PNG 写到仓库根目录。
 </li>
 <li><code>marketplace.json</code> 改完 Claude Code 不生效 → 跑 <code>/plugin marketplace update manji</code>（本地路径市场也要 update 才重读）。
 </li>
@@ -437,9 +453,9 @@ python3 plugins/playground/skills/mbti-test/tests/test_mbti_test.py</code></pre>
 </li>
 </ul></section>
 <section class="doc" id="doc-06-glossary"><h1>📚 术语表</h1><h2 id="业务术语">业务术语</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:left">术语</th><th style="text-align:left">含义</th><th style="text-align:left">代码中的对应</th></tr></thead><tbody><tr><td style="text-align:left">Marketplace（市场）</td><td style="text-align:left">一份可被 Claude Code 添加的插件注册表仓库</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">Plugin（插件）</td><td style="text-align:left">按主题聚合的一组扩展能力，安装/卸载的最小单位</td><td style="text-align:left"><code>plugins/&lt;name&gt;/</code> + <code>plugin.json</code></td></tr><tr><td style="text-align:left">Skill</td><td style="text-align:left">教 Claude 完成一类任务的"执行手册"，对话中自动触发</td><td style="text-align:left"><code>plugins/*/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">Frontmatter</td><td style="text-align:left">SKILL.md 顶部的 YAML 元数据，<code>description</code> 决定触发</td><td style="text-align:left">每个 <code>SKILL.md</code> 头部 <code>---</code> 块</td></tr><tr><td style="text-align:left">Slash command</td><td style="text-align:left">用户显式敲 <code>/xxx</code> 调用的命令，可与 skill 同名共存</td><td style="text-align:left"><code>plugins/*/commands/*.md</code></td></tr><tr><td style="text-align:left">Agent / Subagent</td><td style="text-align:left">有独立人设与职责边界的执行体</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">Soul.md</td><td style="text-align:left">顶层 agent 的人设文件：我是谁/我做什么/我不做什么</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">References</td><td style="text-align:left">skill 的按需知识库，运行时才读，不占默认上下文</td><td style="text-align:left"><code>plugins/*/skills/*/references/</code></td></tr><tr><td style="text-align:left">双清单同步</td><td style="text-align:left">新插件要同时改插件清单和市场清单</td><td style="text-align:left"><code>plugin.json</code> + <code>marketplace.json</code></td></tr><tr><td style="text-align:left">版本检测</td><td style="text-align:left">用 skill 时顺带检查市场是否有新版本</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>~/.manji/</code></td></tr><tr><td style="text-align:left">Onboarding 文档</td><td style="text-align:left">本套"新手接手"文档，md + HTML 双格式</td><td style="text-align:left"><code>docs/onboarding/</code>（project-docs 生成）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">术语</th><th style="text-align:left">含义</th><th style="text-align:left">代码中的对应</th></tr></thead><tbody><tr><td style="text-align:left">Marketplace（市场）</td><td style="text-align:left">一份可被 Claude Code 添加的插件注册表仓库</td><td style="text-align:left"><code>.claude-plugin/marketplace.json</code></td></tr><tr><td style="text-align:left">Plugin（插件）</td><td style="text-align:left">按主题聚合的一组扩展能力，安装/卸载的最小单位</td><td style="text-align:left"><code>plugins/&lt;name&gt;/</code> + <code>plugin.json</code></td></tr><tr><td style="text-align:left">Skill</td><td style="text-align:left">教 Claude 完成一类任务的"执行手册"，对话中自动触发</td><td style="text-align:left"><code>plugins/*/skills/&lt;skill&gt;/SKILL.md</code></td></tr><tr><td style="text-align:left">Frontmatter</td><td style="text-align:left">SKILL.md 顶部的 YAML 元数据，<code>description</code> 决定触发</td><td style="text-align:left">每个 <code>SKILL.md</code> 头部 <code>---</code> 块</td></tr><tr><td style="text-align:left">Slash command</td><td style="text-align:left">用户显式敲 <code>/xxx</code> 调用的命令，可与 skill 同名共存</td><td style="text-align:left"><code>plugins/*/commands/*.md</code></td></tr><tr><td style="text-align:left">Agent / Subagent</td><td style="text-align:left">有独立人设与职责边界的执行体</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">Soul.md</td><td style="text-align:left">顶层 agent 的人设文件：我是谁/我做什么/我不做什么</td><td style="text-align:left"><code>agents/content-publisher/Soul.md</code></td></tr><tr><td style="text-align:left">References</td><td style="text-align:left">skill 的按需知识库，运行时才读，不占默认上下文</td><td style="text-align:left"><code>plugins/*/skills/*/references/</code></td></tr><tr><td style="text-align:left">双清单同步</td><td style="text-align:left">新插件要同时改插件清单和市场清单</td><td style="text-align:left"><code>plugin.json</code> + <code>marketplace.json</code></td></tr><tr><td style="text-align:left">版本检测</td><td style="text-align:left">用 skill 时顺带检查市场是否有新版本</td><td style="text-align:left"><code>scripts/version-check.sh</code>、<code>~/.manji/</code></td></tr><tr><td style="text-align:left">Onboarding 文档</td><td style="text-align:left">本套"新手接手"文档，md + HTML 双格式</td><td style="text-align:left"><code>docs/onboarding/</code>（project-docs 生成）</td></tr><tr><td style="text-align:left">Fireworks ELI5</td><td style="text-align:left">把技术主题压缩为面向零基础读者的 3–5 步解释，并生成离线图解</td><td style="text-align:left"><code>plugins/fireworks-eli5/</code></td></tr><tr><td style="text-align:left">Fireworks Tech Graph</td><td style="text-align:left">负责语义节点、箭头路由、SVG 校验和 PNG 导出的图形运行时</td><td style="text-align:left"><code>plugins/fireworks-eli5/skills/fireworks-eli5/</code></td></tr><tr><td style="text-align:left">HTML artifact</td><td style="text-align:left">CSS 与 SVG/PNG 内嵌、可直接打开的单文件解释页面</td><td style="text-align:left"><code>fireworks-eli5/&lt;topic-slug&gt;/&lt;topic-slug&gt;.html</code></td></tr></tbody></table></div>
 <h2 id="内部黑话缩写">内部黑话/缩写</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:left">缩写/黑话</th><th style="text-align:left">全称/出处</th><th style="text-align:left">场景</th></tr></thead><tbody><tr><td style="text-align:left">manji / 蛮吉</td><td style="text-align:left">《魁拔》主角，本市场代号</td><td style="text-align:left">市场名、<code>~/.manji/</code> 配置目录</td></tr><tr><td style="text-align:left">魁拔</td><td style="text-align:left">国产动画，蛮吉的出处</td><td style="text-align:left">README 里的命名彩蛋</td></tr><tr><td style="text-align:left">old-bird / 老鸟</td><td style="text-align:left">资深开发者私房实践</td><td style="text-align:left"><code>plugins/old-bird/</code></td></tr><tr><td style="text-align:left">蒸馏（distill）</td><td style="text-align:left">把本机私有配置提炼成可移植模板</td><td style="text-align:left"><code>local-distill-me</code> skill</td></tr><tr><td style="text-align:left">零依赖</td><td style="text-align:left">Python 只用 stdlib、不 pip install</td><td style="text-align:left">全部 <code>scripts/</code>，CONTRIBUTING 硬约定</td></tr><tr><td style="text-align:left">MCP</td><td style="text-align:left">Model Context Protocol，Claude 的外部工具协议</td><td style="text-align:left"><code>plugins/*/mcps/</code>（预留）</td></tr><tr><td style="text-align:left">OSS</td><td style="text-align:left">阿里云对象存储</td><td style="text-align:left"><code>content-generate:ali-oss</code> skill</td></tr><tr><td style="text-align:left">media_id</td><td style="text-align:left">微信公众号素材/草稿的唯一 ID</td><td style="text-align:left"><code>wechat-publisher</code> 返回值</td></tr></tbody></table></div></section>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">缩写/黑话</th><th style="text-align:left">全称/出处</th><th style="text-align:left">场景</th></tr></thead><tbody><tr><td style="text-align:left">manji / 蛮吉</td><td style="text-align:left">《魁拔》主角，本市场代号</td><td style="text-align:left">市场名、<code>~/.manji/</code> 配置目录</td></tr><tr><td style="text-align:left">魁拔</td><td style="text-align:left">国产动画，蛮吉的出处</td><td style="text-align:left">README 里的命名彩蛋</td></tr><tr><td style="text-align:left">old-bird / 老鸟</td><td style="text-align:left">资深开发者私房实践</td><td style="text-align:left"><code>plugins/old-bird/</code></td></tr><tr><td style="text-align:left">蒸馏（distill）</td><td style="text-align:left">把本机私有配置提炼成可移植模板</td><td style="text-align:left"><code>local-distill-me</code> skill</td></tr><tr><td style="text-align:left">零依赖</td><td style="text-align:left">Python 只用 stdlib、不 pip install</td><td style="text-align:left">全部 <code>scripts/</code>，CONTRIBUTING 硬约定</td></tr><tr><td style="text-align:left">MCP</td><td style="text-align:left">Model Context Protocol，Claude 的外部工具协议</td><td style="text-align:left"><code>plugins/*/mcps/</code>（预留）</td></tr><tr><td style="text-align:left">OSS</td><td style="text-align:left">阿里云对象存储</td><td style="text-align:left"><code>content-generate:ali-oss</code> skill</td></tr><tr><td style="text-align:left">media_id</td><td style="text-align:left">微信公众号素材/草稿的唯一 ID</td><td style="text-align:left"><code>wechat-publisher</code> 返回值</td></tr><tr><td style="text-align:left">ELI5</td><td style="text-align:left">Explain Like I'm 5，面向完全不了解主题的读者解释</td><td style="text-align:left"><code>fireworks-eli5</code> 触发语义</td></tr><tr><td style="text-align:left">SVG / PNG</td><td style="text-align:left">矢量图源文件 / 位图导出文件</td><td style="text-align:left"><code>fireworks-eli5</code> 产物</td></tr></tbody></table></div></section>
   <footer>本页面为自包含离线文档 · 亮/暗主题自动跟随系统，可点右下角切换 · manji project-docs</footer>
 </div>
 </main>

@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "蛮吉 (manji) — 一个开源的 Claude Code 插件市场，收录 agent / skill / command / hook / mcp 等扩展能力。",
-    "version": "0.10.0"
+    "version": "0.11.0"
   },
   "plugins": [
     {
@@ -164,6 +164,23 @@
         "visualization",
         "newcomer",
         "handover"
+      ]
+    },
+    {
+      "name": "fireworks-eli5",
+      "source": "./plugins/fireworks-eli5",
+      "description": "面向零基础读者的技术图解生成器：用 ELI5 语言组织 3–5 个短步骤，用 Fireworks Tech Graph 生成可校验 SVG + PNG，并输出自包含离线 HTML artifact。",
+      "version": "0.1.0",
+      "category": "docs",
+      "tags": [
+        "eli5",
+        "visual-explainer",
+        "diagram",
+        "svg",
+        "html",
+        "beginner",
+        "architecture",
+        "agent"
       ]
     },
     {

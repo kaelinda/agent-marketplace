@@ -18,7 +18,11 @@ agent-marketplace/
 │   ├── content-generate/    # 公众号内容全流程（7 skill）
 │   ├── playground/          # 趣味实验（mbti-test）
 │   ├── old-bird/            # 私房工作流蒸馏（local-distill-me）
-│   └── project-docs/        # 新手接手文档生成（本文档的生产者）
+│   ├── project-docs/        # 新手接手文档生成（本文档的生产者）
+│   ├── fireworks-eli5/      # ELI5 技术图解（HTML + SVG + PNG）
+│   ├── evolution-log/       # 项目演进记录与 Stop hook
+│   ├── product/             # 产品 / 竞品 / AI 架构分析
+│   └── design/              # Apple 风格 App 图标设计
 ├── agents/
 │   └── content-publisher/   # 顶层 agent 人设（Soul.md，纯执行型发布 agent）
 ├── scripts/
@@ -33,7 +37,7 @@ agent-marketplace/
 └── VERSION                  # 市场版本号（与 marketplace.json 同步）
 ```
 
-插件内部的标准布局（以 project-docs 为例）：
+插件内部的标准布局（以 project-docs 为例；`fireworks-eli5` 额外包含模板、参考资料和图形回归 fixture）：
 
 ```text
 plugins/project-docs/
@@ -59,6 +63,7 @@ plugins/project-docs/
 | 更新公众号发布流程 | `plugins/content-generate/skills/wechat-publisher/` | 顶层 `agents/content-publisher/Soul.md` 也可能要同步 |
 | 升级市场版本号 | `VERSION` + `marketplace.json` 的 `metadata.version` | 两处必须一致 |
 | 看贡献规范 / PR checklist | `CONTRIBUTING.md` | 提 PR 前过一遍 |
+| 更新技术图解能力 | `plugins/fireworks-eli5/` | 同步 `SKILL.md`、Fireworks 脚本/模板、fixture 和插件 README |
 
 ## 别碰 / 谨慎碰
 

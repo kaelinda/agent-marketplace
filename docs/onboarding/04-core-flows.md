@@ -30,6 +30,8 @@ sequenceDiagram
 3. 对话触发：Claude 用各 skill frontmatter 的 `description` 做语义匹配
 4. 执行：按 SKILL.md 正文的手册跑 `scripts/` 下的脚本
 
+以 `fireworks-eli5` 为例，安装后可以直接输入 `/fireworks-eli5 <topic>` 或自然语言请求；Skill 会先组织 ELI5 的 3–5 步解释，再调用插件内的 Fireworks 生成器、SVG 校验和 PNG 导出脚本，最后把 HTML、SVG、PNG 放在同一个 `fireworks-eli5/<topic-slug>/` 目录。
+
 **关键文件**：`.claude-plugin/marketplace.json`、`plugins/<name>/.claude-plugin/plugin.json`、`plugins/<name>/skills/<skill>/SKILL.md`
 
 ## 流程二：skill 的触发与执行
@@ -50,7 +52,7 @@ flowchart TB
 
 要点：`description` 是**触发器**（写场景与触发词），正文是**执行手册**（写步骤与硬性要求），`references/` 是**按需知识**（大而全的细节别塞进 SKILL.md，会浪费上下文）。
 
-**关键文件**：任意 `plugins/*/skills/*/SKILL.md`（好例子：`plugins/playground/skills/mbti-test/SKILL.md`）
+**关键文件**：任意 `plugins/*/skills/*/SKILL.md`（基础示例：`plugins/playground/skills/mbti-test/SKILL.md`；图解示例：`plugins/fireworks-eli5/skills/fireworks-eli5/SKILL.md`）
 
 ## 流程三：贡献一个新插件
 
